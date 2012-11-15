@@ -44,7 +44,7 @@ with open('data.csv', 'rb') as f:
         row_type = row['Raw-Type']
         default = [index, '"%s"' % timestamp]
         if row_type == 'BGReceived':
-            write_line(BgReceived, row_type, default + [row['BG Reading (mg/dL)']])
+            write_line(BgReceived, 'BgReceived', default + [row['BG Reading (mg/dL)']])
         if row_type == 'GlucoseSensorData':
             write_line(GlucoseSensorData, row_type, default + [row['Sensor Glucose (mg/dL)'], row['ISIG Value']])
         if row_type == 'CurrentCarbRatio':
