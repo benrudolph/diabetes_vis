@@ -1,8 +1,7 @@
 class CreateRewinds < ActiveRecord::Migration
   def up
     create_table :rewinds do |t|
-      t.integer :id
-      t.timestamp :timestamp
+      t.datetime :timestamp
       t.string :action
     end
   end
