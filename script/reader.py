@@ -43,7 +43,7 @@ with open('data.csv', 'rb') as f:
         timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
         row_type = row['Raw-Type']
         default = {"timestamp": '"%s"' % timestamp}
-        if row_type == 'BGReceived':
+        if row['BG Reading (mg/dL)']:
             default['bg_reading'] = row['BG Reading (mg/dL)']
             write_line(BgReceived, 'BgReceived', default)
         if row_type == 'GlucoseSensorData':
@@ -59,7 +59,7 @@ with open('data.csv', 'rb') as f:
             write_line(CurrentCarbRatio, row_type, default)
         if row_type == 'Rewind' or row_type == 'ChangeSuspendEnable':
             default['action'] = '"%s"' % (row['Rewind'] or row['Suspend'])
-            write_line(Rewind, row_type,  default)
+            write_line(Rewind, 'Rewind',  default)
         if row_type == 'BolusNormal':
             default['type'] = '"%s"' % (row['Bolus Type'])
             default['selected'] = row['Bolus Volume Selected (U)']
