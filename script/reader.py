@@ -16,7 +16,7 @@ def teardown_bulk_loader(f, class_name):
     f.close()
 
 def write_line(f, class_name, args):
-    args = separator.join([":%s => %s" % (k, v) for (k, v) in args.iteritems()])
+    args = separator.join([":%s => %s" % (k, v) if v else ":%s => nil" % k for (k, v) in args.iteritems()])
     f.write("\t\tobj = %s.new(%s)\n" % (class_name, args))
     f.write("\t\tobj.save(:validate => false)\n")
 
