@@ -1,6 +1,6 @@
 import csv
 from datetime import datetime
-separator = ','
+separator = ', '
 
 def get_raw_values(row):
     raw_values = row['Raw-Values']
@@ -15,9 +15,9 @@ def teardown_bulk_loader(f, class_name):
     f.write("\tend\n\n\tdef down\n\t\t%s.delete_all\n\tend\nend" % class_name)
     f.close()
 
-def write_line(f, class_name, arr):
-    arguments = separator.join(arr)
-    f.write("\t\tobj = %s.new(%s)\n" % (class_name, arguments))
+def write_line(f, class_name, args):
+    args = separator.join([":%s => %s" % (k, v) for (k, v) in args.iteritems()])
+    f.write("\t\tobj = %s.new(%s)\n" % (class_name, args))
     f.write("\t\tobj.save(:validate => false)\n")
 
 with open('data.csv', 'rb') as f:
@@ -42,20 +42,41 @@ with open('data.csv', 'rb') as f:
         timestamp = datetime.strptime(timestamp,"%m/%d/%Y %H:%M")
         timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
         row_type = row['Raw-Type']
-        default = [index, '"%s"' % timestamp]
+        default = {"timestamp": '"%s"' % timestamp}
         if row_type == 'BGReceived':
-            write_line(BgReceived, 'BgReceived', default + [row['BG Reading (mg/dL)']])
+            default['bg_reading'] = row['BG Reading (mg/dL)']
+            write_line(BgReceived, 'BgReceived', default)
         if row_type == 'GlucoseSensorData':
-            write_line(GlucoseSensorData, row_type, default + [row['Sensor Glucose (mg/dL)'], row['ISIG Value']])
+            default['glucose'] = row['Sensor Glucose (mg/dL)']
+            default['isig'] = row['ISIG Value']
+            write_line(GlucoseSensorData, row_type, default)
         if row_type == 'CurrentCarbRatio':
             raw = get_raw_values(row)
-            write_line(CurrentCarbRatio, row_type, default + [raw.get('INDEX'), raw.get('START_TIME'), raw.get('AMOUNT'), '"%s"' % raw.get('UNITS')])
+            default['index'] = raw.get('INDEX')
+            default['units'] = '"%s"' % raw.get('UNITS')
+            default['amount'] = raw.get('AMOUNT')
+            default['start_time'] = raw.get('START_TIME')
+            write_line(CurrentCarbRatio, row_type, default)
         if row_type == 'Rewind' or row_type == 'ChangeSuspendEnable':
-            write_line(Rewind, row_type, default + ['"%s"' % (row['Rewind'] or row['Suspend'])])
-        if row_type == 'BolusNormal':
-            write_line(BolusNormal, row_type, default + ['"%s"' % (row['Bolus Type']), row['Bolus Volume Selected (U)'], row['Bolus Volume Delivered (U)']])
+            default['action'] = '"%s"' % (row['Rewind'] or row['Suspend'])
+            write_line(Rewind, row_type,  default)
+        if row_type == 'Bo)lusNormal':
+            default['type'] = '"%s"' % (row['Bolus Type'])
+            default['selected'] = row['Bolus Volume Selected (U)']
+            default['delivered'] = row['Bolus Volume Delivered (U)']
+            write_line(BolusNormal, row_type, default)
         if row_type == 'BolusWizardBolusEstimate':
-            write_line(BolusWizardBolusEstimate, row_type, default + [row['BWZ Estimate (U)'], row['BWZ Target High BG (mg/dL)'], row['BWZ Target Low BG (mg/dL)'], row['BWZ Carb Ratio (grams)'], row['BWZ Insulin Sensitivity (mg/dL)'], row['BWZ Carb Input (grams)'], row['BWZ BG Input (mg/dL)'], row['BWZ Correction Estimate (U)'], row['BWZ Food Estimate (U)'], row['BWZ Active Insulin (U)']])
+            default['estimate'] = row['BWZ Estimate (U)']
+            default['target_high'] = row['BWZ Target High BG (mg/dL)']
+            default['target_low'] = row['BWZ Target Low BG (mg/dL)']
+            default['carb_ratio'] = row['BWZ Carb Ratio (grams)']
+            default['insulin_sensitivity'] = row['BWZ Insulin Sensitivity (mg/dL)']
+            default['carb_input'] = row['BWZ Carb Input (grams)']
+            default['bg_input'] = row['BWZ BG Input (mg/dL)']
+            default['correction_estimate'] = row['BWZ Correction Estimate (U)']
+            default['food_estimate'] = row['BWZ Food Estimate (U)']
+            default['active_estimate'] = row['BWZ Active Insulin (U)']
+            write_line(BolusWizardBolusEstimate, row_type, default)
     teardown_bulk_loader(Rewind, 'Rewind')
     teardown_bulk_loader(BolusWizardBolusEstimate, 'BolusWizardBolusEstimate')
     teardown_bulk_loader(GlucoseSensorData, 'GlucoseSensorData')
