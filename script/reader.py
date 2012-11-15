@@ -60,7 +60,7 @@ with open('data.csv', 'rb') as f:
         if row_type == 'Rewind' or row_type == 'ChangeSuspendEnable':
             default['action'] = '"%s"' % (row['Rewind'] or row['Suspend'])
             write_line(Rewind, row_type,  default)
-        if row_type == 'Bo)lusNormal':
+        if row_type == 'BolusNormal':
             default['type'] = '"%s"' % (row['Bolus Type'])
             default['selected'] = row['Bolus Volume Selected (U)']
             default['delivered'] = row['Bolus Volume Delivered (U)']
