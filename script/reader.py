@@ -27,8 +27,8 @@ with open('data.csv', 'rb') as f:
     init_bulk_loader(BolusWizardBolusEstimate, 'BolusWizardBolusEstimate')
     GlucoseSensorData = open('data/GlucoseSensorData.rb', 'w')
     init_bulk_loader(GlucoseSensorData, 'GlucoseSensorData')
-    BGReceived = open('data/BGReceived.rb', 'w')
-    init_bulk_loader(BGReceived, 'BGReceived')
+    BgReceived = open('data/BgReceived.rb', 'w')
+    init_bulk_loader(BgReceived, 'BgReceived')
     BolusNormal = open('data/BolusNormal.rb', 'w')
     init_bulk_loader(BolusNormal, 'BolusNormal')
     CurrentCarbRatio = open('data/CurrentCarbRatio.rb', 'w')
@@ -44,7 +44,7 @@ with open('data.csv', 'rb') as f:
         row_type = row['Raw-Type']
         default = [index, '"%s"' % timestamp]
         if row_type == 'BGReceived':
-            write_line(BGReceived, row_type, default + [row['BG Reading (mg/dL)']])
+            write_line(BgReceived, row_type, default + [row['BG Reading (mg/dL)']])
         if row_type == 'GlucoseSensorData':
             write_line(GlucoseSensorData, row_type, default + [row['Sensor Glucose (mg/dL)'], row['ISIG Value']])
         if row_type == 'CurrentCarbRatio':
@@ -59,6 +59,6 @@ with open('data.csv', 'rb') as f:
     teardown_bulk_loader(Rewind, 'Rewind')
     teardown_bulk_loader(BolusWizardBolusEstimate, 'BolusWizardBolusEstimate')
     teardown_bulk_loader(GlucoseSensorData, 'GlucoseSensorData')
-    teardown_bulk_loader(BGReceived, 'BGReceived')
+    teardown_bulk_loader(BgReceived, 'BgReceived')
     teardown_bulk_loader(BolusNormal, 'BolusNormal')
     teardown_bulk_loader(CurrentCarbRatio, 'CurrentCarbRatio')
