@@ -1,4 +1,8 @@
 DiabetesVis::Application.routes.draw do
+  get "diabetes/time_series"
+
+  get "diabetes/heat_map"
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
