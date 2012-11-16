@@ -1,3 +1,11 @@
+GIT
+  remote: git://github.com/radar/by_star
+  revision: 06680bcedbac0b50a9d4990aa9760bf7e8dedae1
+  specs:
+    by_star (2.0.0.beta1)
+      activerecord (~> 3.0)
+      chronic
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -30,6 +38,7 @@ GEM
       multi_json (~> 1.0)
     arel (3.0.2)
     builder (3.0.4)
+    chronic (0.8.0)
     coffee-rails (3.2.2)
       coffee-script (>= 2.2.0)
       railties (~> 3.2.0)
@@ -104,6 +113,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  by_star!
   coffee-rails (~> 3.2.1)
   jquery-rails
   json
