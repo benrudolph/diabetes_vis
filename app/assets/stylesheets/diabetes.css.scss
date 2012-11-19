@@ -1,3 +1,15 @@
 // Place all the styles related to the diabetes controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis g text {
+  font-size: 8px;
+}
+
+
