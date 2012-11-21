@@ -1,0 +1,11 @@
+.low {
+  fill: blue;
+}
+
+.high {
+  fill: red;
+}
+
+.range {
+  fill-opacity: .3;
+}
