@@ -33,9 +33,6 @@ class DiabetesController < ApplicationController
 
   def _get_daily_glucose_ratios(year, month, week)
     date_obj = Date.new(year, month).beginning_of_week + week.weeks
-    if date_obj.month != month
-      return nil
-    end
     daily_ratio_list = []
     (0..6).each do |offset|
       dict = {}

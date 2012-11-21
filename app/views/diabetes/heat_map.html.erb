@@ -75,7 +75,7 @@ var svg = d3.select("body")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("get_daily_glucose_ratios?year=2012&month=1&week=2",
+d3.json("get_daily_glucose_ratios?year=2012&month=0&week=0",
   function(data) {
     data.forEach(function(d) {
         d.date = parseDate(d.date);
@@ -147,22 +147,30 @@ updateWeekSelector();
 
 year_selector.onchange = function () {
   updateWeekSelector();
+  updateWeekGraph();
 };
 
 month_selector.onchange = function () {
   updateWeekSelector();
+  updateWeekGraph();
 };
 
-week_selector.onchange = function () {
+function updateWeekGraph() {
   d3.json("get_daily_glucose_ratios?year="+getYear()+"&month="+getMonth()+"&week="+getWeek(),
     function(data) {
       data.forEach(function(d) {
           d.date = parseDate(d.date);
           d.high = +d.high;
       });
-    x.domain(d3.extent(data, function(d) { return d.date; }));
-    y.domain(d3.extent(data, function(d) { return d.high; }));
+    x.domain(d3.extent(data, function(d) { return d.date; }))
+    y.domain(d3.extent(data, function(d) { return d.high; }))
+    svg.select(".x.axis").selectAll("g").remove()
+    svg.select(".x.axis").call(xAxis);
     svg.selectAll(".line").datum(data).transition().duration(500).attr("d", line);
     });
+}
+
+week_selector.onchange = function () {
+  updateWeekGraph();
 };
 </script>
