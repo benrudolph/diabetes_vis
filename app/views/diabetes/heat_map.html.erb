@@ -82,7 +82,7 @@ d3.json("get_daily_glucose_ratios?year=2012&month=0&week=0",
         d.high = +d.high;
     });
     x.domain(d3.extent(data, function(d) { return d.date; }));
-    y.domain(d3.extent(data, function(d) { return d.high; }));
+    y.domain([0, 1]);
 
     svg.append("g")
       .attr("class", "x axis")
