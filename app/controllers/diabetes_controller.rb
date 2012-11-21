@@ -12,6 +12,10 @@ class DiabetesController < ApplicationController
     ]
   end
 
+  def average_day
+
+  end
+
   # Gets data for given day format will be %Y-%m-%d
   def day
     year, month, day = params[:day].split("-")

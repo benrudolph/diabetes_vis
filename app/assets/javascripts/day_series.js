@@ -4,8 +4,8 @@ var DaySeries = function(selector, data, width, height) {
   this.width = width || 500
 
   this.margin = {
-    top: 0,
-    right: 0,
+    top: 10,
+    right: 10,
     bottom: 40,
     left: 40
   }
@@ -75,6 +75,8 @@ DaySeries.prototype.render = function(data) {
   this.data = data
   this.x.domain(d3.extent(data, function(d) { return new Date(d.timestamp) }))
 
+  var that = this
+
   this.svg
       .selectAll(".line")
       .data([data])
@@ -85,6 +87,27 @@ DaySeries.prototype.render = function(data) {
       .style("stroke", "black")
       .style("stroke-width", 2)
       .attr("d", this.line)
+      .on("mouseover", function(data) {
+        var x = d3.event.pageX
+        var beginning = x, end = this.getTotalLength(), target;
+        while (true) {
+          target = Math.floor((beginning + end) / 2);
+          pos = this.getPointAtLength(target);
+          if ((target === end || target === beginning) && pos.x !== x) {
+              break;
+          }
+          if (pos.x > x)      end = target;
+          else if (pos.x < x) beginning = target;
+          else                break; //position found
+        }
+
+        that.svg
+            .append("circle")
+            .attr("class", "highlight")
+            .attr("cx", x)
+            .attr("cy", pos.y)
+            .attr("r", 5)
+      })
 
   this.svg
       .append("g")
@@ -104,7 +127,7 @@ DaySeries.prototype.render = function(data) {
       .attr("x", this.margin.left)
       .attr("y", this.y(this.low))
       .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", this.y(this.height - this.low))
+      .attr("height", this.y(this.height - this.low + this.margin.top))
 
   this.svg
       .append("rect")
@@ -112,7 +135,7 @@ DaySeries.prototype.render = function(data) {
       .attr("x", this.margin.left)
       .attr("y", this.margin.top)
       .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", this.height - this.high)
+      .attr("height", this.height - this.high - this.margin.bottom + this.margin.top)
 }
 
 DaySeries.prototype.getDay = function(day, callback) {
