@@ -1,5 +1,7 @@
 class DiabetesController < ApplicationController
-  EPSILON_MINUTES = 2
+  EPSILON_MINUTES = 5
+  DAYS_OF_THE_WEEK = %w[sunday monday tuesday wednesday thursday friday
+saturday]
 
   def time_series
     @glucose_sensor_data_count = GlucoseSensorData.count
@@ -12,20 +14,51 @@ class DiabetesController < ApplicationController
     ]
   end
 
-  def average_day
+  def average_day(day_of_week)
+
+    averages = []
+
+    (0..(60 * 24)).step(EPSILON_MINUTES) do |n|
+      minutes_start = (n % 60).to_s.rjust(2, "0")
+      hours_start = (n / 60).to_s.rjust(2, "0")
+
+      # Since between operator is inclusive, we make it 1 second less than the next value
+      minutes_end = ((n + EPSILON_MINUTES - 1) % 60).to_s.rjust(2, "0")
+      hours_end = ((n + EPSILON_MINUTES - 1) / 60).to_s.rjust(2, "0")
+
+      data = GlucoseSensorData.where("strftime('%H:%M', timestamp) between '#{hours_start}:#{minutes_start}:00' and '#{hours_end}:#{minutes_end}:59' and strftime('%w', timestamp) = '#{day_of_week}'")
+
+      datum = {
+        "time" => "#{hours_start}:#{minutes_start}:00",
+        "glucose" => data.average(:glucose)
+      }
+
+      averages << datum
+
+    end
+
+    return averages
 
   end
 
   # Gets data for given day format will be %Y-%m-%d
   def day
     year, month, day = params[:day].split("-")
-    @day_data = GlucoseSensorData.by_day(Time.utc(year, month, day), :field => :timestamp)
+    time = Time.utc(year, month, day)
+    day_data = GlucoseSensorData.by_day(time, :field => :timestamp)
 
     #@day_data.map do |datum|
     #  datum[:glucose_scaled] = (Math.log(datum[:glucose]) - Math.log(120)) ** 2
     #end
 
-    render :json => @day_data.to_json
+    averages = average_day(time.wday)
+
+    response = {
+      "averages" => averages,
+      "day_data" => day_data
+    }
+
+    render :json => response.to_json
   end
 
   def heat_map
