@@ -65,14 +65,10 @@ saturday]
   end
 
   def _get_daily_glucose_ratios(year, month, week)
-    date_obj = Date.new(year, month).beginning_of_month + week.weeks
-    if date_obj.month != month
-      return nil
-    end
+    date_obj = Date.new(year, month).beginning_of_week + week.weeks
     daily_ratio_list = []
     (0..6).each do |offset|
       dict = {}
-      date_obj += 1.day
       query = GlucoseSensorData.by_day(date_obj, :field => :timestamp)
       total = query.count
       dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
@@ -80,6 +76,7 @@ saturday]
       dict[:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
       dict[:date] = date_obj.to_s
       daily_ratio_list << dict
+      date_obj += 1.day
     end
     return daily_ratio_list
   end
