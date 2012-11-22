@@ -9,3 +9,9 @@
 .range {
   fill-opacity: .3;
 }
+
+.line {
+  fill: none;
+  stroke: #191919;
+  stroke-width: 1px;
+}

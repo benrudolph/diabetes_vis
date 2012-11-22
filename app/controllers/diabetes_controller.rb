@@ -14,11 +14,12 @@ saturday]
     ]
   end
 
-  def average_day(day_of_week)
+  def average_day(time)
+    day_of_week = time.wday
 
     averages = []
 
-    (0..(60 * 24)).step(EPSILON_MINUTES) do |n|
+    (0..((60 * 24) - 1)).step(EPSILON_MINUTES) do |n|
       minutes_start = (n % 60).to_s.rjust(2, "0")
       hours_start = (n / 60).to_s.rjust(2, "0")
 
@@ -28,8 +29,9 @@ saturday]
 
       data = GlucoseSensorData.where("strftime('%H:%M', timestamp) between '#{hours_start}:#{minutes_start}:00' and '#{hours_end}:#{minutes_end}:59' and strftime('%w', timestamp) = '#{day_of_week}'")
 
+      timestamp = Time.utc(time.year, time.month, time.day, hours_start, minutes_start)
       datum = {
-        "time" => "#{hours_start}:#{minutes_start}:00",
+        "timestamp" => timestamp.to_s,
         "glucose" => data.average(:glucose)
       }
 
@@ -51,7 +53,7 @@ saturday]
     #  datum[:glucose_scaled] = (Math.log(datum[:glucose]) - Math.log(120)) ** 2
     #end
 
-    averages = average_day(time.wday)
+    averages = average_day(time)
 
     response = {
       "averages" => averages,

@@ -59,13 +59,23 @@ var DaySeries = function(selector, data, width, height) {
 
 DaySeries.prototype.update = function(data) {
   this.day_data = data.day_data
+  this.day_average_data = data.averages
   this.x.domain(d3.extent(this.day_data, function(d) { return new Date(d.timestamp) }))
 
-  var line = this.svg
-      .selectAll(".line")
+  var real = this.svg
+      .selectAll(".real")
       .data([this.day_data])
 
-  line
+  real
+      .transition()
+      .duration(1000)
+      .attr("d", this.line)
+
+  var average = this.svg
+      .selectAll(".average")
+      .data([this.day_average_data])
+
+  average
       .transition()
       .duration(1000)
       .attr("d", this.line)
@@ -73,21 +83,18 @@ DaySeries.prototype.update = function(data) {
 
 DaySeries.prototype.render = function(data) {
   this.day_data = data.day_data
-  this.day_average_data = data.day_average_data
+  this.day_average_data = data.averages
 
   this.x.domain(d3.extent(this.day_data, function(d) { return new Date(d.timestamp) }))
 
   var that = this
 
   this.svg
-      .selectAll(".line")
+      .selectAll(".real")
       .data([this.day_data])
       .enter()
       .append("path")
-      .attr("class", "line")
-      .style("fill", "none")
-      .style("stroke", "black")
-      .style("stroke-width", 2)
+      .attr("class", "real line")
       .attr("d", this.line)
       .on("mouseover", function(data) {
         var x = d3.event.pageX
@@ -110,6 +117,15 @@ DaySeries.prototype.render = function(data) {
             .attr("cy", pos.y)
             .attr("r", 5)
       })
+
+  this.svg
+      .selectAll(".average")
+      .data([this.day_average_data])
+      .enter()
+      .append("path")
+      .attr("class", "average line")
+      .attr("stroke-dasharray", "5, 5")
+      .attr("d", this.line)
 
   this.svg
       .append("g")
