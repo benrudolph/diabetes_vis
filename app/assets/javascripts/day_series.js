@@ -154,6 +154,35 @@ DaySeries.prototype.render = function(data) {
       .attr("y", this.margin.top)
       .attr("width", this.width - this.margin.left - this.margin.right)
       .attr("height", this.height - this.high - this.margin.bottom + this.margin.top)
+
+  this.svg
+      .append("svg:g")
+      .attr("id", "overlayContainer")
+      .attr("transform", "translate(" + this.margin.left + ", " + this.margin.top + ")")
+      .append("rect")
+      .attr("class", "overlay")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", this.width - this.margin.left - this.margin.right)
+      .attr("height", this.height - this.margin.bottom - this.margin.top)
+      .on("mousemove", function() {
+        d3.selectAll(".guide").remove()
+
+        var coords = d3.mouse(d3.select("#overlayContainer")[0][0])
+
+        d3.select("#overlayContainer")
+            .append("rect")
+            .attr("class", "guide")
+            .attr("x", coords[0])
+            .attr("y", 0)
+            .attr("width", 1)
+            .attr("height", d3.select(this).attr("height"))
+
+      })
+      .on("mouseout", function() {
+        d3.selectAll(".guide").remove()
+      })
+
 }
 
 DaySeries.prototype.getDay = function(day, callback) {

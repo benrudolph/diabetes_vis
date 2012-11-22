@@ -15,3 +15,11 @@
   stroke: #191919;
   stroke-width: 1px;
 }
+
+.overlay {
+  fill-opacity: .1;
+}
+
+.guide {
+  pointer-events: none;
+}
