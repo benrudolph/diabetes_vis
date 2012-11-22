@@ -96,27 +96,6 @@ DaySeries.prototype.render = function(data) {
       .append("path")
       .attr("class", "real line")
       .attr("d", this.line)
-      .on("mouseover", function(data) {
-        var x = d3.event.pageX
-        var beginning = x, end = this.getTotalLength(), target;
-        while (true) {
-          target = Math.floor((beginning + end) / 2);
-          pos = this.getPointAtLength(target);
-          if ((target === end || target === beginning) && pos.x !== x) {
-              break;
-          }
-          if (pos.x > x)      end = target;
-          else if (pos.x < x) beginning = target;
-          else                break; //position found
-        }
-
-        that.svg
-            .append("circle")
-            .attr("class", "highlight")
-            .attr("cx", x)
-            .attr("cy", pos.y)
-            .attr("r", 5)
-      })
 
   this.svg
       .selectAll(".average")
@@ -167,8 +146,24 @@ DaySeries.prototype.render = function(data) {
       .attr("height", this.height - this.margin.bottom - this.margin.top)
       .on("mousemove", function() {
         d3.selectAll(".guide").remove()
+        d3.selectAll(".highlight").remove()
+
+        var real = d3.select(".real")[0][0]
 
         var coords = d3.mouse(d3.select("#overlayContainer")[0][0])
+
+        var x = coords[0] + that.margin.left
+        var beginning = 0, end = real.getTotalLength(), target;
+        while (true) {
+          target = Math.floor((beginning + end) / 2);
+          pos = real.getPointAtLength(target);
+          if ((target === end || target === beginning) && pos.x !== x) {
+              break;
+          }
+          if (pos.x > x)      end = target;
+          else if (pos.x < x) beginning = target;
+          else                break; //position found
+        }
 
         d3.select("#overlayContainer")
             .append("rect")
@@ -177,6 +172,14 @@ DaySeries.prototype.render = function(data) {
             .attr("y", 0)
             .attr("width", 1)
             .attr("height", d3.select(this).attr("height"))
+
+        that.svg
+            .append("circle")
+            .attr("class", "highlight")
+            .attr("cx", pos.x + .5)
+            .attr("cy", pos.y)
+            .attr("r", 5)
+
 
       })
       .on("mouseout", function() {

@@ -23,3 +23,10 @@
 .guide {
   pointer-events: none;
 }
+
+.highlight {
+  pointer-events: none;
+  fill: none;
+  stroke: #191919;
+  stroke-width: 2px;
+}
