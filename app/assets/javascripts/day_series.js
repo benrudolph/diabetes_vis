@@ -23,7 +23,6 @@ var DaySeries = function(selector, data, width, height) {
 
   //this.day_data = data.day_data
   //this.day_average_data = data.day_average_data
-
   this.x = d3
       .time
       .scale
@@ -60,7 +59,7 @@ var DaySeries = function(selector, data, width, height) {
 
 DaySeries.prototype.update = function(data) {
   this.day_data = data.day_data
-  this.x.domain(d3.extent(data, function(d) { return new Date(d.timestamp) }))
+  this.x.domain(d3.extent(this.day_data, function(d) { return new Date(d.timestamp) }))
 
   var line = this.svg
       .selectAll(".line")
