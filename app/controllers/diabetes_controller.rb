@@ -14,8 +14,10 @@ saturday]
     ]
   end
 
-  def average_day(time)
+  def average_day(time, range)
     day_of_week = time.wday
+
+    #return []
 
     averages = []
 
@@ -27,7 +29,11 @@ saturday]
       minutes_end = ((n + EPSILON_MINUTES - 1) % 60).to_s.rjust(2, "0")
       hours_end = ((n + EPSILON_MINUTES - 1) / 60).to_s.rjust(2, "0")
 
-      data = GlucoseSensorData.where("strftime('%H:%M', timestamp) between '#{hours_start}:#{minutes_start}:00' and '#{hours_end}:#{minutes_end}:59' and strftime('%w', timestamp) = '#{day_of_week}'")
+      data = GlucoseSensorData.where("strftime('%H:%M', timestamp) between '#{hours_start}:#{minutes_start}:00' and '#{hours_end}:#{minutes_end}:59' and strftime('%w', timestamp) = '#{day_of_week}'").between(range[:begin], range[:end], :field => :timestamp)
+
+      #unless range.empty?
+      #  data
+      #end
 
       timestamp = Time.utc(time.year, time.month, time.day, hours_start, minutes_start)
       datum = {
@@ -43,6 +49,24 @@ saturday]
 
   end
 
+  def day_averages
+    limit = (params[:limit] || 1).to_i
+
+    year, month, day = params[:day].split("-")
+    time = Time.utc(year, month, day)
+
+    max = GlucoseSensorData.maximum(:timestamp)
+    range = {}
+    unless range == "all"
+      range = { :begin => max - limit.months, :end => max }
+    end
+
+
+    averages = average_day(time, range)
+
+    render :json => averages.to_json
+  end
+
   # Gets data for given day format will be %Y-%m-%d
   def day
     year, month, day = params[:day].split("-")
@@ -53,7 +77,14 @@ saturday]
     #  datum[:glucose_scaled] = (Math.log(datum[:glucose]) - Math.log(120)) ** 2
     #end
 
-    averages = average_day(time)
+    max = GlucoseSensorData.maximum(:timestamp)
+    limit = (params[:limit] || 1).to_i
+    range = {}
+    unless range == "all"
+      range = { :begin => max - limit.months, :end => max }
+    end
+
+    averages = average_day(time, range)
 
     response = {
       "averages" => averages,

@@ -57,9 +57,20 @@ var DaySeries = function(selector, data, width, height) {
       }.bind(this))
 }
 
+DaySeries.prototype.updateAverage = function(day_average_data) {
+  this.day_average_data = day_average_data
+  var average = this.svg
+      .selectAll(".average")
+      .data([this.day_average_data])
+
+  average
+      .transition()
+      .duration(1000)
+      .attr("d", this.line)
+}
+
 DaySeries.prototype.update = function(data) {
   this.day_data = data.day_data
-  this.day_average_data = data.averages
   this.x.domain(d3.extent(this.day_data, function(d) { return new Date(d.timestamp) }))
 
   var real = this.svg
@@ -71,14 +82,7 @@ DaySeries.prototype.update = function(data) {
       .duration(1000)
       .attr("d", this.line)
 
-  var average = this.svg
-      .selectAll(".average")
-      .data([this.day_average_data])
-
-  average
-      .transition()
-      .duration(1000)
-      .attr("d", this.line)
+  this.udpateAverage(data.averages)
 }
 
 DaySeries.prototype.render = function(data) {
@@ -184,6 +188,21 @@ DaySeries.prototype.render = function(data) {
         d3.selectAll(".guide").remove()
       })
 
+}
+
+DaySeries.prototype.getAverage = function(day, limit, callback) {
+  if (!callback) {
+    callback = this.updateAverage.bind(this)
+  }
+  $.ajax({
+    url: "/diabetes/day_averages",
+    type: "GET",
+    data: { day: day,
+            limit: limit },
+    success: function(data) {
+      callback(data)
+    }
+  })
 }
 
 DaySeries.prototype.getDay = function(day, callback) {

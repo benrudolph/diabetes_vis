@@ -1,5 +1,13 @@
 <div class="container">
-  <div id="daySeries"></div>
+  <div class="row">
+    <div id="daySeries"></div>
+    <div class="averageRange">
+      <input class="limit" type="radio" name="averageRange" value="all" />All
+      <input class="limit" type="radio" name="averageRange" value="12" />Past year
+      <input class="limit" type="radio" name="averageRange" value="6" />Past 6 months
+      <input class="limit" type="radio" name="averageRange" value="1" checked="checked" />Past month
+    </div>
+  </div>
 
   <input id="date" type="date" min="<%= @date_extent[0] %>" max="<%= @date_extent[1] %>" value="<%= @date_extent[1] %>"/>
 </div>
