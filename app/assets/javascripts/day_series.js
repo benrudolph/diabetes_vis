@@ -186,6 +186,7 @@ DaySeries.prototype.render = function(data) {
       })
       .on("mouseout", function() {
         d3.selectAll(".guide").remove()
+        d3.selectAll(".highlight").remove()
       })
 
 }
@@ -212,8 +213,8 @@ DaySeries.prototype.getDay = function(day, limit, callback) {
   $.ajax({
     url: "/diabetes/day",
     type: "GET",
-    data: { day: day
-            limit: limit},
+    data: { day: day,
+            limit: limit },
     success: function(data) {
       callback(data)
     }
