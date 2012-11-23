@@ -149,21 +149,12 @@ DaySeries.prototype.render = function(data) {
         d3.selectAll(".highlight").remove()
 
         var real = d3.select(".real")[0][0]
+        var average = d3.select(".average")[0][0]
 
         var coords = d3.mouse(d3.select("#overlayContainer")[0][0])
 
-        var x = coords[0] + that.margin.left
-        var beginning = 0, end = real.getTotalLength(), target;
-        while (true) {
-          target = Math.floor((beginning + end) / 2);
-          pos = real.getPointAtLength(target);
-          if ((target === end || target === beginning) && pos.x !== x) {
-              break;
-          }
-          if (pos.x > x)      end = target;
-          else if (pos.x < x) beginning = target;
-          else                break; //position found
-        }
+        var highlightReal = window.Utility.getPointOnPath(coords[0] + that.margin.left, real)
+        var highlightAverage = window.Utility.getPointOnPath(coords[0] + that.margin.left, average)
 
         d3.select("#overlayContainer")
             .append("rect")
@@ -174,10 +165,17 @@ DaySeries.prototype.render = function(data) {
             .attr("height", d3.select(this).attr("height"))
 
         that.svg
+            .selectAll(".highlight")
+            .data([highlightReal, highlightAverage])
+            .enter()
             .append("circle")
             .attr("class", "highlight")
-            .attr("cx", pos.x + .5)
-            .attr("cy", pos.y)
+            .attr("cx", function(d) {
+              return d.x + .5
+            })
+            .attr("cy", function(d) {
+              return d.y
+            })
             .attr("r", 5)
 
 
