@@ -17,7 +17,7 @@
 }
 
 .overlay {
-  fill-opacity: .1;
+  fill-opacity: 0;
 }
 
 .guide {
