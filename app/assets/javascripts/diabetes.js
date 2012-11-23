@@ -3,7 +3,7 @@ $(document).ready(function() {
   daySeries.getDay($("#date").val())
 
   $("#date").change(function(event) {
-    daySeries.getDay($("#date").val(), daySeries.update.bind(daySeries))
+    daySeries.getDay($("#date").val(), $(".limit:checked").val(), daySeries.update.bind(daySeries))
   })
 
   $(".limit").change(function(event) {

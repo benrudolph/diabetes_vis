@@ -205,14 +205,15 @@ DaySeries.prototype.getAverage = function(day, limit, callback) {
   })
 }
 
-DaySeries.prototype.getDay = function(day, callback) {
+DaySeries.prototype.getDay = function(day, limit, callback) {
   if (!callback) {
     callback = this.render.bind(this)
   }
   $.ajax({
     url: "/diabetes/day",
     type: "GET",
-    data: { day: day },
+    data: { day: day
+            limit: limit},
     success: function(data) {
       callback(data)
     }
