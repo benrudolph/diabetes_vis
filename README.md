@@ -1,4 +1,7 @@
 diabetes_vis
 ============
 
-Visualization of diabetes data
+Day_Series
+----
+* Make averages faster
+* Scale glucose
