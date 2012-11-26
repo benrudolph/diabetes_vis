@@ -10,4 +10,3 @@ $(document).ready(function() {
     daySeries.getAverage($("#date").val(), $(this).val(), daySeries.updateAverage.bind(daySeries))
   })
 })
-

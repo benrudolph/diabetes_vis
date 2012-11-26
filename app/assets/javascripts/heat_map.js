@@ -1,6 +1,16 @@
 var parseDate = d3.time.format("%Y-%m-%d").parse;
-function GlucoseRatiosLineGraph(selector, data, field, width, height)
+function GlucoseRatiosLineGraph(selector, data, field, width, height, tick)
 {
+  var ticks;
+  var tickFormat;
+  if (tick == "days") {
+    ticks = d3.time.days;
+    tickFormat = d3.time.format.utc("%a");
+  } else if (tick == "months") {
+    ticks = d3.time.months;
+    tickFormat = d3.time.format.utc("%m");
+  }
+
   this.selector = selector
   this.height = height || 500
   this.width = width || 500
@@ -31,8 +41,8 @@ function GlucoseRatiosLineGraph(selector, data, field, width, height)
       .domain([0, 1]);
 
   this.x_axis = d3.svg.axis().scale(this.x_scale)
-      .ticks(d3.time.days, 1)
-      .tickFormat(d3.time.format.utc("%a"))
+      .ticks(ticks, 1)
+      .tickFormat(tickFormat)
       .orient("bottom");
 
   this.y_axis = d3.svg.axis().scale(this.y_scale)
@@ -89,11 +99,25 @@ d3.json("get_daily_glucose_ratios?year=2012&month=0&week=0",
         d.date = parseDate(d.date);
     });
     ratio_graphs = [];
-    ratio_graphs.push(new GlucoseRatiosLineGraph("#graph1", data, "low", 400, 150));
-    ratio_graphs.push(new GlucoseRatiosLineGraph("#graph2", data, "optimal", 400, 150));
-    ratio_graphs.push(new GlucoseRatiosLineGraph("#graph3", data, "high", 400, 150));
+    ratio_graphs.push(new GlucoseRatiosLineGraph("#graph1", data, "low", 400, 150, "days"));
+    ratio_graphs.push(new GlucoseRatiosLineGraph("#graph2", data, "optimal", 400, 150, "days"));
+    ratio_graphs.push(new GlucoseRatiosLineGraph("#graph3", data, "high", 400, 150, "days"));
     ratio_graphs.forEach(function(ratio_graph) {
       ratio_graph.render(data);
+    });
+  });
+
+d3.json("get_monthly_glucose_ratios?year=2011",
+  function(data) {
+    data.forEach(function(d) {
+        d.date = parseDate(d.date);
+    });
+    ratio_graphs2 = [];
+    ratio_graphs2.push(new GlucoseRatiosLineGraph("#graph4", data, "low", 400, 150, "months"));
+    ratio_graphs2.push(new GlucoseRatiosLineGraph("#graph5", data, "optimal", 400, 150, "months"));
+    ratio_graphs2.push(new GlucoseRatiosLineGraph("#graph6", data, "high", 400, 150, "months"));
+    ratio_graphs2.forEach(function(ratio_graph2) {
+      ratio_graph2.render(data);
     });
   });
 

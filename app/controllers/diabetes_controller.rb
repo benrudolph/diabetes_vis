@@ -1,5 +1,5 @@
 class DiabetesController < ApplicationController
-  EPSILON_MINUTES = 5
+  EPSILON_MINUTES = 60
   DAYS_OF_THE_WEEK = %w[sunday monday tuesday wednesday thursday friday
 saturday]
 
@@ -29,7 +29,8 @@ saturday]
       minutes_end = ((n + EPSILON_MINUTES - 1) % 60).to_s.rjust(2, "0")
       hours_end = ((n + EPSILON_MINUTES - 1) / 60).to_s.rjust(2, "0")
 
-      data = GlucoseSensorData.where("strftime('%H:%M', timestamp) between '#{hours_start}:#{minutes_start}:00' and '#{hours_end}:#{minutes_end}:59' and strftime('%w', timestamp) = '#{day_of_week}'").between(range[:begin], range[:end], :field => :timestamp)
+      #data = GlucoseSensorData.where("strftime('%H:%M', timestamp) between '#{hours_start}:#{minutes_start}:00' and '#{hours_end}:#{minutes_end}:59' and strftime('%w', timestamp) = '#{day_of_week}'").between(range[:begin], range[:end], :field => :timestamp)
+      data = GlucoseSensorData.where("time between #{hours_start}#{minutes_start}00 AND #{hours_end}#{minutes_end}59 and day = #{day_of_week}").between(range[:begin], range[:end], :field => :timestamp)
 
       #unless range.empty?
       #  data
@@ -95,6 +96,27 @@ saturday]
   end
 
   def heat_map
+  end
+
+  def _get_monthly_glucose_ratios(year)
+    monthly_ratio_list = []
+    (1..12).each do |month|
+      dict = {}
+      query = GlucoseSensorData.by_month(month, :year => year, :field => :timestamp)
+      total = query.count
+      dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
+      dict[:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
+      dict[:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
+      dict[:date] = Date.new(2012, month).to_s
+      monthly_ratio_list << dict
+    end
+    return monthly_ratio_list
+  end
+
+  def get_monthly_glucose_ratios
+    year = params[:year].to_i
+    monthly_ratio_list = _get_monthly_glucose_ratios(year)
+    render :json => monthly_ratio_list
   end
 
   def _get_daily_glucose_ratios(year, month, week)

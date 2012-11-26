@@ -12,8 +12,16 @@ body {
 
 .line {
   fill: none;
-  stroke: steelblue;
   stroke-width: 1.5px;
+}
+#graph1 .line, #graph4 .line {
+  stroke: red;
+}
+#graph2 .line, #graph5 .line {
+  stroke: black;
+}
+#graph3 .line, #graph6 .line {
+  stroke: blue;
 }
 </style>
 <script src="http://d3js.org/d3.v2.js"></script>
@@ -41,9 +49,19 @@ body {
 <select id="week_selector" name="week">
 </select>
 </form>
-<div id="graph1">
+<div id="months">
+  <div class="graph" id="graph1">
+  </div>
+  <div class="graph" id="graph2">
+  </div>
+  <div class="graph" id="graph3">
+  </div>
 </div>
-<div id="graph2">
-</div>
-<div id="graph3">
+<div id="days">
+  <div class="graph" id="graph4">
+  </div>
+  <div class="graph" id="graph5">
+  </div>
+  <div class="graph" id="graph6">
+  </div>
 </div>
