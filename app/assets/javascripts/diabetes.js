@@ -1,6 +1,7 @@
 $(document).ready(function() {
-  var daySeries = new DaySeries("#daySeries")
-  daySeries.getDay($("#date").val())
+  //var daySeries = new DaySeries("#daySeries")
+  //daySeries.getDay($("#date").val())
+  var dashboard = new Dashboard("#dashboard")
 
   $("#date").change(function(event) {
     daySeries.getDay($("#date").val(), $(".limit:checked").val(), daySeries.update.bind(daySeries))

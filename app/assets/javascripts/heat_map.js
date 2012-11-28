@@ -1,5 +1,5 @@
 var parseDate = d3.time.format("%Y-%m-%d").parse;
-function GlucoseRatiosLineGraph(selector, data, field, width, height, tick)
+var GlucoseRatiosLineGraph = function GlucoseRatiosLineGraph(selector, data, field, width, height, tick)
 {
   var ticks;
   var tickFormat;

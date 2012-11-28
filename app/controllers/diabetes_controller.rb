@@ -3,6 +3,9 @@ class DiabetesController < ApplicationController
   DAYS_OF_THE_WEEK = %w[sunday monday tuesday wednesday thursday friday
 saturday]
 
+  def dashboard
+  end
+
   def time_series
     @glucose_sensor_data_count = GlucoseSensorData.count
   end

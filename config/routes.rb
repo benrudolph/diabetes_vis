@@ -8,6 +8,8 @@ DiabetesVis::Application.routes.draw do
 
   get "diabetes/day_averages"
 
+  get "diabetes/dashboard"
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
