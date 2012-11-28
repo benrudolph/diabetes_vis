@@ -10,6 +10,10 @@ DiabetesVis::Application.routes.draw do
 
   get "diabetes/dashboard"
 
+  get "diabetes/get_daily_glucose_ratios"
+
+  get "diabetes/get_monthly_glucose_ratios"
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

@@ -73,7 +73,7 @@ saturday]
 
   # Gets data for given day format will be %Y-%m-%d
   def day
-    year, month, day = params[:day].split("-")
+    year, month, day = params[:date].split("-")
     time = Time.utc(year, month, day)
     day_data = GlucoseSensorData.by_day(time, :field => :timestamp)
 
@@ -117,7 +117,7 @@ saturday]
   end
 
   def get_monthly_glucose_ratios
-    year = params[:year].to_i
+    year, month, day = params[:date].split("-")
     monthly_ratio_list = _get_monthly_glucose_ratios(year)
     render :json => monthly_ratio_list
   end
@@ -140,9 +140,9 @@ saturday]
   end
 
   def get_daily_glucose_ratios
-    year = params[:year].to_i
-    month = params[:month].to_i + 1 # adjust for 0 index
-    week = params[:week].to_i
+    year, month, day = params[:date].split("-").map(&:to_i)
+    week = 1
+    month = month + 1 # adjust for 0 index
     daily_ratio_list = _get_daily_glucose_ratios(year, month, week)
     render :json => daily_ratio_list
   end

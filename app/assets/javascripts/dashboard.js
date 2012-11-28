@@ -2,7 +2,7 @@ var Dashboard = function(selector, width, height) {
   this.selector = selector
 
   this.height = height || 600
-  this.width = width || 1000
+  this.width = width || 1300
 
   this.margin = {
     top: 20,
@@ -24,16 +24,25 @@ var Dashboard = function(selector, width, height) {
 }
 
 Dashboard.GRAPH_TYPES = {
-  DAY: 0,
-  WEEK: 1,
-  YEAR: 2
+  DAY: "day",
+  WEEK: "week",
+  YEAR: "year"
 }
 
 Dashboard.GLUCOSE_LEVELS = {
-  HIGH: 0,
-  OPTIMAL: 1,
-  LOW: 2
+  HIGH: "high",
+  OPTIMAL: "optimal",
+  LOW: "low"
 }
+
+/*
+Dashboard.LAYOUT = {}
+Dashboard.LAYOUT[Dashboard.GRAPH_TYPES.DAY].x = 500
+Dashboard.LAYOUT[Dashboard.GRAPH_TYPES.DAY].y = 0
+
+Dashboard.LAYOUT[Dashboard.GRAPH_TYPES.WEEK] = {}
+Dashboard.LAYOUT[Dashboard.GRAPH_TYPES.WEEK][Dashboard.GLUCOSE_LEVELS.HIGH] = {}
+*/
 
 Dashboard.prototype.init = function() {
 
@@ -43,26 +52,68 @@ Dashboard.prototype.init = function() {
       type: Dashboard.GRAPH_TYPES.DAY,
       id: Dashboard.GRAPH_TYPES.DAY,
       vis: new DaySeries(this.svg),
+      x: 800,
+      y: 0
     },
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: "" + Dashboard.GRAPH_TYPES.WEEK + Dashboard.GLUCOSE_LEVELS.HIGH,
-      vis: new GlucoseRatiosLineGraph(this.svg)
-
+      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.WEEK, Dashboard.GLUCOSE_LEVELS.HIGH),
+      x: 0,
+      y: 0
+    },
+    {
+      type: Dashboard.GRAPH_TYPES.WEEK,
+      id: "" + Dashboard.GRAPH_TYPES.WEEK + Dashboard.GLUCOSE_LEVELS.OPTIMAL,
+      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.WEEK, Dashboard.GLUCOSE_LEVELS.OPTIMAL),
+      x: 0,
+      y: 150
+    },
+    {
+      type: Dashboard.GRAPH_TYPES.WEEK,
+      id: "" + Dashboard.GRAPH_TYPES.WEEK + Dashboard.GLUCOSE_LEVELS.LOW,
+      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.WEEK, Dashboard.GLUCOSE_LEVELS.LOW),
+      x: 0,
+      y: 300
+    },
+    {
+      type: Dashboard.GRAPH_TYPES.YEAR,
+      id: "" + Dashboard.GRAPH_TYPES.YEAR + Dashboard.GLUCOSE_LEVELS.LOW,
+      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.YEAR, Dashboard.GLUCOSE_LEVELS.LOW),
+      x: 420,
+      y: 300
+    },
+    {
+      type: Dashboard.GRAPH_TYPES.YEAR,
+      id: "" + Dashboard.GRAPH_TYPES.YEAR + Dashboard.GLUCOSE_LEVELS.OPTIMAL,
+      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.YEAR, Dashboard.GLUCOSE_LEVELS.OPTIMAL),
+      x: 420,
+      y: 150
+    },
+    {
+      type: Dashboard.GRAPH_TYPES.YEAR,
+      id: "" + Dashboard.GRAPH_TYPES.YEAR + Dashboard.GLUCOSE_LEVELS.HIGH,
+      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.YEAR, Dashboard.GLUCOSE_LEVELS.HIGH),
+      x: 420,
+      y: 0
+    },
 
   ]
 
+  this.layout()
   this.loadData()
+}
+
+Dashboard.prototype.layout = function() {
+  this.graphs.forEach(function(graph) {
+    d3.select("#" + graph.id)
+        .attr("transform", "translate(" + graph.x + ", " + graph.y + ")")
+  })
 }
 
 /* Loads all data for each graph */
 Dashboard.prototype.loadData = function(d) {
   var date = d || "2010-10-10"
-  var parts = date.split("-")
-
-  var year = date[0]
-    , month = date[1]
-    , day = date[2]
 
   this.graphs.forEach(function(graph) {
     switch (graph.type) {
@@ -73,7 +124,7 @@ Dashboard.prototype.loadData = function(d) {
         graph.vis.loadData(date)
         break;
       case Dashboard.GRAPH_TYPES.YEAR:
-        graph.vis.loadData(year)
+        graph.vis.loadData(date)
         break;
     }
   })

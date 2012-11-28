@@ -1,7 +1,7 @@
 var DaySeries = function(svg, data, width, height) {
   this.svg = svg
-  this.height = height || 500
-  this.width = width || 500
+  this.height = height || 400
+  this.width = width || 400
 
   this.margin = {
     top: 10,
@@ -15,6 +15,7 @@ var DaySeries = function(svg, data, width, height) {
 
   this.container = this.svg
       .append("svg:g")
+      .attr("id", Dashboard.GRAPH_TYPES.DAY)
       .attr("class", "daySeries")
       .attr("height", this.height)
       .attr("width", this.width)
@@ -27,11 +28,13 @@ var DaySeries = function(svg, data, width, height) {
       .utc()
       .range([this.margin.left , this.width - this.margin.right])
 
+  this.yMax = 500
+
   this.y = d3
       .scale
       .linear()
       .range([this.height - this.margin.bottom, this.margin.top])
-      .domain([0, 500])
+      .domain([0, this.yMax])
 
   this.xAxis = d3.svg.axis()
       .scale(this.x)
@@ -126,7 +129,7 @@ DaySeries.prototype.render = function() {
       .attr("x", this.margin.left)
       .attr("y", this.y(this.low))
       .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", this.y(this.height - this.low + this.margin.top))
+      .attr("height", this.y(0) - this.y(this.low))
 
   this.container
       .append("rect")
@@ -134,7 +137,7 @@ DaySeries.prototype.render = function() {
       .attr("x", this.margin.left)
       .attr("y", this.margin.top)
       .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", this.height - this.high - this.margin.bottom + this.margin.top)
+      .attr("height", this.y(this.high) - this.y(this.yMax))
 
   this.container
       .append("svg:g")
@@ -166,7 +169,7 @@ DaySeries.prototype.render = function() {
             .attr("width", 1)
             .attr("height", d3.select(this).attr("height"))
 
-        that.svg
+        that.container
             .selectAll(".highlight")
             .data([highlightReal, highlightAverage])
             .enter()
@@ -204,14 +207,14 @@ DaySeries.prototype.getAverage = function(day, limit, callback) {
   })
 }
 
-DaySeries.prototype.loadData = function(day, limit, callback) {
+DaySeries.prototype.loadData = function(date, limit, callback) {
   if (!callback) {
     callback = this.render.bind(this)
   }
   $.ajax({
     url: "/diabetes/day",
     type: "GET",
-    data: { day: day,
+    data: { date: date,
             limit: limit },
     success: function(data) {
       this.day_data = data.day_data
