@@ -1,5 +1,5 @@
-var DaySeries = function(selector, data, width, height) {
-  this.selector = selector
+var DaySeries = function(svg, data, width, height) {
+  this.svg = svg
   this.height = height || 500
   this.width = width || 500
 
@@ -13,13 +13,11 @@ var DaySeries = function(selector, data, width, height) {
   this.low = 80
   this.high = 180
 
-  this.svg = d3
-      .select(this.selector)
-      .append("svg")
-      .attr("class", "svg")
+  this.container = this.svg
+      .append("svg:g")
+      .attr("class", "daySeries")
       .attr("height", this.height)
       .attr("width", this.width)
-      .append("svg:g")
 
   //this.day_data = data.day_data
   //this.day_average_data = data.day_average_data
@@ -59,7 +57,7 @@ var DaySeries = function(selector, data, width, height) {
 
 DaySeries.prototype.updateAverage = function(day_average_data) {
   this.day_average_data = day_average_data
-  var average = this.svg
+  var average = this.container
       .selectAll(".average")
       .data([this.day_average_data])
 
@@ -73,7 +71,7 @@ DaySeries.prototype.update = function(data) {
   this.day_data = data.day_data
   this.x.domain(d3.extent(this.day_data, function(d) { return new Date(d.timestamp) }))
 
-  var real = this.svg
+  var real = this.container
       .selectAll(".real")
       .data([this.day_data])
 
@@ -85,15 +83,15 @@ DaySeries.prototype.update = function(data) {
   this.udpateAverage(data.averages)
 }
 
-DaySeries.prototype.render = function(data) {
-  this.day_data = data.day_data
-  this.day_average_data = data.averages
+DaySeries.prototype.render = function() {
+  //this.day_data = data.day_data
+  //this.day_average_data = data.averages
 
   this.x.domain(d3.extent(this.day_data, function(d) { return new Date(d.timestamp) }))
 
   var that = this
 
-  this.svg
+  this.container
       .selectAll(".real")
       .data([this.day_data])
       .enter()
@@ -101,7 +99,7 @@ DaySeries.prototype.render = function(data) {
       .attr("class", "real line")
       .attr("d", this.line)
 
-  this.svg
+  this.container
       .selectAll(".average")
       .data([this.day_average_data])
       .enter()
@@ -110,19 +108,19 @@ DaySeries.prototype.render = function(data) {
       .attr("stroke-dasharray", "5, 5")
       .attr("d", this.line)
 
-  this.svg
+  this.container
       .append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0, " + (this.height - (this.margin.bottom)) + ")")
       .call(this.xAxis)
 
-  this.svg
+  this.container
       .append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(" + this.margin.left + ", 0)")
       .call(this.yAxis)
 
-  this.svg
+  this.container
       .append("rect")
       .attr("class", "low range")
       .attr("x", this.margin.left)
@@ -130,7 +128,7 @@ DaySeries.prototype.render = function(data) {
       .attr("width", this.width - this.margin.left - this.margin.right)
       .attr("height", this.y(this.height - this.low + this.margin.top))
 
-  this.svg
+  this.container
       .append("rect")
       .attr("class", "high range")
       .attr("x", this.margin.left)
@@ -138,7 +136,7 @@ DaySeries.prototype.render = function(data) {
       .attr("width", this.width - this.margin.left - this.margin.right)
       .attr("height", this.height - this.high - this.margin.bottom + this.margin.top)
 
-  this.svg
+  this.container
       .append("svg:g")
       .attr("id", "overlayContainer")
       .attr("transform", "translate(" + this.margin.left + ", " + this.margin.top + ")")
@@ -206,7 +204,7 @@ DaySeries.prototype.getAverage = function(day, limit, callback) {
   })
 }
 
-DaySeries.prototype.getDay = function(day, limit, callback) {
+DaySeries.prototype.loadData = function(day, limit, callback) {
   if (!callback) {
     callback = this.render.bind(this)
   }
@@ -216,7 +214,9 @@ DaySeries.prototype.getDay = function(day, limit, callback) {
     data: { day: day,
             limit: limit },
     success: function(data) {
+      this.day_data = data.day_data
+      this.day_average_data = data.averages
       callback(data)
-    }
+    }.bind(this)
   })
 }
