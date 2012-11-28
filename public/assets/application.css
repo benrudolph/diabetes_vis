@@ -30,3 +30,7 @@
   stroke: #191919;
   stroke-width: 2px;
 }
+
+#weeklow .line {
+  stroke: blue;
+}

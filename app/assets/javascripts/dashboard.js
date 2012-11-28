@@ -19,6 +19,8 @@ var Dashboard = function(selector, width, height) {
       .attr("width", this.width)
       .append("svg:g")
 
+  this.currentDate = "2010-10-10"
+
   this.init()
 
 }
@@ -58,42 +60,42 @@ Dashboard.prototype.init = function() {
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: "" + Dashboard.GRAPH_TYPES.WEEK + Dashboard.GLUCOSE_LEVELS.HIGH,
-      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.WEEK, Dashboard.GLUCOSE_LEVELS.HIGH),
+      vis: new GlucoseRatiosWeek(this.svg, Dashboard.GLUCOSE_LEVELS.HIGH),
       x: 0,
       y: 0
     },
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: "" + Dashboard.GRAPH_TYPES.WEEK + Dashboard.GLUCOSE_LEVELS.OPTIMAL,
-      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.WEEK, Dashboard.GLUCOSE_LEVELS.OPTIMAL),
+      vis: new GlucoseRatiosWeek(this.svg, Dashboard.GLUCOSE_LEVELS.OPTIMAL),
       x: 0,
       y: 150
     },
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: "" + Dashboard.GRAPH_TYPES.WEEK + Dashboard.GLUCOSE_LEVELS.LOW,
-      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.WEEK, Dashboard.GLUCOSE_LEVELS.LOW),
+      vis: new GlucoseRatiosWeek(this.svg, Dashboard.GLUCOSE_LEVELS.LOW),
       x: 0,
       y: 300
     },
     {
       type: Dashboard.GRAPH_TYPES.YEAR,
       id: "" + Dashboard.GRAPH_TYPES.YEAR + Dashboard.GLUCOSE_LEVELS.LOW,
-      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.YEAR, Dashboard.GLUCOSE_LEVELS.LOW),
+      vis: new GlucoseRatiosYear(this.svg, Dashboard.GLUCOSE_LEVELS.LOW),
       x: 420,
       y: 300
     },
     {
       type: Dashboard.GRAPH_TYPES.YEAR,
       id: "" + Dashboard.GRAPH_TYPES.YEAR + Dashboard.GLUCOSE_LEVELS.OPTIMAL,
-      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.YEAR, Dashboard.GLUCOSE_LEVELS.OPTIMAL),
+      vis: new GlucoseRatiosYear(this.svg, Dashboard.GLUCOSE_LEVELS.OPTIMAL),
       x: 420,
       y: 150
     },
     {
       type: Dashboard.GRAPH_TYPES.YEAR,
       id: "" + Dashboard.GRAPH_TYPES.YEAR + Dashboard.GLUCOSE_LEVELS.HIGH,
-      vis: new GlucoseRatiosLineGraph(this.svg, Dashboard.GRAPH_TYPES.YEAR, Dashboard.GLUCOSE_LEVELS.HIGH),
+      vis: new GlucoseRatiosYear(this.svg, Dashboard.GLUCOSE_LEVELS.HIGH),
       x: 420,
       y: 0
     },
@@ -113,21 +115,21 @@ Dashboard.prototype.layout = function() {
 
 /* Loads all data for each graph */
 Dashboard.prototype.loadData = function(d) {
-  var date = d || "2010-10-10"
+  this.currentDate = d || this.currentDate
 
   this.graphs.forEach(function(graph) {
     switch (graph.type) {
       case Dashboard.GRAPH_TYPES.DAY:
-        graph.vis.loadData(date)
+        graph.vis.loadData(this.currentDate)
         break;
       case Dashboard.GRAPH_TYPES.WEEK:
-        graph.vis.loadData(date)
+        graph.vis.loadData(this.currentDate)
         break;
       case Dashboard.GRAPH_TYPES.YEAR:
-        graph.vis.loadData(date)
+        graph.vis.loadData(this.currentDate)
         break;
     }
-  })
+  }.bind(this))
 }
 
 Dashboard.prototype.render = function() {

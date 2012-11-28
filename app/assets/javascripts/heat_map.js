@@ -1,26 +1,10 @@
 var parseDate = d3.time.format("%Y-%m-%d").parse;
-var GlucoseRatiosLineGraph = function(svg, type, glucoseLevel)
-{
+var GlucoseRatiosLineGraph = function() {
 
-  this.loadUrl = "/diabetes"
+};
 
-  var ticks;
-  var tickFormat;
+GlucoseRatiosLineGraph.prototype.init = function() {
 
-  switch (type) {
-    case Dashboard.GRAPH_TYPES.WEEK:
-      ticks = d3.time.days;
-      tickFormat = d3.time.format.utc("%a");
-      this.loadUrl += "/get_daily_glucose_ratios"
-      break;
-    case Dashboard.GRAPH_TYPES.YEAR:
-      ticks = d3.time.months;
-      tickFormat = d3.time.format.utc("%m");
-      this.loadUrl += "/get_monthly_glucose_ratios"
-      break;
-  }
-
-  this.svg = svg
   this.height = 150
   this.width = 400
 
@@ -31,12 +15,6 @@ var GlucoseRatiosLineGraph = function(svg, type, glucoseLevel)
     left: 40
   }
 
-  this.container = this.svg
-      .append("svg:g")
-      .attr("class", type)
-      .attr("id", type + glucoseLevel)
-
-  this.glucoseLevel = glucoseLevel;
 
   this.x_scale = d3.time.scale.utc()
       .range([this.margin.left, this.width - this.margin.right]);
@@ -46,8 +24,8 @@ var GlucoseRatiosLineGraph = function(svg, type, glucoseLevel)
       .domain([0, 1]);
 
   this.x_axis = d3.svg.axis().scale(this.x_scale)
-      .ticks(ticks, 1)
-      .tickFormat(tickFormat)
+      .ticks(this.ticks, 1)
+      .tickFormat(this.tickFormat)
       .orient("bottom");
 
   this.y_axis = d3.svg.axis().scale(this.y_scale)
@@ -57,7 +35,7 @@ var GlucoseRatiosLineGraph = function(svg, type, glucoseLevel)
   this.line = d3.svg.line()
       .x(function(d) { return this.x_scale(d.date) }.bind(this))
       .y(function(d) { return this.y_scale(d[this.glucoseLevel]) }.bind(this));
-};
+}
 
 GlucoseRatiosLineGraph.prototype.render = function(data) {
   data.forEach(function(d) {
@@ -118,7 +96,47 @@ GlucoseRatiosLineGraph.prototype.loadData = function(date, callback) {
 
 }
 
+/*
+ * GlucoseRatiosWeek - inherits GlucoseRatiosLineGraph
+ */
 
+var GlucoseRatiosWeek = function(svg, glucoseLevel) {
+  this.loadUrl = "/diabetes/get_daily_glucose_ratios"
+  this.ticks = d3.time.days;
+  this.tickFormat = d3.time.format.utc("%a");
+
+  this.glucoseLevel = glucoseLevel
+
+  this.container = svg
+      .append("svg:g")
+      .attr("class", "week " + this.glucoseLevel)
+      .attr("id", "week" + this.glucoseLevel)
+
+  this.init()
+};
+
+GlucoseRatiosWeek.prototype = new GlucoseRatiosLineGraph();
+
+/*
+ * GlucoseRatiosYear - inherits GlucoseRatiosLineGraph
+ */
+
+var GlucoseRatiosYear = function(svg, glucoseLevel) {
+  this.loadUrl = "/diabetes/get_monthly_glucose_ratios"
+  this.ticks = d3.time.months;
+  this.tickFormat = d3.time.format.utc("%m");
+
+  this.glucoseLevel = glucoseLevel
+
+  this.container = svg
+      .append("svg:g")
+      .attr("class", "year " + this.glucoseLevel)
+      .attr("id", "year" + this.glucoseLevel)
+
+  this.init()
+};
+
+GlucoseRatiosYear.prototype = new GlucoseRatiosLineGraph();
 
 
 
@@ -218,3 +236,4 @@ $(document).ready(function () {
   };
 });
 */
+
