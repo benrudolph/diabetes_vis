@@ -45,13 +45,16 @@ GlucoseRatiosLineGraph.prototype.init = function() {
 }
 
 GlucoseRatiosLineGraph.prototype.render = function(data) {
-  data.forEach(function(d) {
+  data.averages.forEach(function(d) {
+      d.date = parseDate(d.date);
+  });
+  data.data.forEach(function(d) {
       d.date = parseDate(d.date);
   });
 
   this.data = data
 
-  this.brush.data = this.data
+  this.brush.data = this.data.data
 
   this.x_scale.domain(d3.extent(this.data, function(d) { return d.date; }));
 
@@ -68,11 +71,19 @@ GlucoseRatiosLineGraph.prototype.render = function(data) {
       .call(this.y_axis);
 
   this.container
-      .selectAll(".line")
-      .data([data])
+      .selectAll(".line.solid")
+      .data([this.data.data])
       .enter()
       .append("path")
-      .attr("class", "line")
+      .attr("class", "line solid")
+      .attr("d", this.line)
+
+  this.container
+      .selectAll(".line.dotted")
+      .data([this.data.averages])
+      .enter()
+      .append("path")
+      .attr("class", "line dotted")
       .attr("d", this.line)
 
   this.container
@@ -87,11 +98,20 @@ GlucoseRatiosLineGraph.prototype.render = function(data) {
 
 GlucoseRatiosLineGraph.prototype.update = function(data) {
   this.data = data
-  this.x_scale.domain(d3.extent(data, function(d) { return d.date; }));
+  this.x_scale.domain(d3.extent(data.data, function(d) { return d.date; }));
 
   var line = this.container
-      .selectAll(".line")
-      .data([data])
+      .selectAll(".line.solid")
+      .data([data.data])
+
+  line
+      .transition()
+      .duration(1000)
+      .attr("d", this.line);
+
+  line = this.svg
+      .selectAll(".line.dotted")
+      .data([data.averages])
 
   line
       .transition()
@@ -201,8 +221,14 @@ GlucoseRatiosYear.prototype.onBrush = function(d) {
 
 /*
 d3.json("get_daily_glucose_ratios?year=2012&month=0&week=0",
+=======
+d3.json("get_daily_glucose_ratios?year=2012&month=0&week=0&n_prior_weeks=16",
+>>>>>>> a2002ef8583a9a0a3db713d472202a2a5d4d1365
   function(data) {
-    data.forEach(function(d) {
+    data.data.forEach(function(d) {
+        d.date = parseDate(d.date);
+    });
+    data.averages.forEach(function(d) {
         d.date = parseDate(d.date);
     });
     ratio_graphs = [];
@@ -214,9 +240,12 @@ d3.json("get_daily_glucose_ratios?year=2012&month=0&week=0",
     });
   });
 
-d3.json("get_monthly_glucose_ratios?year=2011",
+d3.json("get_monthly_glucose_ratios?year=2011&global_average=1",
   function(data) {
-    data.forEach(function(d) {
+    data.data.forEach(function(d) {
+        d.date = parseDate(d.date);
+    });
+    data.averages.forEach(function(d) {
         d.date = parseDate(d.date);
     });
     ratio_graphs2 = [];
@@ -267,6 +296,7 @@ $(document).ready(function () {
 
   updateWeekSelector();
 
+<<<<<<< HEAD
   year_selector.onchange = function () {
     updateWeekSelector();
     updateWeekGraph();
@@ -286,6 +316,19 @@ $(document).ready(function () {
         ratio_graphs.forEach(function(ratio_graph) {
           ratio_graph.update(data);
         });
+=======
+function updateWeekGraph() {
+  d3.json("get_daily_glucose_ratios?year="+getYear()+"&month="+getMonth()+"&week="+getWeek()+"&n_prior_weeks=16",
+    function(data) {
+      data.data.forEach(function(d) {
+          d.date = parseDate(d.date);
+      });
+      data.averages.forEach(function(d) {
+          d.date = parseDate(d.date);
+      });
+      ratio_graphs.forEach(function(ratio_graph) {
+        ratio_graph.update(data);
+>>>>>>> a2002ef8583a9a0a3db713d472202a2a5d4d1365
       });
   };
 
