@@ -35,6 +35,13 @@ GlucoseRatiosLineGraph.prototype.init = function() {
   this.line = d3.svg.line()
       .x(function(d) { return this.x_scale(d.date) }.bind(this))
       .y(function(d) { return this.y_scale(d[this.glucoseLevel]) }.bind(this));
+
+  this.brush = d3.svg.brush()
+      .x(this.x_scale)
+      .on("brush", this.onBrush.bind(this))
+      .on("brushstart", this.onBrushstart.bind(this))
+      .on("brushend", this.onBrushend.bind(this))
+
 }
 
 GlucoseRatiosLineGraph.prototype.render = function(data) {
@@ -43,6 +50,9 @@ GlucoseRatiosLineGraph.prototype.render = function(data) {
   });
 
   this.data = data
+
+  this.brush.data = this.data
+
   this.x_scale.domain(d3.extent(this.data, function(d) { return d.date; }));
 
   this.container
@@ -64,6 +74,15 @@ GlucoseRatiosLineGraph.prototype.render = function(data) {
       .append("path")
       .attr("class", "line")
       .attr("d", this.line)
+
+  this.container
+      .call(this.brush)
+      .selectAll("rect")
+      .attr("y", this.margin.top)
+      .attr("height", this.height - this.margin.bottom - 10);
+
+
+
 };
 
 GlucoseRatiosLineGraph.prototype.update = function(data) {
@@ -96,48 +115,87 @@ GlucoseRatiosLineGraph.prototype.loadData = function(date, callback) {
 
 }
 
+GlucoseRatiosLineGraph.prototype.onBrush = function(d) {};
+GlucoseRatiosLineGraph.prototype.onBrushstart = function(d) {};
+GlucoseRatiosLineGraph.prototype.onBrushend = function(d) {};
+
+GlucoseRatiosLineGraph.prototype.clearBrush = function() {
+  this.container.call(this.brush.clear())
+}
+
+GlucoseRatiosLineGraph.prototype.setExtent = function(extent) {
+  this.brush.extent(extent)
+  this.container
+      .call(this.brush)
+}
+
 /*
  * GlucoseRatiosWeek - inherits GlucoseRatiosLineGraph
  */
 
-var GlucoseRatiosWeek = function(svg, glucoseLevel) {
+var GlucoseRatiosWeek = function(svg, glucoseLevel, dashboard) {
   this.loadUrl = "/diabetes/get_daily_glucose_ratios"
   this.ticks = d3.time.days;
   this.tickFormat = d3.time.format.utc("%a");
 
+  this.dashboard = dashboard
+
   this.glucoseLevel = glucoseLevel
+
+  this.id = "week" + this.glucoseLevel
 
   this.container = svg
       .append("svg:g")
       .attr("class", "week " + this.glucoseLevel)
-      .attr("id", "week" + this.glucoseLevel)
+      .attr("id", this.id)
 
   this.init()
+
 };
 
 GlucoseRatiosWeek.prototype = new GlucoseRatiosLineGraph();
+
+GlucoseRatiosWeek.prototype.onBrushstart = function(d) {
+  this.dashboard.setActiveBrush(this.id, this.brush.extent(), Dashboard.GRAPH_TYPES.WEEK)
+};
+
+GlucoseRatiosWeek.prototype.onBrush = function(d) {
+  this.dashboard.setActiveBrush(this.id, this.brush.extent(), Dashboard.GRAPH_TYPES.WEEK)
+};
+
 
 /*
  * GlucoseRatiosYear - inherits GlucoseRatiosLineGraph
  */
 
-var GlucoseRatiosYear = function(svg, glucoseLevel) {
+var GlucoseRatiosYear = function(svg, glucoseLevel, dashboard) {
   this.loadUrl = "/diabetes/get_monthly_glucose_ratios"
   this.ticks = d3.time.months;
   this.tickFormat = d3.time.format.utc("%m");
 
+  this.dashboard = dashboard
+
   this.glucoseLevel = glucoseLevel
+
+  this.id = "year" + this.glucoseLevel
 
   this.container = svg
       .append("svg:g")
       .attr("class", "year " + this.glucoseLevel)
-      .attr("id", "year" + this.glucoseLevel)
+      .attr("id", this.id)
 
   this.init()
 };
 
 GlucoseRatiosYear.prototype = new GlucoseRatiosLineGraph();
 
+GlucoseRatiosYear.prototype.onBrushstart = function(d) {
+  this.dashboard.setActiveBrush(this.id, this.brush.extent(), Dashboard.GRAPH_TYPES.YEAR)
+};
+
+GlucoseRatiosYear.prototype.onBrush = function(d) {
+  this.dashboard.setActiveBrush(this.id, this.brush.extent(), Dashboard.GRAPH_TYPES.YEAR)
+};
 
 
 

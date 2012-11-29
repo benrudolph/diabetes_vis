@@ -21,6 +21,9 @@ var Dashboard = function(selector, width, height) {
 
   this.currentDate = "2010-10-10"
 
+  this.activeWeekBrush = undefined
+  this.activeYearBrush = undefined
+
   this.init()
 
 }
@@ -60,42 +63,42 @@ Dashboard.prototype.init = function() {
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: "" + Dashboard.GRAPH_TYPES.WEEK + Dashboard.GLUCOSE_LEVELS.HIGH,
-      vis: new GlucoseRatiosWeek(this.svg, Dashboard.GLUCOSE_LEVELS.HIGH),
+      vis: new GlucoseRatiosWeek(this.svg, Dashboard.GLUCOSE_LEVELS.HIGH, this),
       x: 0,
       y: 0
     },
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: "" + Dashboard.GRAPH_TYPES.WEEK + Dashboard.GLUCOSE_LEVELS.OPTIMAL,
-      vis: new GlucoseRatiosWeek(this.svg, Dashboard.GLUCOSE_LEVELS.OPTIMAL),
+      vis: new GlucoseRatiosWeek(this.svg, Dashboard.GLUCOSE_LEVELS.OPTIMAL, this),
       x: 0,
       y: 150
     },
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: "" + Dashboard.GRAPH_TYPES.WEEK + Dashboard.GLUCOSE_LEVELS.LOW,
-      vis: new GlucoseRatiosWeek(this.svg, Dashboard.GLUCOSE_LEVELS.LOW),
+      vis: new GlucoseRatiosWeek(this.svg, Dashboard.GLUCOSE_LEVELS.LOW, this),
       x: 0,
       y: 300
     },
     {
       type: Dashboard.GRAPH_TYPES.YEAR,
       id: "" + Dashboard.GRAPH_TYPES.YEAR + Dashboard.GLUCOSE_LEVELS.LOW,
-      vis: new GlucoseRatiosYear(this.svg, Dashboard.GLUCOSE_LEVELS.LOW),
+      vis: new GlucoseRatiosYear(this.svg, Dashboard.GLUCOSE_LEVELS.LOW, this),
       x: 420,
       y: 300
     },
     {
       type: Dashboard.GRAPH_TYPES.YEAR,
       id: "" + Dashboard.GRAPH_TYPES.YEAR + Dashboard.GLUCOSE_LEVELS.OPTIMAL,
-      vis: new GlucoseRatiosYear(this.svg, Dashboard.GLUCOSE_LEVELS.OPTIMAL),
+      vis: new GlucoseRatiosYear(this.svg, Dashboard.GLUCOSE_LEVELS.OPTIMAL, this),
       x: 420,
       y: 150
     },
     {
       type: Dashboard.GRAPH_TYPES.YEAR,
       id: "" + Dashboard.GRAPH_TYPES.YEAR + Dashboard.GLUCOSE_LEVELS.HIGH,
-      vis: new GlucoseRatiosYear(this.svg, Dashboard.GLUCOSE_LEVELS.HIGH),
+      vis: new GlucoseRatiosYear(this.svg, Dashboard.GLUCOSE_LEVELS.HIGH, this),
       x: 420,
       y: 0
     },
@@ -136,4 +139,23 @@ Dashboard.prototype.render = function() {
   this.graphs.forEach(function(graph) {
     graph.vis.render()
   })
+}
+
+Dashboard.prototype.setActiveBrush = function(id, extent, type) {
+  //if (id === this.activeWeekBrush)
+  //  return
+
+  this.graphs.forEach(function(graph) {
+    if (graph.type === type && graph.id !== id) {
+      //graph.vis.clearBrush()
+      graph.vis.setExtent(extent)
+    }
+  })
+
+  this.activeWeekBrush = id
+
+}
+
+Dashboard.prototype.initHandlers = function() {
+
 }
