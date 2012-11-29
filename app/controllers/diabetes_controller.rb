@@ -130,6 +130,38 @@ saturday]
     render :json => data
   end
 
+  def get_all_daily_ratios
+    data = {}
+    data[:data] = _get_all_daily_ratios()
+    data[:averages] = _get_all_daily_ratios(true)
+    render :json => data
+  end
+
+  def _get_all_daily_ratios(compute_averages=false)
+    first = GlucoseSensorData.reorder(:timestamp).first
+    last = GlucoseSensorData.reorder(:timestamp).last
+    boundary = last.timestamp.year + 1
+    date_obj = Date.new(first.timestamp.year, 1)
+    daily_ratio_list = []
+
+    while (date_obj.next_day.year != boundary)
+      dict = {}
+      if compute_averages
+        query = GlucoseSensorData.between(first.timestamp, last.timestamp, :field => :timestamp).where("day = #{date_obj.wday}")
+      else
+        query = GlucoseSensorData.by_day(date_obj, :field => :timestamp)
+      end
+      total = query.count
+      dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
+      dict[:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
+      dict[:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
+      dict[:date] = date_obj.to_s
+      daily_ratio_list << dict
+      date_obj = date_obj.next_day
+    end
+    return daily_ratio_list
+  end
+
   def _get_daily_glucose_ratios(year, month, week, n_prior_weeks=0)
     date_obj = Date.new(year, month).beginning_of_week + week.weeks
     daily_ratio_list = []
@@ -165,5 +197,8 @@ saturday]
       data[:averages] = _get_daily_glucose_ratios(year, month, week, n_prior_weeks)
     end
     render :json => data
+  end
+
+  def brushing
   end
 end
