@@ -119,8 +119,12 @@ saturday]
   def get_monthly_glucose_ratios
     year = params[:year].to_i
     global_average = params[:global_average].to_i
-    monthly_ratio_list = _get_monthly_glucose_ratios(year, global_average)
-    render :json => monthly_ratio_list
+    data = {}
+    data[:data] = _get_monthly_glucose_ratios(year)
+    if global_average != 0
+      data[:averages] = _get_monthly_glucose_ratios(year, global_average)
+    end
+    render :json => data
   end
 
   def _get_daily_glucose_ratios(year, month, week, n_prior_weeks=0)
@@ -149,7 +153,11 @@ saturday]
     month = params[:month].to_i + 1 # adjust for 0 index
     week = params[:week].to_i
     n_prior_weeks = params[:n_prior_weeks].to_i
-    daily_ratio_list = _get_daily_glucose_ratios(year, month, week, n_prior_weeks)
-    render :json => daily_ratio_list
+    data = {}
+    data[:data] = _get_daily_glucose_ratios(year, month, week)
+    if n_prior_weeks != 0
+      data[:averages] = _get_daily_glucose_ratios(year, month, week, n_prior_weeks)
+    end
+    render :json => data
   end
 end
