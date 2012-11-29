@@ -33,8 +33,12 @@ GlucoseRatiosLineGraph.prototype.init = function() {
       .orient("left");
 
   this.line = d3.svg.line()
-      .x(function(d) { return this.x_scale(d.date) }.bind(this))
-      .y(function(d) { return this.y_scale(d[this.glucoseLevel]) }.bind(this));
+      .x(function(d) {
+        return this.x_scale(d.date)
+      }.bind(this))
+      .y(function(d) {
+        return this.y_scale(d[this.glucoseLevel])
+      }.bind(this));
 
   this.brush = d3.svg.brush()
       .x(this.x_scale)
@@ -52,11 +56,13 @@ GlucoseRatiosLineGraph.prototype.render = function(data) {
       d.date = parseDate(d.date);
   });
 
+  this.x_scale.domain(d3.extent(data.data, function(d) {
+    return d.date;
+  }));
+
   this.data = data
 
   this.brush.data = this.data.data
-
-  this.x_scale.domain(d3.extent(this.data, function(d) { return d.date; }));
 
   this.container
       .append("g")
@@ -125,7 +131,8 @@ GlucoseRatiosLineGraph.prototype.loadData = function(date, callback) {
   }
   $.ajax({
     url: this.loadUrl,
-    data: { date: date },
+    data: { date: date,
+            global_average: 1 },
     type: "GET",
     success: function(data) {
       if (callback)

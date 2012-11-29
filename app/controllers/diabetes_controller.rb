@@ -152,11 +152,13 @@ saturday]
   end
 
   def get_daily_glucose_ratios
-
-    year = params[:year].to_i
-    month = params[:month].to_i + 1 # adjust for 0 index
-    week = params[:week].to_i
-    n_prior_weeks = params[:n_prior_weeks].to_i
+    year, month, day = params[:date].split("-").map(&:to_i)
+    #year = params[:year].to_i
+    #month = params[:month].to_i + 1 # adjust for 0 index
+    #week = params[:week].to_i
+    week = 1
+    #n_prior_weeks = params[:n_prior_weeks].to_i
+    n_prior_weeks = 1
     data = {}
     data[:data] = _get_daily_glucose_ratios(year, month, week)
     if n_prior_weeks != 0
