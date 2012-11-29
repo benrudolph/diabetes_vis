@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121126013701) do
+ActiveRecord::Schema.define(:version => 20121129020833) do
 
   create_table "bg_receiveds", :force => true do |t|
     t.datetime "timestamp"
@@ -53,8 +53,11 @@ ActiveRecord::Schema.define(:version => 20121126013701) do
     t.datetime "timestamp"
     t.integer  "time"
     t.integer  "day"
+    t.integer  "month"
   end
 
+  add_index "glucose_sensor_data", ["month", "glucose"], :name => "index_glucose_sensor_data_on_month_and_glucose"
+  add_index "glucose_sensor_data", ["timestamp", "day", "glucose"], :name => "index_glucose_sensor_data_on_timestamp_and_day_and_glucose"
   add_index "glucose_sensor_data", ["timestamp", "time", "day"], :name => "index_glucose_sensor_data_on_timestamp_and_time_and_day"
   add_index "glucose_sensor_data", ["timestamp"], :name => "index_glucose_sensor_data_on_timestamp"
 

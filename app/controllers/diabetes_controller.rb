@@ -29,7 +29,6 @@ saturday]
       minutes_end = ((n + EPSILON_MINUTES - 1) % 60).to_s.rjust(2, "0")
       hours_end = ((n + EPSILON_MINUTES - 1) / 60).to_s.rjust(2, "0")
 
-      #data = GlucoseSensorData.where("strftime('%H:%M', timestamp) between '#{hours_start}:#{minutes_start}:00' and '#{hours_end}:#{minutes_end}:59' and strftime('%w', timestamp) = '#{day_of_week}'").between(range[:begin], range[:end], :field => :timestamp)
       data = GlucoseSensorData.where("time between #{hours_start}#{minutes_start}00 AND #{hours_end}#{minutes_end}59 and day = #{day_of_week}").between(range[:begin], range[:end], :field => :timestamp)
 
       #unless range.empty?
@@ -98,11 +97,15 @@ saturday]
   def heat_map
   end
 
-  def _get_monthly_glucose_ratios(year)
+  def _get_monthly_glucose_ratios(year, global_average=0)
     monthly_ratio_list = []
     (1..12).each do |month|
       dict = {}
-      query = GlucoseSensorData.by_month(month, :year => year, :field => :timestamp)
+      if global_average != 0
+        query = GlucoseSensorData.where("month = #{month}")
+      else
+        query = GlucoseSensorData.by_month(month, :year => year, :field => :timestamp)
+      end
       total = query.count
       dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
       dict[:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
@@ -115,16 +118,21 @@ saturday]
 
   def get_monthly_glucose_ratios
     year = params[:year].to_i
-    monthly_ratio_list = _get_monthly_glucose_ratios(year)
+    global_average = params[:global_average].to_i
+    monthly_ratio_list = _get_monthly_glucose_ratios(year, global_average)
     render :json => monthly_ratio_list
   end
 
-  def _get_daily_glucose_ratios(year, month, week)
+  def _get_daily_glucose_ratios(year, month, week, n_prior_weeks=0)
     date_obj = Date.new(year, month).beginning_of_week + week.weeks
     daily_ratio_list = []
     (0..6).each do |offset|
       dict = {}
-      query = GlucoseSensorData.by_day(date_obj, :field => :timestamp)
+      if n_prior_weeks > 0
+        query = GlucoseSensorData.between(date_obj - n_prior_weeks.weeks, date_obj - 1.day, :field => :timestamp).where("day = #{date_obj.wday}")
+      else
+        query = GlucoseSensorData.by_day(date_obj, :field => :timestamp)
+      end
       total = query.count
       dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
       dict[:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
@@ -140,7 +148,8 @@ saturday]
     year = params[:year].to_i
     month = params[:month].to_i + 1 # adjust for 0 index
     week = params[:week].to_i
-    daily_ratio_list = _get_daily_glucose_ratios(year, month, week)
+    n_prior_weeks = params[:n_prior_weeks].to_i
+    daily_ratio_list = _get_daily_glucose_ratios(year, month, week, n_prior_weeks)
     render :json => daily_ratio_list
   end
 end
