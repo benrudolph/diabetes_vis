@@ -201,4 +201,32 @@ saturday]
 
   def brushing
   end
+
+  def _get_month_data(month, year, increments)
+    interval = (1.day / increments).seconds
+    date_obj = Date.new(year, month)
+    data = []
+    while (date_obj.month == month)
+      interval_start = date_obj
+      cur_dict = {}
+      cur_dict[:date] = date_obj
+      cur_dict[:glucose] = []
+      (1..increments).each do |i|
+        interval_end = interval_start + interval
+        cur_dict[:glucose] << GlucoseSensorData.between(interval_start, interval_end, :field => :timestamp).average(:glucose)
+        interval_start = interval_end
+      end
+      data << cur_dict
+      date_obj += 1.day
+    end
+    return data
+  end
+
+  def get_month_data
+    year = params[:year].to_i
+    month = params[:month].to_i
+    increments = params[:increments].to_i
+    data = _get_month_data(month, year, increments)
+    render :json => data
+  end
 end

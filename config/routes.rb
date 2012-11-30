@@ -1,4 +1,6 @@
 DiabetesVis::Application.routes.draw do
+  get "diabetes/month"
+
   get "diabetes/brushing"
 
   get "diabetes/time_series"
