@@ -74,7 +74,6 @@ saturday]
   # through sunday. For example, hand in 12/12/12 which happens to be a wednesday. This will get days Monday,
   # 12/10/12 through Sunday 12/16/12
   def week
-    require "ruby-debug"
     year, month, day = params[:date].split("-").map(&:to_i)
     interval = (params[:interval] || 10).to_i
 

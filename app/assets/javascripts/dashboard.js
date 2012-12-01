@@ -1,7 +1,7 @@
 var Dashboard = function(selector, width, height) {
   this.selector = selector
 
-  this.height = height || 600
+  this.height = height || 1000
   this.width = width || 1300
 
   this.margin = {
@@ -19,7 +19,7 @@ var Dashboard = function(selector, width, height) {
       .attr("width", this.width)
       .append("svg:g")
 
-  this.currentDate = "2010-10-10"
+  this.currentDate = "2010-10-09"
 
   this.activeWeekBrush = undefined
   this.activeYearBrush = undefined
@@ -40,26 +40,18 @@ Dashboard.GLUCOSE_LEVELS = {
   LOW: "low"
 }
 
-/*
-Dashboard.LAYOUT = {}
-Dashboard.LAYOUT[Dashboard.GRAPH_TYPES.DAY].x = 500
-Dashboard.LAYOUT[Dashboard.GRAPH_TYPES.DAY].y = 0
-
-Dashboard.LAYOUT[Dashboard.GRAPH_TYPES.WEEK] = {}
-Dashboard.LAYOUT[Dashboard.GRAPH_TYPES.WEEK][Dashboard.GLUCOSE_LEVELS.HIGH] = {}
-*/
 
 Dashboard.prototype.init = function() {
 
   // Holds all graphs and visualizations on the dashboard
   this.graphs = [
-  //  {
-  //    type: Dashboard.GRAPH_TYPES.DAY,
-  //    id: Dashboard.GRAPH_TYPES.DAY,
-  //    vis: new DaySeries(this.svg),
-  //    x: 800,
-  //    y: 0
-  //  },
+    {
+      type: Dashboard.GRAPH_TYPES.DAY,
+      id: Dashboard.GRAPH_TYPES.DAY,
+      vis: new DaySeries(this.svg),
+      x: (this.width / 2) - 200,
+      y: 300
+    },
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: Dashboard.GRAPH_TYPES.WEEK,
