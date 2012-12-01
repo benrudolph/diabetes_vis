@@ -9,6 +9,7 @@ DiabetesVis::Application.routes.draw do
   get "diabetes/day_series"
 
   get "diabetes/day"
+  get "diabetes/week"
 
   get "diabetes/day_averages"
 

@@ -1,6 +1,6 @@
 class DiabetesController < ApplicationController
   EPSILON_MINUTES = 60
-  DAYS_OF_THE_WEEK = %w[sunday monday tuesday wednesday thursday friday
+  DAYS_OF_WEEK = %w[sunday monday tuesday wednesday thursday friday
 saturday]
 
   def dashboard
@@ -68,6 +68,55 @@ saturday]
     averages = average_day(time, range)
 
     render :json => averages.to_json
+  end
+
+  # Gets data for a week. Send in a day in this format: %Y-%m-%d, this function will get the nearest monday
+  # through sunday. For example, hand in 12/12/12 which happens to be a wednesday. This will get days Monday,
+  # 12/10/12 through Sunday 12/16/12
+  def week
+    require "ruby-debug"
+    year, month, day = params[:date].split("-").map(&:to_i)
+    interval = (params[:interval] || 10).to_i
+
+    time = Time.utc(year, month, day)
+
+    # Calculate monday from given date
+    date = time - (time.wday.days - 1.days)
+
+    week_data = []
+
+    DAYS_OF_WEEK.each do |day|
+      interval_data = Hash.new { |h, k| h[k] = [] }
+      date += 1.days
+
+      data = GlucoseSensorData.by_day(date, :field => :timestamp)
+
+
+      data.each do |datum|
+        minutes = datum.timestamp.min + (datum.timestamp.hour * 60)
+        # At first seems like a no op but this actually buckets minutes into intervals
+        bucket = (minutes / interval) * interval
+
+        interval_data[bucket] << datum
+      end
+
+      interval_data.each_pair do |bucket, datums|
+        datum = {}
+
+        unless datums
+          next
+        end
+
+        # Averages glucose values if there are more than one datum for that bucket
+        datum[:glucose] = datums.inject(0.0) { |sum, d| sum + d.glucose } / datums.size
+
+        datum[:time] = bucket
+        datum[:day] = day
+        week_data << datum
+      end
+    end
+
+    render :json => { :data => week_data, :interval => interval }
   end
 
   # Gets data for given day format will be %Y-%m-%d

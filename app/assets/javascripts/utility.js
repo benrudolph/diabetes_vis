@@ -26,3 +26,27 @@ Utility.getPointOnPath = function(xOffset, path) {
   return pos
 
 }
+
+Utility.GLUCOSE_HIGH = 180
+Utility.GLUCOSE_LOW = 80
+
+Utility.glucoseLowScale = d3.scale.linear()
+    .domain([40, 80])
+    .range([20, 95])
+
+Utility.glucoseHighScale = d3.scale.linear()
+    .domain([180, 400])
+    .range([95, 20])
+
+Utility.getGlucoseColor = function(glucose) {
+  if (glucose <= this.GLUCOSE_LOW) {
+    var lightness = this.glucoseLowScale(glucose)
+    return "hsl(" + 229 + ",100%," + lightness + "%)";
+  }
+  else if (glucose >= this.GLUCOSE_HIGH) {
+    var lightness = this.glucoseHighScale(glucose)
+    return "hsl(" + 9 + ",100%," + lightness + "%)";
+  } else {
+    return "#ffffff"
+  }
+}

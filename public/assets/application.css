@@ -34,3 +34,8 @@
 #weeklow .line {
   stroke: blue;
 }
+
+.slice {
+  stroke: #191919;
+  stroke-width: 1px;
+}
