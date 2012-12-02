@@ -1,13 +1,13 @@
 .low {
-  fill: blue;
+  fill:url(#lowGradient);
 }
 
 .high {
-  fill: red;
+  fill:url(#highGradient);
 }
 
 .range {
-  fill-opacity: .3;
+  fill-opacity: 1;
 }
 
 .line {
@@ -73,5 +73,4 @@
   fill: #ffffff;
   font-size: 10px;
   pointer-events: none;
-
 }

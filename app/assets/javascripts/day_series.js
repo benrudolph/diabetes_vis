@@ -97,6 +97,23 @@ DaySeries.prototype.render = function() {
   var that = this
 
   this.container
+      .append("rect")
+      .attr("class", "low range")
+      .attr("x", this.margin.left)
+      .attr("y", this.y(this.low))
+      .attr("width", this.width - this.margin.left - this.margin.right)
+      .attr("height", this.y(0) - this.y(this.low))
+
+  this.container
+      .append("rect")
+      .attr("class", "high range")
+      .attr("x", this.margin.left)
+      .attr("y", this.margin.top)
+      .attr("width", this.width - this.margin.left - this.margin.right)
+      .attr("height", this.y(this.high) - this.y(this.yMax))
+
+
+  this.container
       .selectAll(".real")
       .data([this.day_data])
       .enter()
@@ -124,22 +141,6 @@ DaySeries.prototype.render = function() {
       .attr("class", "y axis")
       .attr("transform", "translate(" + this.margin.left + ", 0)")
       .call(this.yAxis)
-
-  this.container
-      .append("rect")
-      .attr("class", "low range")
-      .attr("x", this.margin.left)
-      .attr("y", this.y(this.low))
-      .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", this.y(0) - this.y(this.low))
-
-  this.container
-      .append("rect")
-      .attr("class", "high range")
-      .attr("x", this.margin.left)
-      .attr("y", this.margin.top)
-      .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", this.y(this.high) - this.y(this.yMax))
 
   this.container
       .append("svg:g")
