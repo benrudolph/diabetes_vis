@@ -83,7 +83,6 @@ saturday sunday]
     date = time - (time.wday.days - 1.days)
 
     week_data = []
-    require 'ruby-debug'
 
     DAYS_OF_WEEK.each do |day|
       interval_data = Hash.new { |h, k| h[k] = [] }
