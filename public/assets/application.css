@@ -64,3 +64,14 @@
   stroke-opacity: 1;
   pointer-events: none;
 }
+
+.popup {
+  pointer-events: none;
+}
+
+.popupText {
+  fill: #ffffff;
+  font-size: 10px;
+  pointer-events: none;
+
+}

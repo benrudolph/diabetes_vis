@@ -17,6 +17,7 @@ var WeekHeatmap = function(svg) {
     bottom: 3,
   }
 
+  this.daySelectionMargin = 3
 
   this.interval = 10
   // Multiply by hours in day
@@ -73,6 +74,53 @@ WeekHeatmap.prototype.xScale = function() {
   return x
 }
 
+WeekHeatmap.prototype.update = function(data) {
+  var that = this
+
+  this.daySeries.loadData(window.Utility.dateToString(this.currentDate), undefined,
+      this.daySeries.update.bind(this.daySeries))
+
+  this.data = data.data
+  this.weekDates = data.week_dates
+  this.interval = data.interval
+
+  if (!this.data)
+    console.log("Alert no data to render graph")
+
+  var slices = this.container
+      .selectAll(".slice")
+      .data(this.data, function(d) {
+        return d.time
+      })
+
+  slices
+    .transition()
+    .duration(1000)
+    .style("fill", function(d) {
+      return window.Utility.getGlucoseColor(d.glucose)
+    })
+
+  slices
+    .exit()
+    .remove()
+
+
+  this.container
+      .selectAll(".daySelection")
+      .remove()
+
+  this.container
+      .selectAll(".tile")
+      .remove()
+
+  this.renderSlices()
+
+  // Need to re render tiles and dayselections so that they are ontop of the slices
+  this.renderTiles()
+  this.renderDaySelections()
+
+}
+
 /*
  * #render
  * data =
@@ -96,92 +144,8 @@ WeekHeatmap.prototype.render = function(data) {
 
   var that = this
 
-  this.container
-    .selectAll(".slice")
-    .data(this.data)
-    .enter()
-    .append("rect")
-    .attr("class", "slice")
-    .attr("x", function(d, i) {
-      return this.x[parseInt(d.time / 60)](d.time % 60)
-    }.bind(this))
-    .attr("y", function(d) {
-      return this.y(d.day) + .5
-    }.bind(this))
-    .attr("height", WeekHeatmap.TILE.HEIGHT - 1)
-    .attr("width", WeekHeatmap.TILE.WIDTH / (60 / this.interval))
-    .style("fill", function(d) {
-      return window.Utility.getGlucoseColor(d.glucose)
-    })
-    .on("mouseover", function(d) {
-      if (d.day !== WeekHeatmap.getDayFromDate(that.currentDate))
-        return
+  this.renderSlices()
 
-      var slice = d3.select(this)
-
-      slice.style("stroke", "black")
-          .style("stroke-width", "1px")
-
-      that.daySeries.highlightFromDate(d.timestamp)
-    })
-    .on("mouseout", function(d) {
-      var slice = d3.select(this)
-
-      slice.style("stroke", "none")
-    })
-
-  this.container
-      .selectAll(".tile")
-      .data(this.hours)
-      .enter()
-      .append("rect")
-      .attr("class", "tile")
-      .attr("x", function(d, i) {
-        return this.x[parseInt(i % 24)](0)
-      }.bind(this))
-      .attr("y", function(d, i) {
-        return this.y(d)
-      }.bind(this))
-      .attr("width", WeekHeatmap.TILE.WIDTH)
-      .attr("height", WeekHeatmap.TILE.HEIGHT)
-      .attr("rx", 4)
-      .attr("ry", 4)
-
-  var daySelectionMargin = 3
-
-  this.container
-      .selectAll(".daySelection")
-      .data(this.weekDates)
-      .enter()
-      .append("rect")
-      .attr("class", function(d) {
-        var clazz = "daySelection"
-        if (d.day === WeekHeatmap.getDayFromDate(this.currentDate))
-          clazz += " selected"
-        return clazz
-      }.bind(this))
-      .attr("x", function(d) {
-        return this.x[0](0) - daySelectionMargin
-      }.bind(this))
-      .attr("y", function(d) {
-        return this.y(d.day) - daySelectionMargin
-      }.bind(this))
-      .attr("width", this.width + (2 * daySelectionMargin))
-      .attr("height", WeekHeatmap.TILE.HEIGHT + (2 * daySelectionMargin))
-      .attr("rx", daySelectionMargin)
-      .attr("ry", daySelectionMargin)
-      .on("mouseover", function(d) {
-        if (d.day !== WeekHeatmap.getDayFromDate(this.currentDate))
-          that.daySeries.highlightRemove()
-      }.bind(this))
-      .on("click", function(d) {
-
-        d3.select(".daySelection.selected").classed("selected", false)
-        d3.select(this).classed("selected", true)
-
-        that.daySeries.loadData(window.Utility.dateToString(new Date(d.date)), undefined,
-            that.daySeries.update.bind(that.daySeries))
-      })
 
   this.container
       .selectAll(".y.axis")
@@ -209,6 +173,7 @@ WeekHeatmap.prototype.render = function(data) {
       }.bind(this))
       .attr("text-anchor", "middle")
       .text(function(d, i) {
+        // Calculation to convert 24 hour index into 12 hour time.
         var t = i % 12
         if (t === 0)
           t = 12
@@ -216,7 +181,108 @@ WeekHeatmap.prototype.render = function(data) {
         return t
       })
 
+  this.renderTiles()
+  this.renderDaySelections()
 
+
+  //this.loadData("2010-10-04", this.update.bind(this))
+}
+
+WeekHeatmap.prototype.renderSlices = function() {
+  var that = this
+
+  this.container
+      .selectAll(".slice")
+      .data(this.data)
+      .enter()
+      .append("rect")
+      .attr("class", "slice")
+      .attr("x", function(d, i) {
+        return this.x[parseInt(d.time / 60)](d.time % 60)
+      }.bind(this))
+      .attr("y", function(d) {
+        return this.y(d.day) + .5
+      }.bind(this))
+      .attr("height", WeekHeatmap.TILE.HEIGHT - 1)
+      .attr("width", WeekHeatmap.TILE.WIDTH / (60 / this.interval))
+      .style("fill", function(d) {
+        return window.Utility.getGlucoseColor(d.glucose)
+      })
+      .on("mouseover", function(d) {
+        if (d.day !== WeekHeatmap.getDayFromDate(that.currentDate))
+          return
+
+        var slice = d3.select(this)
+
+        slice.style("stroke", "black")
+            .style("stroke-width", "1px")
+
+        that.daySeries.highlightFromDate(d.timestamp)
+      })
+      .on("mouseout", function(d) {
+        var slice = d3.select(this)
+
+        slice.style("stroke", "none")
+      })
+
+}
+
+WeekHeatmap.prototype.renderTiles = function() {
+  this.container
+      .selectAll(".tile")
+      .data(this.hours)
+      .enter()
+      .append("rect")
+      .attr("class", "tile")
+      .attr("x", function(d, i) {
+        return this.x[parseInt(i % 24)](0)
+      }.bind(this))
+      .attr("y", function(d, i) {
+        return this.y(d)
+      }.bind(this))
+      .attr("width", WeekHeatmap.TILE.WIDTH)
+      .attr("height", WeekHeatmap.TILE.HEIGHT)
+      .attr("rx", 4)
+      .attr("ry", 4)
+}
+
+WeekHeatmap.prototype.renderDaySelections = function() {
+  var that = this
+
+  this.container
+      .selectAll(".daySelection")
+      .data(this.weekDates)
+      .enter()
+      .append("rect")
+      .attr("class", function(d) {
+        var clazz = "daySelection"
+        if (d.day === WeekHeatmap.getDayFromDate(this.currentDate))
+          clazz += " selected"
+        return clazz
+      }.bind(this))
+      .attr("x", function(d) {
+        return this.x[0](0) - this.daySelectionMargin
+      }.bind(this))
+      .attr("y", function(d) {
+        return this.y(d.day) - this.daySelectionMargin
+      }.bind(this))
+      .attr("width", this.width + (2 * this.daySelectionMargin))
+      .attr("height", WeekHeatmap.TILE.HEIGHT + (2 * this.daySelectionMargin))
+      .attr("rx", this.daySelectionMargin)
+      .attr("ry", this.daySelectionMargin)
+      .on("mouseover", function(d) {
+        if (d.day !== WeekHeatmap.getDayFromDate(this.currentDate))
+          that.daySeries.highlightRemove()
+      }.bind(this))
+      .on("click", function(d) {
+
+        d3.select(".daySelection.selected").classed("selected", false)
+        d3.select(this).classed("selected", true)
+
+        that.currentDate = new Date(d.date)
+        that.daySeries.loadData(window.Utility.dateToString(new Date(d.date)), undefined,
+            that.daySeries.update.bind(that.daySeries))
+      })
 
 }
 

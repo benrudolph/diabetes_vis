@@ -164,6 +164,8 @@ DaySeries.prototype.render = function() {
 DaySeries.prototype.highlightRemove = function() {
   d3.selectAll(".guide").remove()
   d3.selectAll(".highlight").remove()
+  d3.selectAll(".popup").remove()
+  d3.selectAll(".popupText").remove()
 }
 
 DaySeries.prototype.highlightFromDate = function(date) {
@@ -171,8 +173,7 @@ DaySeries.prototype.highlightFromDate = function(date) {
 }
 
 DaySeries.prototype.highlight = function(x) {
-  d3.selectAll(".guide").remove()
-  d3.selectAll(".highlight").remove()
+  this.highlightRemove()
 
   var real = d3.select(".real")[0][0]
   var average = d3.select(".average")[0][0]
@@ -201,6 +202,45 @@ DaySeries.prototype.highlight = function(x) {
         return d.y
       })
       .attr("r", 5)
+
+  var popupHeight = 30
+  var popupWidth = 50
+
+  this.container
+      .selectAll(".popup")
+      .data([highlightReal])
+      .enter()
+      .append("rect")
+      .attr("class", "popup")
+      .attr("x", function(d) {
+        return d.x
+      })
+      .attr("y", function(d) {
+        return d.y - popupHeight
+      })
+      .attr("width", popupWidth)
+      .attr("height", popupHeight)
+      .attr("rx", 10)
+      .attr("ry", 10)
+
+  this.container
+      .selectAll(".popupText")
+      .data([highlightReal])
+    .enter().append("text")
+      .attr("class", "popupText")
+      .attr("x", function(d) {
+        return d.x + (popupWidth / 2)
+      })
+      .attr("y", function(d) {
+        return d.y - (popupHeight / 2) + 3
+      })
+      .attr("width", 50)
+      .attr("text-anchor", "middle")
+      .text(function(d) {
+        return d3.round(this.y.invert(d.y), 1)
+      }.bind(this))
+
+
 
 
 }
