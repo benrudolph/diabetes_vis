@@ -1,7 +1,7 @@
 class DiabetesController < ApplicationController
   EPSILON_MINUTES = 60
-  DAYS_OF_WEEK = %w[sunday monday tuesday wednesday thursday friday
-saturday]
+  DAYS_OF_WEEK = %w[monday tuesday wednesday thursday friday
+saturday sunday]
 
   def dashboard
   end
@@ -83,13 +83,12 @@ saturday]
     date = time - (time.wday.days - 1.days)
 
     week_data = []
+    require 'ruby-debug'
 
     DAYS_OF_WEEK.each do |day|
       interval_data = Hash.new { |h, k| h[k] = [] }
-      date += 1.days
 
       data = GlucoseSensorData.by_day(date, :field => :timestamp)
-
 
       data.each do |datum|
         minutes = datum.timestamp.min + (datum.timestamp.hour * 60)
@@ -110,9 +109,12 @@ saturday]
         datum[:glucose] = datums.inject(0.0) { |sum, d| sum + d.glucose } / datums.size
 
         datum[:time] = bucket
-        datum[:day] = day
+        datum[:day] = date.strftime("%A").downcase
+        datum[:timestamp] = datums[0].timestamp
         week_data << datum
       end
+
+      date += 1.days
     end
 
     render :json => { :data => week_data, :interval => interval }

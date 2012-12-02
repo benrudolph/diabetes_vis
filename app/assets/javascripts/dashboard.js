@@ -19,7 +19,7 @@ var Dashboard = function(selector, width, height) {
       .attr("width", this.width)
       .append("svg:g")
 
-  this.currentDate = "2010-10-09"
+  this.currentDate = "2010-09-04"
 
   this.activeWeekBrush = undefined
   this.activeYearBrush = undefined
@@ -45,13 +45,13 @@ Dashboard.prototype.init = function() {
 
   // Holds all graphs and visualizations on the dashboard
   this.graphs = [
-    {
+  /*  {
       type: Dashboard.GRAPH_TYPES.DAY,
       id: Dashboard.GRAPH_TYPES.DAY,
       vis: new DaySeries(this.svg),
       x: (this.width / 2) - 200,
       y: 300
-    },
+    },*/
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: Dashboard.GRAPH_TYPES.WEEK,

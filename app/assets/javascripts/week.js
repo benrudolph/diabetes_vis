@@ -1,4 +1,5 @@
 var WeekHeatmap = function(svg) {
+  this.svg = svg
   this.container = svg
       .append("svg:g")
       .attr("class", "weekHeatmap")
@@ -19,10 +20,11 @@ var WeekHeatmap = function(svg) {
 
   this.interval = 10
   // Multiply by hours in day
-  this.width = (WeekHeatmap.TILE.WIDTH + 15) * 24
+  this.width = (WeekHeatmap.TILE.WIDTH + this.tileMargin.middle) * 24
 
   // Multiply by days in week
-  this.height = (WeekHeatmap.TILE.HEIGHT + this.tileMargin.top + this.tileMargin.bottom) * 7 + (this.margin.top)
+  this.height = (WeekHeatmap.TILE.HEIGHT + this.tileMargin.top + this.tileMargin.bottom) * 7 +
+      this.margin.top
 
   this.x = this.xScale()
 
@@ -37,6 +39,11 @@ var WeekHeatmap = function(svg) {
   for (var i = 0; i < this.hours.length; i++) {
     this.hours[i] = WeekHeatmap.DAYS[parseInt(i / 24)]
   }
+
+  this.currentDate = undefined
+  this.daySeries = new DaySeries(svg)
+  d3.select("#" + this.daySeries.id)
+      .attr("transform", "translate(0, " + this.height + ")")
 
 }
 
@@ -73,14 +80,20 @@ WeekHeatmap.prototype.xScale = function() {
  *   data: [{ glucose: <value>, time: <total minutes>, day: <day> }, ...],
  *   interval: <number based on sampling [0, 60] (5 would mean 5 minutes between each sample)>
  * }
+ *
+ * This function should only be called once. If you need to make changes to the graph use #update
  */
 WeekHeatmap.prototype.render = function(data) {
+  this.daySeries.loadData(window.Utility.dateToString(this.currentDate))
+
   this.data = data.data
 
   this.interval = data.interval
 
   if (!this.data)
     console.log("Alert no data to render graph")
+
+  var that = this
 
   this.container
     .selectAll(".slice")
@@ -100,10 +113,15 @@ WeekHeatmap.prototype.render = function(data) {
       return window.Utility.getGlucoseColor(d.glucose)
     })
     .on("mouseover", function(d) {
+      if (d.day !== WeekHeatmap.getDayFromDate(that.currentDate))
+        return
+
       var slice = d3.select(this)
 
       slice.style("stroke", "black")
           .style("stroke-width", "1px")
+
+      that.daySeries.highlightFromDate(d.timestamp)
     })
     .on("mouseout", function(d) {
       var slice = d3.select(this)
@@ -127,6 +145,28 @@ WeekHeatmap.prototype.render = function(data) {
       .attr("height", WeekHeatmap.TILE.HEIGHT)
       .attr("rx", 4)
       .attr("ry", 4)
+
+  var daySelectionMargin = 3
+
+  this.container
+      .selectAll(".daySelection")
+      .data([this.currentDate])
+      .enter()
+      .append("rect")
+      .attr("class", "daySelection")
+      .attr("x", function(d) {
+        return this.x[0](0) - daySelectionMargin
+      }.bind(this))
+      .attr("y", function(d) {
+        return this.y(WeekHeatmap.getDayFromDate(this.currentDate)) - daySelectionMargin
+      }.bind(this))
+      .attr("width", this.width + (2 * daySelectionMargin))
+      .attr("height", WeekHeatmap.TILE.HEIGHT + (2 * daySelectionMargin))
+      .attr("rx", daySelectionMargin)
+      .attr("ry", daySelectionMargin)
+      .on("mouseout", function(d) {
+        that.daySeries.highlightRemove()
+      })
 
   this.container
       .selectAll(".y.axis")
@@ -170,6 +210,8 @@ WeekHeatmap.prototype.loadData = function(date, callback) {
     callback = this.render.bind(this)
   }
 
+  this.currentDate = window.Utility.stringToDate(date)
+
   $.ajax({
     url: "/diabetes/week",
     type: "GET",
@@ -181,4 +223,10 @@ WeekHeatmap.prototype.loadData = function(date, callback) {
   })
 }
 
-
+WeekHeatmap.getDayFromDate = function(date) {
+  var day = date.getUTCDay() - 1
+  // Adjust for starting the week on monday
+  if (day < 0)
+    day = WeekHeatmap.DAYS.length - 1
+  return WeekHeatmap.DAYS[day]
+}

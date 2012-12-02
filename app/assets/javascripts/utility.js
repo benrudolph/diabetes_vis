@@ -50,3 +50,12 @@ Utility.getGlucoseColor = function(glucose) {
     return "#ffffff"
   }
 }
+
+Utility.dateToString = function(date) {
+  return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate()
+}
+
+Utility.stringToDate = function(stringDate) {
+  var dateParts = stringDate.split("-")
+  return new Date(dateParts[0], dateParts[1] - 1, dateParts[2])
+}

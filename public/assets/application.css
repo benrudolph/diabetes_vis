@@ -44,3 +44,9 @@
 .axis {
   font-size: 10px;
 }
+
+.daySelection {
+  fill: none;
+  stroke: #191919;
+  stroke-width: 2px;
+}

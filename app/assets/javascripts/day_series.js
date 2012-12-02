@@ -1,7 +1,7 @@
 var DaySeries = function(svg, data, width, height) {
   this.svg = svg
-  this.height = height || 400
-  this.width = width || 400
+  this.height = height || 300
+  this.width = width || 300
 
   this.margin = {
     top: 10,
@@ -13,9 +13,11 @@ var DaySeries = function(svg, data, width, height) {
   this.low = 80
   this.high = 180
 
+  this.id = Dashboard.GRAPH_TYPES.DAY
+
   this.container = this.svg
       .append("svg:g")
-      .attr("id", Dashboard.GRAPH_TYPES.DAY)
+      .attr("id", this.id)
       .attr("class", "daySeries")
       .attr("height", this.height)
       .attr("width", this.width)
@@ -150,45 +152,56 @@ DaySeries.prototype.render = function() {
       .attr("width", this.width - this.margin.left - this.margin.right)
       .attr("height", this.height - this.margin.bottom - this.margin.top)
       .on("mousemove", function() {
-        d3.selectAll(".guide").remove()
-        d3.selectAll(".highlight").remove()
-
-        var real = d3.select(".real")[0][0]
-        var average = d3.select(".average")[0][0]
-
         var coords = d3.mouse(d3.select("#overlayContainer")[0][0])
-
-        var highlightReal = window.Utility.getPointOnPath(coords[0] + that.margin.left, real)
-        var highlightAverage = window.Utility.getPointOnPath(coords[0] + that.margin.left, average)
-
-        d3.select("#overlayContainer")
-            .append("rect")
-            .attr("class", "guide")
-            .attr("x", coords[0])
-            .attr("y", 0)
-            .attr("width", 1)
-            .attr("height", d3.select(this).attr("height"))
-
-        that.container
-            .selectAll(".highlight")
-            .data([highlightReal, highlightAverage])
-            .enter()
-            .append("circle")
-            .attr("class", "highlight")
-            .attr("cx", function(d) {
-              return d.x + .5
-            })
-            .attr("cy", function(d) {
-              return d.y
-            })
-            .attr("r", 5)
-
-
-      })
+        this.highlight(coords[0])
+      }.bind(this))
       .on("mouseout", function() {
-        d3.selectAll(".guide").remove()
-        d3.selectAll(".highlight").remove()
+        this.highlightRemove()
+      }.bind(this))
+
+}
+
+DaySeries.prototype.highlightRemove = function() {
+  d3.selectAll(".guide").remove()
+  d3.selectAll(".highlight").remove()
+}
+
+DaySeries.prototype.highlightFromDate = function(date) {
+  this.highlight(this.x(new Date(date)) - this.margin.left)
+}
+
+DaySeries.prototype.highlight = function(x) {
+  d3.selectAll(".guide").remove()
+  d3.selectAll(".highlight").remove()
+
+  var real = d3.select(".real")[0][0]
+  var average = d3.select(".average")[0][0]
+
+  var highlightReal = window.Utility.getPointOnPath(x + this.margin.left, real)
+  var highlightAverage = window.Utility.getPointOnPath(x + this.margin.left, average)
+
+  d3.select("#overlayContainer")
+      .append("rect")
+      .attr("class", "guide")
+      .attr("x", x)
+      .attr("y", 0)
+      .attr("width", 1)
+      .attr("height", this.height - this.margin.bottom - this.margin.top)
+
+  this.container
+      .selectAll(".highlight")
+      .data([highlightReal, highlightAverage])
+      .enter()
+      .append("circle")
+      .attr("class", "highlight")
+      .attr("cx", function(d) {
+        return d.x + .5
       })
+      .attr("cy", function(d) {
+        return d.y
+      })
+      .attr("r", 5)
+
 
 }
 
