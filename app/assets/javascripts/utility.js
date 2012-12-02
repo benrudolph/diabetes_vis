@@ -57,15 +57,9 @@ Utility.dateToString = function(date) {
 
 Utility.stringToDate = function(stringDate) {
   var dateParts = stringDate.split("-")
-  return new Date(dateParts[0], dateParts[1] - 1, dateParts[2])
+  return new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]))
 }
 
 Utility.isSameDay = function(date1, date2) {
-  var d1 = new Date(date1.getTime())
-  var d2 = new Date(date2.getTime())
-  d1.setHours(0)
-  d1.setMinutes(0)
-  d2.setHours(0)
-  d2.setMinutes(0)
-  return d1.getTime() === d2.getTime()
+  return date1.getTime() === date2.getTime()
 }

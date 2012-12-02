@@ -11,7 +11,7 @@ var WeekHeatmap = function(svg) {
     top: 40,
     right: 10,
     bottom: 40,
-    left: 60
+    left: 100
   }
 
   this.tileMargin = {
@@ -212,6 +212,7 @@ WeekHeatmap.prototype.render = function(data) {
 }
 
 WeekHeatmap.prototype.renderYAxis = function() {
+  var format = d3.time.format("%Y-%m-%d %A")
   this.container
       .selectAll(".y.axis")
       .data(this.weekDates)
@@ -225,7 +226,7 @@ WeekHeatmap.prototype.renderYAxis = function() {
       .attr("text-anchor", "right")
       .attr("dy", ".35em") // vertical-align: middle
       .text(function(d) {
-        return d.date
+        return format(new Date(d.date))
       })
 
 }
