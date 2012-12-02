@@ -10,4 +10,8 @@ $(document).ready(function() {
   $(".limit").change(function(event) {
     daySeries.getAverage($("#date").val(), $(this).val(), daySeries.updateAverage.bind(daySeries))
   })
+
+  $("#extend").click(function(event) {
+    dashboard.extendWeekHeatmap()
+  })
 })

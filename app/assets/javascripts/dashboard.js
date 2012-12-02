@@ -57,7 +57,7 @@ Dashboard.prototype.init = function() {
       id: Dashboard.GRAPH_TYPES.WEEK,
       vis: new WeekHeatmap(this.svg),
       x: 0,
-      y: 0
+      y: 300
     }
   ]
 
@@ -89,6 +89,17 @@ Dashboard.prototype.loadData = function(d) {
         break;
     }
   }.bind(this))
+}
+
+Dashboard.prototype.extendWeekHeatmap = function() {
+  this.graphs.forEach(function(graph) {
+    if (graph.id === Dashboard.GRAPH_TYPES.WEEK) {
+      graph.vis.loadData(window.Utility.dateToString(graph.vis.currentDate),
+        graph.vis.extend.bind(graph.vis),
+        window.Utility.dateToString(graph.vis.extent[1]), 1)
+
+    }
+  })
 }
 
 Dashboard.prototype.render = function() {

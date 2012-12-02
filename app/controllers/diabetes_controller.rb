@@ -76,11 +76,18 @@ saturday sunday]
   def week
     year, month, day = params[:date].split("-").map(&:to_i)
     interval = (params[:interval] || 10).to_i
+    plus_weeks = (params[:plus_weeks] || 0).to_i
 
     time = Time.utc(year, month, day)
 
     # Calculate monday from given date
-    date = time - (time.wday.days - 1.days)
+    wday = time.wday
+    # Adjust for sunday when we want to start on a monday
+    wday = 7 if wday == 0
+
+    date = time - (wday.days - 1.days)
+
+    date = date + plus_weeks.weeks
 
     week_data = []
     week_dates = []
@@ -111,6 +118,7 @@ saturday sunday]
         datum[:time] = bucket
         datum[:day] = date.strftime("%A").downcase
         datum[:timestamp] = datums[0].timestamp
+        datum[:date] = date
         week_data << datum
       end
 

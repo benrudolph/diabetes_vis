@@ -1,8 +1,11 @@
 var WeekHeatmap = function(svg) {
   this.svg = svg
+  this.id = Dashboard.GRAPH_TYPES.WEEK
+
   this.container = svg
       .append("svg:g")
       .attr("class", "weekHeatmap")
+      .attr("id", this.id)
 
   this.margin = {
     top: 40,
@@ -29,22 +32,19 @@ var WeekHeatmap = function(svg) {
 
   this.x = this.xScale()
 
-  this.y = d3.scale.ordinal()
-      .rangePoints([this.margin.top, this.height - this.margin.bottom])
-      .domain(WeekHeatmap.DAYS)
+  this.y = d3.time.scale.utc()
+      .range([this.margin.top, this.height - this.margin.bottom])
+
 
   this.data = undefined
 
-  this.hours = new Array(24 * 7)
-
-  for (var i = 0; i < this.hours.length; i++) {
-    this.hours[i] = WeekHeatmap.DAYS[parseInt(i / 24)]
-  }
+  // Extent of days shown in heatmap
+  this.extent = undefined
 
   this.currentDate = undefined
   this.daySeries = new DaySeries(svg)
   d3.select("#" + this.daySeries.id)
-      .attr("transform", "translate(0, " + this.height + ")")
+      .attr("transform", "translate(0, 0)")
 
 }
 
@@ -60,9 +60,14 @@ WeekHeatmap.DAYS = [
 
 WeekHeatmap.TILE = {
   WIDTH: 30,
-  HEIGHT: 30
+  HEIGHT: 15
 }
 
+/*
+ * #xScale
+ * This creates a separate scale for each hour in the heat map so that it easy to customize spacing between
+ * the hour tiles
+ */
 WeekHeatmap.prototype.xScale = function() {
   var x = {}
   for (var i = 0; i < 24; i ++) {
@@ -74,18 +79,41 @@ WeekHeatmap.prototype.xScale = function() {
   return x
 }
 
+WeekHeatmap.prototype.getHours = function() {
+  var hours = []
+
+  this.weekDates.forEach(function(d) {
+    var dayHours = new Array(24)
+    for (var i = 0; i < dayHours.length; i++) {
+      dayHours[i] = {
+        day: d.day,
+        date: d.date,
+        hour: i
+      }
+    }
+    hours = hours.concat(dayHours)
+  })
+
+  return hours
+}
+
+/*
+ * #update
+ * Updates the weekheatmap to a new week as well as updating the day graph associated with the week
+ */
 WeekHeatmap.prototype.update = function(data) {
   var that = this
 
   this.daySeries.loadData(window.Utility.dateToString(this.currentDate), undefined,
       this.daySeries.update.bind(this.daySeries))
 
-  this.data = data.data
-  this.weekDates = data.week_dates
-  this.interval = data.interval
+  if (data) {
+    this.data = data.data
+    this.weekDates = data.week_dates
+    this.interval = data.interval
+  }
 
-  if (!this.data)
-    console.log("Alert no data to render graph")
+  this.extent = d3.extent(this.weekDates, function(d) { return new Date(d.date) })
 
   var slices = this.container
       .selectAll(".slice")
@@ -113,7 +141,12 @@ WeekHeatmap.prototype.update = function(data) {
       .selectAll(".tile")
       .remove()
 
+  this.container
+      .selectAll(".y.axis")
+      .remove()
+
   this.renderSlices()
+  this.renderYAxis()
 
   // Need to re render tiles and dayselections so that they are ontop of the slices
   this.renderTiles()
@@ -139,6 +172,9 @@ WeekHeatmap.prototype.render = function(data) {
   this.weekDates = data.week_dates
   this.interval = data.interval
 
+  this.extent = d3.extent(this.weekDates, function(d) { return new Date(d.date) })
+  this.y.domain(this.extent)
+
   if (!this.data)
     console.log("Alert no data to render graph")
 
@@ -146,20 +182,7 @@ WeekHeatmap.prototype.render = function(data) {
 
   this.renderSlices()
 
-
-  this.container
-      .selectAll(".y.axis")
-      .data(WeekHeatmap.DAYS)
-      .enter()
-      .append("text")
-      .attr("class", "y axis")
-      .attr("y", function(d) {
-        return this.y(d) + (WeekHeatmap.TILE.HEIGHT / 2)
-      }.bind(this))
-      .attr("x", 0)
-      .attr("text-anchor", "right")
-      .attr("dy", ".35em") // vertical-align: middle
-      .text(String)
+  this.renderYAxis()
 
   this.container
       .selectAll(".x.axis")
@@ -188,6 +211,25 @@ WeekHeatmap.prototype.render = function(data) {
   //this.loadData("2010-10-04", this.update.bind(this))
 }
 
+WeekHeatmap.prototype.renderYAxis = function() {
+  this.container
+      .selectAll(".y.axis")
+      .data(this.weekDates)
+      .enter()
+      .append("text")
+      .attr("class", "y axis")
+      .attr("y", function(d) {
+        return this.y(new Date(d.date)) + (WeekHeatmap.TILE.HEIGHT / 2)
+      }.bind(this))
+      .attr("x", 0)
+      .attr("text-anchor", "right")
+      .attr("dy", ".35em") // vertical-align: middle
+      .text(function(d) {
+        return d.date
+      })
+
+}
+
 WeekHeatmap.prototype.renderSlices = function() {
   var that = this
 
@@ -201,7 +243,7 @@ WeekHeatmap.prototype.renderSlices = function() {
         return this.x[parseInt(d.time / 60)](d.time % 60)
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(d.day) + .5
+        return this.y(new Date(d.date)) + .5
       }.bind(this))
       .attr("height", WeekHeatmap.TILE.HEIGHT - 1)
       .attr("width", WeekHeatmap.TILE.WIDTH / (60 / this.interval))
@@ -227,7 +269,22 @@ WeekHeatmap.prototype.renderSlices = function() {
 
 }
 
+WeekHeatmap.prototype.extendByWeek = function(_isAfter) {
+  this.loadData(this.currentDate, this.extend, 7)
+}
+
+WeekHeatmap.prototype.extend = function(data) {
+
+  this.data = this.data.concat(data.data)
+  this.weekDates = this.weekDates.concat(data.week_dates)
+  this.interval = data.interval
+
+  this.update()
+}
+
 WeekHeatmap.prototype.renderTiles = function() {
+  this.hours = this.getHours()
+
   this.container
       .selectAll(".tile")
       .data(this.hours)
@@ -238,7 +295,7 @@ WeekHeatmap.prototype.renderTiles = function() {
         return this.x[parseInt(i % 24)](0)
       }.bind(this))
       .attr("y", function(d, i) {
-        return this.y(d)
+        return this.y(new Date(d.date))
       }.bind(this))
       .attr("width", WeekHeatmap.TILE.WIDTH)
       .attr("height", WeekHeatmap.TILE.HEIGHT)
@@ -256,7 +313,7 @@ WeekHeatmap.prototype.renderDaySelections = function() {
       .append("rect")
       .attr("class", function(d) {
         var clazz = "daySelection"
-        if (d.day === WeekHeatmap.getDayFromDate(this.currentDate))
+        if (window.Utility.isSameDay(new Date(d.date), this.currentDate))
           clazz += " selected"
         return clazz
       }.bind(this))
@@ -264,14 +321,14 @@ WeekHeatmap.prototype.renderDaySelections = function() {
         return this.x[0](0) - this.daySelectionMargin
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(d.day) - this.daySelectionMargin
+        return this.y(new Date(d.date)) - this.daySelectionMargin
       }.bind(this))
       .attr("width", this.width + (2 * this.daySelectionMargin))
       .attr("height", WeekHeatmap.TILE.HEIGHT + (2 * this.daySelectionMargin))
       .attr("rx", this.daySelectionMargin)
       .attr("ry", this.daySelectionMargin)
       .on("mouseover", function(d) {
-        if (d.day !== WeekHeatmap.getDayFromDate(this.currentDate))
+        if (!window.Utility.isSameDay(new Date(d.date), this.currentDate))
           that.daySeries.highlightRemove()
       }.bind(this))
       .on("click", function(d) {
@@ -286,18 +343,30 @@ WeekHeatmap.prototype.renderDaySelections = function() {
 
 }
 
-WeekHeatmap.prototype.loadData = function(date, callback) {
+/*
+ * #loadData
+ * Loads the data for a given data. Will load most recent monday to sunday. plusWeeks is an optional parameter
+ * that specifies how many weeks should be added to the current date. This is because ruby supplies much better
+ * utilities for adding dates than javascript does.
+ */
+WeekHeatmap.prototype.loadData = function(currentDate, callback, dateToGet, plusWeeks) {
   if (!callback) {
     callback = this.render.bind(this)
   }
 
-  this.currentDate = window.Utility.stringToDate(date)
+  if (!dateToGet) {
+    dateToGet = currentDate
+  }
+
+  this.currentDate = window.Utility.stringToDate(currentDate)
 
   $.ajax({
     url: "/diabetes/week",
     type: "GET",
-    data: { date: date,
-            interval: this.interval },
+    data: { date: dateToGet,
+            currentDate: currentDate,
+            interval: this.interval,
+            plus_weeks: plusWeeks },
     success: function(data) {
       callback(data)
     }

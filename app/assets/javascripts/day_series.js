@@ -96,38 +96,40 @@ DaySeries.prototype.render = function() {
 
   var that = this
 
+  var rangeHeight = 2
+
   this.container
       .selectAll("low range")
-      .data(new Array(this.low))
+      .data(new Array(parseInt(this.low / rangeHeight)))
       .enter()
       .append("rect")
       .attr("class", "low range")
       .attr("x", this.margin.left)
       .attr("y", function(d, i) {
-        return this.y(i)
+        return this.y(i * rangeHeight)
       }.bind(this))
       .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", 1)
+      .attr("height", rangeHeight)
       .style("fill", function(d, i) {
-        return window.Utility.getGlucoseColor(i)
+        return window.Utility.getGlucoseColor(i * rangeHeight)
       }.bind(this))
 
   this.container
       .selectAll("high range")
-      .data(new Array(this.yMax - this.high))
+      .data(new Array(parseInt((this.yMax - this.high) / rangeHeight)))
       .enter()
       .append("rect")
       .attr("class", "high range")
       .attr("x", this.margin.left)
       .attr("y", function(d, i) {
-        var value = i + this.high
+        var value = (i * rangeHeight) + this.high
         return this.y(value)
 
       }.bind(this))
       .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", 1)
+      .attr("height", rangeHeight)
       .style("fill", function(d, i) {
-        var value = i + this.high
+        var value = (i * rangeHeight) + this.high
         return window.Utility.getGlucoseColor(value)
       }.bind(this))
 
