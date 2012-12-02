@@ -97,20 +97,39 @@ DaySeries.prototype.render = function() {
   var that = this
 
   this.container
+      .selectAll("low range")
+      .data(new Array(this.low))
+      .enter()
       .append("rect")
       .attr("class", "low range")
       .attr("x", this.margin.left)
-      .attr("y", this.y(this.low))
+      .attr("y", function(d, i) {
+        return this.y(i)
+      }.bind(this))
       .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", this.y(0) - this.y(this.low))
+      .attr("height", 1)
+      .style("fill", function(d, i) {
+        return window.Utility.getGlucoseColor(i)
+      }.bind(this))
 
   this.container
+      .selectAll("high range")
+      .data(new Array(this.yMax - this.high))
+      .enter()
       .append("rect")
       .attr("class", "high range")
       .attr("x", this.margin.left)
-      .attr("y", this.margin.top)
+      .attr("y", function(d, i) {
+        var value = i + this.high
+        return this.y(value)
+
+      }.bind(this))
       .attr("width", this.width - this.margin.left - this.margin.right)
-      .attr("height", this.y(this.high) - this.y(this.yMax))
+      .attr("height", 1)
+      .style("fill", function(d, i) {
+        var value = i + this.high
+        return window.Utility.getGlucoseColor(value)
+      }.bind(this))
 
 
   this.container

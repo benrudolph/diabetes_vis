@@ -132,7 +132,7 @@ saturday sunday]
     #end
 
     max = GlucoseSensorData.maximum(:timestamp)
-    limit = (params[:limit] || 1).to_i
+    limit = (params[:limit] || 3).to_i
     range = {}
     unless range == "all"
       range = { :begin => max - limit.months, :end => max }
