@@ -85,7 +85,7 @@ DaySeries.prototype.update = function(data) {
       .duration(1000)
       .attr("d", this.line)
 
-  this.udpateAverage(data.averages)
+  //this.udpateAverage(data.averages)
 }
 
 DaySeries.prototype.render = function() {

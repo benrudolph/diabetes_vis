@@ -79,6 +79,7 @@ WeekHeatmap.prototype.xScale = function() {
  * {
  *   data: [{ glucose: <value>, time: <total minutes>, day: <day> }, ...],
  *   interval: <number based on sampling [0, 60] (5 would mean 5 minutes between each sample)>
+ *   days: [ { day: monday, date: <date> }, ...]
  * }
  *
  * This function should only be called once. If you need to make changes to the graph use #update
@@ -87,7 +88,7 @@ WeekHeatmap.prototype.render = function(data) {
   this.daySeries.loadData(window.Utility.dateToString(this.currentDate))
 
   this.data = data.data
-
+  this.weekDates = data.week_dates
   this.interval = data.interval
 
   if (!this.data)
@@ -150,22 +151,36 @@ WeekHeatmap.prototype.render = function(data) {
 
   this.container
       .selectAll(".daySelection")
-      .data([this.currentDate])
+      .data(this.weekDates)
       .enter()
       .append("rect")
-      .attr("class", "daySelection")
+      .attr("class", function(d) {
+        var clazz = "daySelection"
+        if (d.day === WeekHeatmap.getDayFromDate(this.currentDate))
+          clazz += " selected"
+        return clazz
+      }.bind(this))
       .attr("x", function(d) {
         return this.x[0](0) - daySelectionMargin
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(WeekHeatmap.getDayFromDate(this.currentDate)) - daySelectionMargin
+        return this.y(d.day) - daySelectionMargin
       }.bind(this))
       .attr("width", this.width + (2 * daySelectionMargin))
       .attr("height", WeekHeatmap.TILE.HEIGHT + (2 * daySelectionMargin))
       .attr("rx", daySelectionMargin)
       .attr("ry", daySelectionMargin)
-      .on("mouseout", function(d) {
-        that.daySeries.highlightRemove()
+      .on("mouseover", function(d) {
+        if (d.day !== WeekHeatmap.getDayFromDate(this.currentDate))
+          that.daySeries.highlightRemove()
+      }.bind(this))
+      .on("click", function(d) {
+
+        d3.select(".daySelection.selected").classed("selected", false)
+        d3.select(this).classed("selected", true)
+
+        that.daySeries.loadData(window.Utility.dateToString(new Date(d.date)), undefined,
+            that.daySeries.update.bind(that.daySeries))
       })
 
   this.container

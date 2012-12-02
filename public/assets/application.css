@@ -46,7 +46,21 @@
 }
 
 .daySelection {
-  fill: none;
+  fill-opacity: 0;
+  stroke: none;
+  cursor: pointer;
+
+}
+
+.daySelection:hover {
+  stroke: #191919;
+  stroke-opacity: .5;
+  stroke-width: 2px;
+}
+
+.daySelection.selected {
   stroke: #191919;
   stroke-width: 2px;
+  stroke-opacity: 1;
+  pointer-events: none;
 }

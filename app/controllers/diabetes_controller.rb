@@ -83,6 +83,7 @@ saturday sunday]
     date = time - (time.wday.days - 1.days)
 
     week_data = []
+    week_dates = []
 
     DAYS_OF_WEEK.each do |day|
       interval_data = Hash.new { |h, k| h[k] = [] }
@@ -113,10 +114,11 @@ saturday sunday]
         week_data << datum
       end
 
+      week_dates.push({ :day => date.strftime("%A").downcase, :date => date })
       date += 1.days
     end
 
-    render :json => { :data => week_data, :interval => interval }
+    render :json => { :data => week_data, :interval => interval, :week_dates => week_dates }
   end
 
   # Gets data for given day format will be %Y-%m-%d
