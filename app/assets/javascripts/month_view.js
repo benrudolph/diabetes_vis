@@ -153,7 +153,26 @@ MonthView.prototype.render = function(visible, callback) {
         return this.cur_week * this.cell_width; }.bind(this))
       .attr("width", this.cell_width)
       .attr("height", this.cell_width)
-      .attr("class", "day");
+      .attr("class", "day")
+      .attr("id", function(d) { return d3.time.format("d%Y%m%d")(d.date); });
+
+    var self = this;
+    this.days
+      .on("click", function(d) {
+        var el = d3.select(this);
+        var blink = el.append("rect")
+          .attr("fill", "white")
+          .attr("width", +el.attr("width") + 20)
+          .attr("height", +el.attr("height") + 20)
+          .style("stroke", "black")
+          .style("stroke-width", 2)
+          .style("opacity", .8);
+        blink
+          .transition()
+          .duration(1000)
+          .style("opacity", 0)
+          .remove();
+      });
 
     this.colors = d3.interpolateRgb(d3.rgb(0,0,255), d3.rgb(255,0,0));
     this.days
