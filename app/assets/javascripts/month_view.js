@@ -25,7 +25,15 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   var stop_range = new Date(date_obj.getFullYear(), date_obj.getMonth() + 1);
   this.months = d3.time.months(start_range, stop_range);
 
-  this.start_at_y = 0;
+  this.start_at_y = 80;
+  this.svg
+    .append("svg:image")
+    .attr("xlink:href", "/images/arrow_up.png")
+    .attr("x", 80)
+    .attr("y", 20)
+    .attr("width", 25)
+    .attr("height", 25)
+    .on("click", function() { this.lastMonth() }.bind(this));
 
   var y_pos = this.start_at_y;
   this.month_objs = []
@@ -35,6 +43,15 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     this.month_objs.push(month_obj);
     y_pos += month_obj.getEffectiveHeight();
   }.bind(this));
+
+  this.svg
+    .append("svg:image")
+    .attr("xlink:href", "/images/arrow_dn.png")
+    .attr("x", 80)
+    .attr("y", (this.calendar_width / 7) * 6 * this.n_months)
+    .attr("width", 25)
+    .attr("height", 25)
+    .on("click", function() { this.nextMonth() }.bind(this));
 }
 
 MonthsView.prototype.yTop = function() {
@@ -68,8 +85,8 @@ MonthsView.prototype.lastMonth = function() {
   var month_obj = new MonthView(this.svg, last_month, this.increments, this.calendar_width, 0, this.yTop());
   var move_down_by = month_obj.getEffectiveHeight();
 
-  month_obj.svg.attr("y", -move_down_by);
-  month_obj.y_pos = -move_down_by;
+  month_obj.svg.attr("y", (this.start_at_y - move_down_by));
+  month_obj.y_pos = (this.start_at_y - move_down_by);
 
   month_obj.render(false, function() {
     this.months.splice(0,0,last_month);
@@ -98,7 +115,7 @@ var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos,
   this.calendar_width = calendar_width;
   this.cell_width = this.calendar_width / 7;
   this.parseDate = d3.time.format("%Y-%m-%d").parse;
-  this.day = d3.time.format("%m-%d");
+  this.day = d3.time.format("%d");
   this.week = d3.time.format("%U");
   // Compute day in week Monday - Sunday, 0 - 6
   this.wday = function (date_obj) {
@@ -151,7 +168,7 @@ MonthView.prototype.render = function(visible, callback) {
         .attr("height", this.cell_width)
         .attr("class", "gradient_rect")
         .style("fill", function(d) {
-          return this.colors(this.glucose_scale(d)); }.bind(this));
+          return window.Utility.getGlucoseColor(d); }.bind(this));
 
     this.days
       .append("rect")
@@ -214,15 +231,7 @@ MonthView.prototype.getEffectiveHeight = function() {
   return (this.date_obj.endsOnSunday()) ? height : height - this.cell_width;
 };
 
-MonthView.prototype.destroy = function() {
-  this.svg
-    .transition()
-    .duration(1000)
-    .style("opacity", 0)
-    .remove();
-};
-
 $(document).ready(function() {
-  months_view = new MonthsView(new Date(2012,3), 3, 48, 200);
+  months_view = new MonthsView(new Date(2012,3), 3, 12, 200);
 });
 
