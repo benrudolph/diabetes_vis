@@ -1,7 +1,8 @@
-//.data(function(d) { return d3.time.days(new Date(2012, 0, 1), new Date(2012, 1, 0)); })
 
+  /*
 $(document).ready(function() {
-  svg = d3.select("#month").append("svg");
+  svg = d3.select("#month").append("svg").attr("class", "months");
+  svg = svg.append("svg").attr("class", "month_view").attr("x", 100);
   var cell_width = 40;
   var parseDate = d3.time.format("%Y-%m-%d").parse;
   var day = d3.time.format("%d");
@@ -71,6 +72,7 @@ $(document).ready(function() {
         return day(d.date); });
   })
 });
+*/
 /* Update the range of the colors representing glucose. For example, you'd pass
  * it 200, 300 if you want the darkest blue to be 200 and the darkest red to be
  * 300 (leaving the rest of the range beyond those points the same color)
