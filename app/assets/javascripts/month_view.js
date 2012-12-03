@@ -172,8 +172,8 @@ MonthView.prototype.render = function(visible, callback) {
 
     this.days
       .append("rect")
-      .attr("width", 40)
-      .attr("height", 40)
+      .attr("width", this.cell_width)
+      .attr("height", this.cell_width)
       .style("fill", "none")
       .style("stroke", "black")
       .style("stroke-width", 1);
@@ -228,7 +228,7 @@ MonthView.prototype.moveBy = function(y_units, remove_after) {
 MonthView.prototype.getEffectiveHeight = function() {
   var num_weeks = this.date_obj.getNumWeeks();
   var height = this.cell_width * num_weeks;
-  return (this.date_obj.endsOnSunday()) ? height : height - this.cell_width;
+  return height - this.cell_width;
 };
 
 $(document).ready(function() {
