@@ -31,7 +31,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   this.month_objs = []
   this.months.forEach(function(mo, i) {
     var month_obj = new MonthView(this.svg, mo, increments, calendar_width, 0, y_pos);
-    month_obj.render();
+    month_obj.render(true);
     this.month_objs.push(month_obj);
     y_pos += month_obj.getEffectiveHeight();
   }.bind(this));
@@ -46,38 +46,42 @@ MonthsView.prototype.yBottom = function() {
   return bottom_obj.y_pos + bottom_obj.getEffectiveHeight();
 };
 
-MonthsView.prototype.render = function() {
-  this.month_objs.forEach(function(month_obj) {
-    month_obj.render();
-  });
-};
-
 MonthsView.prototype.nextMonth = function() {
-  var next_month = new Date(this.months[0].getFullYear(), this.months[this.n_months - 1].getMonth() + 1);
+  var next_month = new Date(this.months[this.n_months - 1].getFullYear(), this.months[this.n_months - 1].getMonth() + 1);
   var move_up_by = this.month_objs[0].getEffectiveHeight();
-  this.month_objs.forEach(function(month_obj, i) {
-    month_obj.moveUpBy(move_up_by, i == 0);
-  }.bind(this));
   var month_obj = new MonthView(this.svg, next_month, this.increments, this.calendar_width, 0, this.yBottom());
-  month_obj.render();
-  this.months.push(next_month);
-  this.months.splice(0,1);
-  this.month_objs.push(month_obj);
-  this.month_objs.splice(0,1);
+  month_obj.render(false, function() {
+    this.months.push(next_month);
+    this.month_objs.push(month_obj);
+
+    this.month_objs.forEach(function(month_obj, i) {
+      month_obj.moveUpBy(move_up_by, i == 0);
+    }.bind(this));
+
+    this.months.splice(0,1);
+    this.month_objs.splice(0,1);
+  }.bind(this));
 };
 
 MonthsView.prototype.lastMonth = function() {
   var last_month = new Date(this.months[0].getFullYear(), this.months[0].getMonth() - 1);
   var month_obj = new MonthView(this.svg, last_month, this.increments, this.calendar_width, 0, this.yTop());
   var move_down_by = month_obj.getEffectiveHeight();
-  this.month_objs.forEach(function(month_obj, i) {
-    month_obj.moveDownBy(move_down_by, i == (this.n_months - 1));
+
+  month_obj.svg.attr("y", -move_down_by);
+  month_obj.y_pos = -move_down_by;
+
+  month_obj.render(false, function() {
+    this.months.splice(0,0,last_month);
+    this.month_objs.splice(0,0,month_obj);
+
+    this.month_objs.forEach(function(month_obj, i) {
+      month_obj.moveDownBy(move_down_by, i == (this.n_months));
+    }.bind(this));
+
+    this.months.pop();
+    this.month_objs.pop();
   }.bind(this));
-  month_obj.render();
-  this.months.splice(0,0,last_month);
-  this.month_objs.splice(0,0,month_obj);
-  this.months.pop();
-  this.month_objs.pop();
 };
 
 var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos, y_pos) {
@@ -85,7 +89,8 @@ var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos,
     .append("svg")
     .attr("class", "month_view")
     .attr("x", x_pos)
-    .attr("y", y_pos);
+    .attr("y", y_pos)
+    .style("opacity", 0);
 
   this.x_pos = x_pos;
   this.y_pos = y_pos;
@@ -93,7 +98,7 @@ var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos,
   this.calendar_width = calendar_width;
   this.cell_width = this.calendar_width / 7;
   this.parseDate = d3.time.format("%Y-%m-%d").parse;
-  this.day = d3.time.format("%d");
+  this.day = d3.time.format("%m-%d");
   this.week = d3.time.format("%U");
   // Compute day in week Monday - Sunday, 0 - 6
   this.wday = function (date_obj) {
@@ -110,7 +115,7 @@ var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos,
     .range([0, 1]);
 };
 
-MonthView.prototype.render = function() {
+MonthView.prototype.render = function(visible, callback) {
   d3.json("get_month_data?increments="+this.increments+"&month="+this.month+"&year="+this.year,
     function(data) {
       data.forEach(function(d) {
@@ -162,6 +167,17 @@ MonthView.prototype.render = function() {
       .attr("y", 20)
       .text(function(d) {
         return this.day(d.date); }.bind(this));
+
+    if (visible) {
+      this.svg
+        .transition()
+        .duration(500)
+        .style("opacity", 1);
+    }
+
+    if (callback !== undefined) {
+      callback();
+    }
   }.bind(this));
 };
 
@@ -186,7 +202,8 @@ MonthView.prototype.moveBy = function(y_units, remove_after) {
     this.svg
       .transition()
       .duration(1000)
-      .attr("y", new_y_pos);
+      .attr("y", new_y_pos)
+      .style("opacity", 1);
   }
   this.y_pos = new_y_pos;
 };
@@ -207,6 +224,5 @@ MonthView.prototype.destroy = function() {
 
 $(document).ready(function() {
   months_view = new MonthsView(new Date(2012,3), 3, 48, 200);
-  months_view.render();
 });
 
