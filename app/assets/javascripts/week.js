@@ -113,7 +113,7 @@ WeekHeatmap.prototype.update = function(data) {
     this.interval = data.interval
   }
 
-  this.extent = d3.extent(this.weekDates, function(d) { return new Date(d.date) })
+  this.extent = d3.extent(this.weekDates, function(d) { return d.date })
 
   var slices = this.container
       .selectAll(".slice")
@@ -172,7 +172,7 @@ WeekHeatmap.prototype.render = function(data) {
   this.weekDates = data.week_dates
   this.interval = data.interval
 
-  this.extent = d3.extent(this.weekDates, function(d) { return new Date(d.date) })
+  this.extent = d3.extent(this.weekDates, function(d) { return d.date })
   this.y.domain(this.extent)
 
   if (!this.data)
@@ -212,7 +212,7 @@ WeekHeatmap.prototype.render = function(data) {
 }
 
 WeekHeatmap.prototype.renderYAxis = function() {
-  var format = d3.time.format("%Y-%m-%d %A")
+  var format = d3.time.format.utc("%Y-%m-%d %A")
   this.container
       .selectAll(".y.axis")
       .data(this.weekDates)
@@ -220,13 +220,13 @@ WeekHeatmap.prototype.renderYAxis = function() {
       .append("text")
       .attr("class", "y axis")
       .attr("y", function(d) {
-        return this.y(new Date(d.date)) + (WeekHeatmap.TILE.HEIGHT / 2)
+        return this.y(d.date) + (WeekHeatmap.TILE.HEIGHT / 2)
       }.bind(this))
       .attr("x", 0)
       .attr("text-anchor", "right")
       .attr("dy", ".35em") // vertical-align: middle
       .text(function(d) {
-        return format(new Date(d.date))
+        return format(d.date)
       })
 
 }
@@ -244,7 +244,7 @@ WeekHeatmap.prototype.renderSlices = function() {
         return this.x[parseInt(d.time / 60)](d.time % 60)
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(new Date(d.date)) + .5
+        return this.y(d.date) + .5
       }.bind(this))
       .attr("height", WeekHeatmap.TILE.HEIGHT - 1)
       .attr("width", WeekHeatmap.TILE.WIDTH / (60 / this.interval))
@@ -296,7 +296,7 @@ WeekHeatmap.prototype.renderTiles = function() {
         return this.x[parseInt(i % 24)](0)
       }.bind(this))
       .attr("y", function(d, i) {
-        return this.y(new Date(d.date))
+        return this.y(d.date)
       }.bind(this))
       .attr("width", WeekHeatmap.TILE.WIDTH)
       .attr("height", WeekHeatmap.TILE.HEIGHT)
@@ -314,7 +314,7 @@ WeekHeatmap.prototype.renderDaySelections = function() {
       .append("rect")
       .attr("class", function(d) {
         var clazz = "daySelection"
-        if (window.Utility.isSameDay(new Date(d.date), this.currentDate))
+        if (window.Utility.isSameDay(d.date, this.currentDate))
           clazz += " selected"
         return clazz
       }.bind(this))
@@ -322,14 +322,14 @@ WeekHeatmap.prototype.renderDaySelections = function() {
         return this.x[0](0) - this.daySelectionMargin
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(new Date(d.date)) - this.daySelectionMargin
+        return this.y(d.date) - this.daySelectionMargin
       }.bind(this))
       .attr("width", this.width + (2 * this.daySelectionMargin))
       .attr("height", WeekHeatmap.TILE.HEIGHT + (2 * this.daySelectionMargin))
       .attr("rx", this.daySelectionMargin)
       .attr("ry", this.daySelectionMargin)
       .on("mouseover", function(d) {
-        if (!window.Utility.isSameDay(new Date(d.date), this.currentDate))
+        if (!window.Utility.isSameDay(d.date, this.currentDate))
           that.daySeries.highlightRemove()
       }.bind(this))
       .on("click", function(d) {
@@ -337,8 +337,8 @@ WeekHeatmap.prototype.renderDaySelections = function() {
         d3.select(".daySelection.selected").classed("selected", false)
         d3.select(this).classed("selected", true)
 
-        that.currentDate = new Date(d.date)
-        that.daySeries.loadData(window.Utility.dateToString(new Date(d.date)), undefined,
+        that.currentDate = d.date
+        that.daySeries.loadData(window.Utility.dateToString(d.date), undefined,
             that.daySeries.update.bind(that.daySeries))
       })
 
@@ -369,6 +369,12 @@ WeekHeatmap.prototype.loadData = function(currentDate, callback, dateToGet, plus
             interval: this.interval,
             plus_weeks: plusWeeks },
     success: function(data) {
+      data.data.forEach(function(d) {
+        d.date = new Date(d.date)
+      })
+      data.week_dates.forEach(function(d) {
+        d.date = new Date(d.date)
+      })
       callback(data)
     }
   })
