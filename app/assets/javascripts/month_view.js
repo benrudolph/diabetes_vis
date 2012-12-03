@@ -19,11 +19,15 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     .attr("class", "months_view");
 
   this.n_months = n_months;
+  this.increments = increments;
+  this.calendar_width = calendar_width;
   var start_range = new Date(date_obj.getFullYear(), date_obj.getMonth() - n_months + 1);
   var stop_range = new Date(date_obj.getFullYear(), date_obj.getMonth() + 1);
   this.months = d3.time.months(start_range, stop_range);
 
-  var y_pos = 0;
+  this.start_at_y = 0;
+
+  var y_pos = this.start_at_y;
   this.month_objs = []
   this.months.forEach(function(mo, i) {
     var month_obj = new MonthView(this.svg, mo, increments, calendar_width, 0, y_pos);
@@ -33,6 +37,15 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   }.bind(this));
 }
 
+MonthsView.prototype.yTop = function() {
+  return this.start_at_y;
+};
+
+MonthsView.prototype.yBottom = function() {
+  var bottom_obj = this.month_objs[this.n_months - 1];
+  return bottom_obj.y_pos + bottom_obj.getEffectiveHeight();
+};
+
 MonthsView.prototype.render = function() {
   this.month_objs.forEach(function(month_obj) {
     month_obj.render();
@@ -40,17 +53,31 @@ MonthsView.prototype.render = function() {
 };
 
 MonthsView.prototype.nextMonth = function() {
+  var next_month = new Date(this.months[0].getFullYear(), this.months[this.n_months - 1].getMonth() + 1);
   var move_up_by = this.month_objs[0].getEffectiveHeight();
-  this.month_objs.forEach(function(month_obj) {
-    month_obj.moveUpBy(move_up_by);
-  });
+  this.month_objs.forEach(function(month_obj, i) {
+    month_obj.moveUpBy(move_up_by, i == 0);
+  }.bind(this));
+  var month_obj = new MonthView(this.svg, next_month, this.increments, this.calendar_width, 0, this.yBottom());
+  month_obj.render();
+  this.months.push(next_month);
+  this.months.splice(0,1);
+  this.month_objs.push(month_obj);
+  this.month_objs.splice(0,1);
 };
 
 MonthsView.prototype.lastMonth = function() {
-  var move_down_by = this.month_objs[this.n_months - 1].getEffectiveHeight();
-  this.month_objs.forEach(function(month_obj) {
-    month_obj.moveDownBy(move_down_by);
-  });
+  var last_month = new Date(this.months[0].getFullYear(), this.months[0].getMonth() - 1);
+  var month_obj = new MonthView(this.svg, last_month, this.increments, this.calendar_width, 0, this.yTop());
+  var move_down_by = month_obj.getEffectiveHeight();
+  this.month_objs.forEach(function(month_obj, i) {
+    month_obj.moveDownBy(move_down_by, i == (this.n_months - 1));
+  }.bind(this));
+  month_obj.render();
+  this.months.splice(0,0,last_month);
+  this.month_objs.splice(0,0,month_obj);
+  this.months.pop();
+  this.month_objs.pop();
 };
 
 var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos, y_pos) {
@@ -138,29 +165,44 @@ MonthView.prototype.render = function() {
   }.bind(this));
 };
 
-MonthView.prototype.moveUpBy = function(move_up_by) {
-  var new_y_pos = this.y_pos - move_up_by;
-  this.svg
-    .transition()
-    .duration(1000)
-    .attr("y", new_y_pos);
-  this.y_pos = new_y_pos;
+MonthView.prototype.moveUpBy = function(move_up_by, remove_after) {
+  this.moveBy(-move_up_by, remove_after);
 };
 
-MonthView.prototype.moveDownBy = function(move_down_by) {
-  var new_y_pos = this.y_pos + move_down_by;
-  this.svg
-    .transition()
-    .duration(1000)
-    .attr("y", new_y_pos);
-  this.y_pos = new_y_pos;
+MonthView.prototype.moveDownBy = function(move_down_by, remove_after) {
+  this.moveBy(move_down_by, remove_after);
+};
 
+MonthView.prototype.moveBy = function(y_units, remove_after) {
+  var new_y_pos = this.y_pos + y_units;
+  if (remove_after) {
+    this.svg
+      .transition()
+      .duration(1000)
+      .attr("y", new_y_pos)
+      .style("opacity", 0)
+      .remove();
+  } else {
+    this.svg
+      .transition()
+      .duration(1000)
+      .attr("y", new_y_pos);
+  }
+  this.y_pos = new_y_pos;
 };
 
 MonthView.prototype.getEffectiveHeight = function() {
   var num_weeks = this.date_obj.getNumWeeks();
   var height = this.cell_width * num_weeks;
   return (this.date_obj.endsOnSunday()) ? height : height - this.cell_width;
+};
+
+MonthView.prototype.destroy = function() {
+  this.svg
+    .transition()
+    .duration(1000)
+    .style("opacity", 0)
+    .remove();
 };
 
 $(document).ready(function() {
