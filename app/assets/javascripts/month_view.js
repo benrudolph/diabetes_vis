@@ -92,7 +92,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   var y_pos = this.start_at_y;
   this.month_objs = [];
   this.months.forEach(function(mo, i) {
-    var month_obj = new MonthView(this.svg, mo, increments, calendar_width, 0, y_pos);
+    var month_obj = new MonthView(this.svg, mo, increments, calendar_width, 0, y_pos, this);
     month_obj.render(true);
     this.month_objs.push(month_obj);
     y_pos += month_obj.getEffectiveHeight();
@@ -136,7 +136,7 @@ MonthsView.prototype.update = function(date_obj) {
     this.months = d3.time.months(start_range, stop_range);
     this.month_objs = []
     this.months.forEach(function(mo, i) {
-      var month_obj = new MonthView(this.svg, mo, this.increments, this.calendar_width, 0, y_pos);
+      var month_obj = new MonthView(this.svg, mo, this.increments, this.calendar_width, 0, y_pos, this);
       month_obj.render(true);
       this.month_objs.push(month_obj);
       y_pos += month_obj.getEffectiveHeight();
@@ -203,7 +203,7 @@ MonthsView.prototype.yBottom = function() {
 MonthsView.prototype.nextMonth = function() {
   var next_month = new Date(this.months[this.n_months - 1].getFullYear(), this.months[this.n_months - 1].getMonth() + 1);
   var move_up_by = this.month_objs[0].getEffectiveHeight();
-  var month_obj = new MonthView(this.svg, next_month, this.increments, this.calendar_width, 0, this.yBottom());
+  var month_obj = new MonthView(this.svg, next_month, this.increments, this.calendar_width, 0, this.yBottom(), this);
   month_obj.render(false, function() {
     this.months.push(next_month);
     this.month_objs.push(month_obj);
@@ -235,7 +235,7 @@ MonthsView.prototype.adjustEdgeWeeks = function(is_next) {
 
 MonthsView.prototype.lastMonth = function() {
   var last_month = new Date(this.months[0].getFullYear(), this.months[0].getMonth() - 1);
-  var month_obj = new MonthView(this.svg, last_month, this.increments, this.calendar_width, 0, this.yTop());
+  var month_obj = new MonthView(this.svg, last_month, this.increments, this.calendar_width, 0, this.yTop(), this);
   var move_down_by = month_obj.getEffectiveHeight();
 
   month_obj.svg.attr("y", (this.start_at_y - move_down_by));
@@ -257,7 +257,8 @@ MonthsView.prototype.lastMonth = function() {
   }.bind(this));
 };
 
-var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos, y_pos) {
+var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos, y_pos, parent_svg) {
+  this.parent_svg = parent_svg;
   this.svg = append_to
     .append("svg")
     .attr("class", "month_view")
@@ -345,6 +346,7 @@ MonthView.prototype.render = function(visible, callback) {
       .attr("class", "day")
       .attr("id", function(d) { return d3.time.format("d%Y%m%d")(d.date); });
 
+    var self = this;
     this.days
       .on("click", function(d) {
         var el = d3.select(this);
@@ -359,7 +361,7 @@ MonthView.prototype.render = function(visible, callback) {
           .style("opacity", 0)
           .remove();
         window.dashboard.updateDay(d.date)
-
+        self.parent_svg.update(d.date);
       });
 
     this.colors = d3.interpolateRgb(d3.rgb(0,0,255), d3.rgb(255,0,0));
