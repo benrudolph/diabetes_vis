@@ -89,4 +89,8 @@
   float: left;
   min-width: 250px;
 }
+
+.weekendSelection {
+  opacity: .2;
 }
+

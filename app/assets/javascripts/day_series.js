@@ -37,11 +37,29 @@ var DaySeries = function(svg, data, width, height) {
       .range([this.height - this.margin.bottom, this.margin.top])
       .domain([0, this.yMax])
 
-  this.xAxis = d3.svg.axis()
+  /*this.xAxis = d3.svg.axis()
       .scale(this.x)
       .ticks(d3.time.hours, 4)
       .tickFormat(d3.time.format("%I:%M %p"))
+      .orient("bottom")*/
+
+  this.xAxisScale = d3.scale.linear()
+      .range([this.margin.left , this.width - this.margin.right])
+      .domain([0, 24])
+
+  this.xAxis = d3.svg.axis()
+      .scale(this.xAxisScale)
+      .ticks(6)
+      .tickFormat(function(d) {
+        // Calculation to convert 24 hour index into 12 hour time.
+        var t = d % 12
+        if (t === 0)
+          t = 12
+        t = d > 11 ? t + "pm" : t + "am"
+        return t
+      })
       .orient("bottom")
+
 
   this.yAxis = d3.svg.axis()
       .scale(this.y)
@@ -190,7 +208,9 @@ DaySeries.prototype.highlightRemove = function() {
 }
 
 DaySeries.prototype.highlightFromDate = function(date) {
-  this.highlight(this.x(date) - this.margin.left)
+  // Largets of hacks to offset for the timezone. 25200 is 7 hours in seconds
+  var d = new Date(((+date / 1000) - 25200) * 1000)
+  this.highlight(this.x(d) - this.margin.left)
 }
 
 DaySeries.prototype.highlight = function(x) {

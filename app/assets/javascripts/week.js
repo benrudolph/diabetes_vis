@@ -139,6 +139,10 @@ WeekHeatmap.prototype.update = function(data) {
       .remove()
 
   this.container
+      .selectAll(".weekendSelection")
+      .remove()
+
+  this.container
       .selectAll(".tile")
       .remove()
 
@@ -146,6 +150,7 @@ WeekHeatmap.prototype.update = function(data) {
       .selectAll(".y.axis")
       .remove()
 
+  this.renderWeekendSelections()
   this.renderSlices()
   this.renderYAxis()
 
@@ -184,6 +189,7 @@ WeekHeatmap.prototype.render = function(data) {
 
   var that = this
 
+  this.renderWeekendSelections()
   this.renderSlices()
 
   this.renderYAxis()
@@ -214,7 +220,8 @@ WeekHeatmap.prototype.render = function(data) {
 }
 
 WeekHeatmap.prototype.renderYAxis = function() {
-  var format = d3.time.format("%Y-%d-%m %A")
+  //var format = d3.time.format("%Y-%d-%m %A")
+  var format = d3.time.format("%A")
   var yAxis = this.container
       .selectAll(".y.axis")
       .data(this.weekDates)
@@ -327,6 +334,31 @@ WeekHeatmap.prototype.renderTiles = function() {
       })
 }
 
+WeekHeatmap.prototype.renderWeekendSelections = function() {
+  var that = this
+
+  var weekendSelections = this.container
+      .selectAll(".weekendSelection")
+      .data(this.weekDates.filter(function(d) {
+        return d.day == "saturday"
+      }))
+
+  weekendSelections.enter()
+      .append("rect")
+      .attr("class", "weekendSelection")
+      .attr("x", function(d) {
+        return this.x[0](0) - this.daySelectionMargin
+      }.bind(this))
+      .attr("y", function(d) {
+        return this.y(d.date) - this.daySelectionMargin
+      }.bind(this))
+      .attr("width", this.width + (2 * this.daySelectionMargin))
+      .attr("height", (2 * WeekHeatmap.TILE.HEIGHT) + (3 * this.daySelectionMargin))
+      .attr("rx", this.daySelectionMargin)
+      .attr("ry", this.daySelectionMargin)
+
+}
+
 WeekHeatmap.prototype.renderDaySelections = function() {
   var that = this
 
@@ -337,7 +369,7 @@ WeekHeatmap.prototype.renderDaySelections = function() {
   daySelections.enter()
       .append("rect")
       .attr("class", function(d) {
-        var clazz = "daySelection"
+        var clazz = "daySelection " + d.day
         if (window.Utility.isSameDay(d.date, window.Day.currentDate))
           clazz += " selected"
         return clazz
