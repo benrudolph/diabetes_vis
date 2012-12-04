@@ -79,8 +79,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     .on("click", function() { this.nextMonth() }.bind(this));
 }
 
-MonthsView.prototype.update = function() {
-
+MonthsView.prototype.update = function(date_obj) {
 };
 
 MonthsView.prototype.yTop = function() {
@@ -326,8 +325,9 @@ MonthView.prototype.computeBorderCoordinates = function() {
     cur_x += (this.date_obj.startOfMonth().getDayAdjusted()) * cell_width;
     coords.push({x: cur_x, y: cur_y});
     cur_y -= cell_width;
-    coords.push({x: cur_x, y: cur_y - 2});
+    coords.push({x: cur_x, y: cur_y});
   }
+    coords.push({x: cur_x + 3, y: cur_y});
   return coords;
 }
 
