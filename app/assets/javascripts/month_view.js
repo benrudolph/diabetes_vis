@@ -33,7 +33,9 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     .attr("y", 20)
     .attr("width", 25)
     .attr("height", 25)
-    .on("click", function() { this.lastMonth() }.bind(this));
+    .on("click", function() {
+      this.lastMonth()
+    }.bind(this));
 
   var y_pos = this.start_at_y;
   this.month_objs = []
@@ -250,7 +252,7 @@ MonthView.prototype.getEffectiveHeight = function() {
   return height - this.cell_width;
 };
 
-$(document).ready(function() {
+/*$(document).ready(function() {
   months_view = new MonthsView(new Date(2012,3), 3, 12, 200);
-});
+});*/
 

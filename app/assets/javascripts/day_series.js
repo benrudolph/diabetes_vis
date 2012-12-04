@@ -289,7 +289,7 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
   $.ajax({
     url: "/diabetes/day",
     type: "GET",
-    data: { date: date,
+    data: { date: window.Utility.dateToString(date),
             limit: limit },
     success: function(data) {
       this.day_data = data.day_data

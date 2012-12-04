@@ -19,7 +19,6 @@ var Dashboard = function(selector, width, height) {
       .attr("width", this.width)
       .append("svg:g")
 
-  this.currentDate = "2010-09-04"
 
   this.activeWeekBrush = undefined
   this.activeYearBrush = undefined
@@ -45,13 +44,6 @@ Dashboard.prototype.init = function() {
 
   // Holds all graphs and visualizations on the dashboard
   this.graphs = [
-  /*  {
-      type: Dashboard.GRAPH_TYPES.DAY,
-      id: Dashboard.GRAPH_TYPES.DAY,
-      vis: new DaySeries(this.svg),
-      x: (this.width / 2) - 200,
-      y: 300
-    },*/
     {
       type: Dashboard.GRAPH_TYPES.WEEK,
       id: Dashboard.GRAPH_TYPES.WEEK,
@@ -60,6 +52,7 @@ Dashboard.prototype.init = function() {
       y: 300
     }
   ]
+  this.monthsView = new MonthsView(window.Day.currentDate, 3, 12, 200);
 
   this.layout()
   this.loadData()
@@ -74,18 +67,18 @@ Dashboard.prototype.layout = function() {
 
 /* Loads all data for each graph */
 Dashboard.prototype.loadData = function(d) {
-  this.currentDate = d || this.currentDate
+  window.Day.currentDate = d || window.Day.currentDate
 
   this.graphs.forEach(function(graph) {
     switch (graph.type) {
       case Dashboard.GRAPH_TYPES.DAY:
-        graph.vis.loadData(this.currentDate)
+        graph.vis.loadData(window.Day.currentDate)
         break;
       case Dashboard.GRAPH_TYPES.WEEK:
-        graph.vis.loadData(this.currentDate)
+        graph.vis.loadData(window.Day.currentDate)
         break;
       case Dashboard.GRAPH_TYPES.YEAR:
-        graph.vis.loadData(this.currentDate)
+        graph.vis.loadData(window.Day.currentDate)
         break;
     }
   }.bind(this))
@@ -94,9 +87,9 @@ Dashboard.prototype.loadData = function(d) {
 Dashboard.prototype.extendWeekHeatmap = function() {
   this.graphs.forEach(function(graph) {
     if (graph.id === Dashboard.GRAPH_TYPES.WEEK) {
-      graph.vis.loadData(window.Utility.dateToString(graph.vis.currentDate),
+      graph.vis.loadData((window.Day.currentDate),
         graph.vis.extend.bind(graph.vis),
-        window.Utility.dateToString(graph.vis.extent[0]), -1)
+        (graph.vis.extent[0]), -1)
 
     }
   })
@@ -106,4 +99,12 @@ Dashboard.prototype.render = function() {
   this.graphs.forEach(function(graph) {
     graph.vis.render()
   })
+}
+
+Dashboard.prototype.updateDay = function(date) {
+
+}
+
+window.Day = {
+  currentDate: new Date(Date.UTC(2010,9,4))
 }
