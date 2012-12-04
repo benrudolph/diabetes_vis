@@ -34,16 +34,28 @@
   stroke: blue;
 }
 
+.slice {
+  opacity: 0;
+}
+
 .tile {
   fill: none;
   stroke: #191919;
   stroke-width: 1px;
+  opacity: 0;
 }
 
 .axis {
   font-size: 10px;
 }
 
+.y.axis {
+  opacity: 0;
+}
+
+.daySeries .y.axis {
+  opacity: 1;
+}
 .daySelection {
   fill-opacity: 0;
   stroke: none;
@@ -60,7 +72,6 @@
 .daySelection.selected {
   stroke: #191919;
   stroke-width: 2px;
-  stroke-opacity: 1;
   pointer-events: none;
 }
 

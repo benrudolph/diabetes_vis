@@ -44,7 +44,7 @@ var WeekHeatmap = function(svg) {
   d3.select("#" + this.daySeries.id)
       .attr("transform", "translate(0, 0)")
 
-  this.context = true
+  this.context = false
 
 }
 
@@ -125,9 +125,7 @@ WeekHeatmap.prototype.update = function(data) {
 
   var slices = this.container
       .selectAll(".slice")
-      .data(this.data, function(d) {
-        return d.time
-      })
+      .data(this.data)
 
   /*slices
     .transition()
@@ -217,10 +215,12 @@ WeekHeatmap.prototype.render = function(data) {
 
 WeekHeatmap.prototype.renderYAxis = function() {
   var format = d3.time.format("%Y-%d-%m %A")
-  this.container
+  var yAxis = this.container
       .selectAll(".y.axis")
       .data(this.weekDates)
-      .enter()
+
+  yAxis
+    .enter()
       .append("text")
       .attr("class", "y axis")
       .attr("y", function(d) {
@@ -233,15 +233,23 @@ WeekHeatmap.prototype.renderYAxis = function() {
         return format(d.date)
       })
 
+  yAxis
+      .transition()
+      .duration(1000)
+      .style("opacity", function(d) {
+        return 1.0
+      })
+
 }
 
 WeekHeatmap.prototype.renderSlices = function() {
   var that = this
 
-  this.container
+  var slices = this.container
       .selectAll(".slice")
       .data(this.data)
-      .enter()
+
+  slices.enter()
       .append("rect")
       .attr("class", "slice")
       .attr("x", function(d, i) {
@@ -272,6 +280,13 @@ WeekHeatmap.prototype.renderSlices = function() {
         slice.style("stroke", "none")
       })
 
+  slices
+      .transition()
+      .duration(1000)
+      .style("opacity", function(d) {
+        return 1.0
+      })
+
 }
 
 WeekHeatmap.prototype.extend = function(data) {
@@ -286,10 +301,11 @@ WeekHeatmap.prototype.extend = function(data) {
 WeekHeatmap.prototype.renderTiles = function() {
   this.hours = this.getHours()
 
-  this.container
+  var tiles = this.container
       .selectAll(".tile")
       .data(this.hours)
-      .enter()
+
+  tiles.enter()
       .append("rect")
       .attr("class", "tile")
       .attr("x", function(d, i) {
@@ -302,15 +318,23 @@ WeekHeatmap.prototype.renderTiles = function() {
       .attr("height", WeekHeatmap.TILE.HEIGHT)
       .attr("rx", 4)
       .attr("ry", 4)
+
+  tiles
+      .transition()
+      .duration(1000)
+      .style("opacity", function(d) {
+        return 1.0
+      })
 }
 
 WeekHeatmap.prototype.renderDaySelections = function() {
   var that = this
 
-  this.container
+  var daySelections = this.container
       .selectAll(".daySelection")
       .data(this.weekDates)
-      .enter()
+
+  daySelections.enter()
       .append("rect")
       .attr("class", function(d) {
         var clazz = "daySelection"
@@ -337,8 +361,8 @@ WeekHeatmap.prototype.renderDaySelections = function() {
         d3.select(".daySelection.selected").classed("selected", false)
         d3.select(this).classed("selected", true)
 
-        that.currentDate = d.date
-        that.daySeries.loadData((d.date), undefined,
+        window.Day.currentDate = d.date
+        that.daySeries.loadData(d.date, undefined,
             that.daySeries.update.bind(that.daySeries))
       })
 

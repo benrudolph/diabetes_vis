@@ -46,8 +46,10 @@ Utility.getGlucoseColor = function(glucose) {
   else if (glucose >= this.GLUCOSE_HIGH) {
     var lightness = this.glucoseHighScale(glucose)
     return "hsl(" + 9 + ",100%," + lightness + "%)";
-  } else {
+  } else if (glucose){
     return "#ffffff"
+  } else {
+    return "#ccc"
   }
 }
 

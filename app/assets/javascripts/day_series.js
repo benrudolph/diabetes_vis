@@ -26,8 +26,7 @@ var DaySeries = function(svg, data, width, height) {
   //this.day_average_data = data.day_average_data
   this.x = d3
       .time
-      .scale
-      .utc()
+      .scale()
       .range([this.margin.left , this.width - this.margin.right])
 
   this.yMax = 500
@@ -41,7 +40,7 @@ var DaySeries = function(svg, data, width, height) {
   this.xAxis = d3.svg.axis()
       .scale(this.x)
       .ticks(d3.time.hours, 4)
-      .tickFormat(d3.time.format.utc("%I:%M %p"))
+      .tickFormat(d3.time.format("%I:%M %p"))
       .orient("bottom")
 
   this.yAxis = d3.svg.axis()
@@ -53,7 +52,7 @@ var DaySeries = function(svg, data, width, height) {
       .svg
       .line()
       .x(function(d) {
-        return this.x(new Date(d.timestamp))
+        return this.x(d.timestamp)
       }.bind(this))
       .y(function(d) {
         return +this.y(d.glucose)
@@ -74,7 +73,7 @@ DaySeries.prototype.updateAverage = function(day_average_data) {
 
 DaySeries.prototype.update = function(data) {
   this.day_data = data.day_data
-  this.x.domain(d3.extent(this.day_data, function(d) { return new Date(d.timestamp) }))
+  this.x.domain(d3.extent(this.day_data, function(d) { return (d.timestamp) }))
 
   var real = this.container
       .selectAll(".real")
@@ -92,7 +91,7 @@ DaySeries.prototype.render = function() {
   //this.day_data = data.day_data
   //this.day_average_data = data.averages
 
-  this.x.domain(d3.extent(this.day_data, function(d) { return new Date(d.timestamp) }))
+  this.x.domain(d3.extent(this.day_data, function(d) { return (d.timestamp) }))
 
   var that = this
 
@@ -191,7 +190,7 @@ DaySeries.prototype.highlightRemove = function() {
 }
 
 DaySeries.prototype.highlightFromDate = function(date) {
-  this.highlight(this.x(new Date(date)) - this.margin.left)
+  this.highlight(this.x(date) - this.margin.left)
 }
 
 DaySeries.prototype.highlight = function(x) {
@@ -289,9 +288,15 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
   $.ajax({
     url: "/diabetes/day",
     type: "GET",
-    data: { date: window.Utility.dateToString(date),
+    data: { stamp: +date / 1000,
             limit: limit },
     success: function(data) {
+      data.day_data.forEach(function(d) {
+        d.timestamp = new Date(d.timestamp)
+      })
+      data.averages.forEach(function(d) {
+        d.timestamp = new Date(d.timestamp)
+      })
       this.day_data = data.day_data
       this.day_average_data = data.averages
       callback(data)

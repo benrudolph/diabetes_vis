@@ -102,6 +102,8 @@ saturday sunday]
     week_data = []
     week_dates = []
 
+    buckets = 0.step((60 * 24) - 1, interval).to_a
+
     (0..days).each do |day|
       interval_data = Hash.new { |h, k| h[k] = [] }
 
@@ -115,19 +117,19 @@ saturday sunday]
         interval_data[bucket] << datum
       end
 
-      interval_data.each_pair do |bucket, datums|
+      buckets.each do |bucket|
         datum = {}
 
-        unless datums
-          next
-        end
-
+        datums = interval_data[bucket]
         # Averages glucose values if there are more than one datum for that bucket
-        datum[:glucose] = datums.inject(0.0) { |sum, d| sum + d.glucose } / datums.size
+        if datums.length > 0
+          datum[:glucose] = datums.inject(0.0) { |sum, d| sum + d.glucose } / datums.size
+          #datum[:timestamp] = datums[0].timestamp.to_i
+        end
+        datum[:timestamp] = (date + bucket.minutes).to_i
 
         datum[:time] = bucket
         datum[:day] = date.strftime("%A").downcase
-        datum[:timestamp] = datums[0].timestamp.to_i
         datum[:date] = date.to_i
         week_data << datum
       end
@@ -139,11 +141,11 @@ saturday sunday]
     render :json => { :data => week_data, :interval => interval, :week_dates => week_dates }
   end
 
-  # Gets data for given day format will be %Y-%m-%d
+  # Gets data for given day format will be seconds since 1970
   def day
-    year, month, day = params[:date].split("-")
-    time = Time.utc(year, month, day)
-    day_data = GlucoseSensorData.by_day(time, :field => :timestamp)
+    stamp = params[:stamp].to_i
+    time = Time.at(stamp)
+    day_data = GlucoseSensorData.by_day(time.to_date, :field => :timestamp)
 
     #@day_data.map do |datum|
     #  datum[:glucose_scaled] = (Math.log(datum[:glucose]) - Math.log(120)) ** 2
