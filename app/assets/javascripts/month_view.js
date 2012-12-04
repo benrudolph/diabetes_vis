@@ -135,6 +135,7 @@ var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos,
     .attr("y", y_pos)
     .style("opacity", 0);
 
+  this.margin = 10;
   this.x_pos = x_pos;
   this.y_pos = y_pos;
   this.date_obj = date_obj;
@@ -151,11 +152,6 @@ var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos,
   this.increments = increments;
   this.month = date_obj.getMonth() + 1;
   this.year = date_obj.getFullYear();
-  this.glucose_scale = d3
-    .scale
-    .linear()
-    .domain([0, 500])
-    .range([0, 1]);
 };
 
 MonthView.prototype.render = function(visible, callback) {
@@ -168,8 +164,8 @@ MonthView.prototype.render = function(visible, callback) {
     // in year, not week in month
 
     this.border_line = d3.svg.line()
-      .x(function(d){return d.x;})
-      .y(function(d){return d.y;})
+      .x(function(d){return this.margin + d.x;}.bind(this))
+      .y(function(d){return this.margin + d.y;}.bind(this))
       .interpolate("linear");
 
     this.border_el = this.svg
@@ -179,6 +175,7 @@ MonthView.prototype.render = function(visible, callback) {
       .style("stroke", "black")
       .style("fill", "none");
 
+    var first_iteration = true;
     this.cur_week = 0;
     this.days = this.svg
       .selectAll("svg")
@@ -186,16 +183,16 @@ MonthView.prototype.render = function(visible, callback) {
       .enter()
       .append("svg")
       .attr("x", function(d) {
-        return this.wday(d.date) * this.cell_width; }.bind(this))
+        return this.margin + (this.wday(d.date) * this.cell_width); }.bind(this))
       .attr("y", function(d) {
-        this.cur_week = (+this.wday(d.date) == 0) ? this.cur_week + 1 : this.cur_week;
-        return this.cur_week * this.cell_width; }.bind(this))
+        this.cur_week = (+this.wday(d.date) == 0 && !first_iteration) ? this.cur_week + 1 : this.cur_week;
+        first_iteration = false;
+        return this.margin + (this.cur_week * this.cell_width); }.bind(this))
       .attr("width", this.cell_width)
       .attr("height", this.cell_width)
       .attr("class", "day")
       .attr("id", function(d) { return d3.time.format("d%Y%m%d")(d.date); });
 
-    var self = this;
     this.days
       .on("click", function(d) {
         var el = d3.select(this);
@@ -219,7 +216,7 @@ MonthView.prototype.render = function(visible, callback) {
         .enter()
         .append("rect")
         .attr("x", function(d, i) {
-          return i * (this.cell_width / this.increments); }.bind(this))
+          return (i * (this.cell_width / this.increments)); }.bind(this))
         .attr("width", this.cell_width / this.increments)
         .attr("height", this.cell_width)
         .attr("class", "gradient_rect")
@@ -276,7 +273,7 @@ MonthView.prototype.moveBy = function(y_units, remove_after) {
 MonthView.prototype.getEffectiveHeight = function() {
   var num_weeks = this.date_obj.getNumWeeks();
   var height = this.cell_width * num_weeks;
-  return height - this.cell_width;
+  return (this.date_obj.endsOnSunday()) ? height : height - this.cell_width;
 };
 
 MonthView.prototype.computeBorderCoordinates = function() {
@@ -317,7 +314,7 @@ MonthView.prototype.computeBorderCoordinates = function() {
     cur_x += (this.date_obj.startOfMonth().getDayAdjusted()) * cell_width;
     coords.push({x: cur_x, y: cur_y});
     cur_y -= cell_width;
-    coords.push({x: cur_x, y: cur_y});
+    coords.push({x: cur_x, y: cur_y - 2});
   }
   return coords;
 }
