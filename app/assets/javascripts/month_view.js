@@ -47,6 +47,22 @@ Date.prototype.isOneMonthAhead = function(date_obj) {
   return next_month.getFullYear() == this.getFullYear() && next_month.getMonth() == this.getMonth();
 };
 
+Date.prototype.getWeekInMonth = function() {
+  var start_of_month = this.startOfMonth();
+  var starts_on = start_of_month.getDayAdjusted();
+  var days = this.getDate();
+  if (starts_on == 0) {
+    return Math.ceil(days / 7);
+  } else {
+    var subtract = 7 - starts_on;
+    if (days <= subtract) {
+      return 1;
+    } else {
+      return 1 + Math.ceil((days - subtract) / 7);
+    }
+  }
+};
+
 var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   this.svg = d3
     .select("#months_view")
@@ -89,7 +105,8 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     .attr("width", 25)
     .attr("height", 25)
     .on("click", function() { this.nextMonth() }.bind(this));
-}
+
+};
 
 MonthsView.prototype.update = function(date_obj) {
   var target_mo = new Date(date_obj.getFullYear(), date_obj.getMonth());
@@ -120,6 +137,40 @@ MonthsView.prototype.update = function(date_obj) {
       y_pos += month_obj.getEffectiveHeight();
     }.bind(this));
   }
+  this.setMarker(date_obj);
+};
+
+MonthsView.prototype.updateMarker = function(date_obj) {
+  var should_update = false;
+  if (this.marker_date != null &&
+      (date_obj.getFullYear() == this.marker_date.getFullYear()) &&
+      (date_obj.getMonth() == this.marker_date.getMonth())) {
+    should_update = true;
+  }
+  return should_update;
+};
+
+MonthsView.prototype.setMarker = function(date_obj) {
+  var ind = this.findIndex(date_obj);
+  this.month_objs.forEach(function(month_obj, i) {
+    month_obj.clearMarker();
+    if (i == ind) {
+      month_obj.setMarker(date_obj);
+    }
+  });
+  this.marker_date = date_obj;
+};
+
+MonthsView.prototype.findIndex = function(date_obj) {
+  var ind = -1;
+  for (var i = 0; i < this.months.length; i++) {
+    if (this.months[i].getFullYear() == date_obj.getFullYear() &&
+        this.months[i].getMonth() == date_obj.getMonth()) {
+      ind = i;
+      break;
+    }
+  }
+  return ind;
 };
 
 MonthsView.prototype.yTop = function() {
@@ -146,6 +197,9 @@ MonthsView.prototype.nextMonth = function() {
     this.months.splice(0,1);
     this.month_objs.splice(0,1);
   }.bind(this));
+  if (this.updateMarker(next_month)) {
+    month_obj.setMarker(this.marker_date);
+  }
 };
 
 MonthsView.prototype.lastMonth = function() {
@@ -167,6 +221,9 @@ MonthsView.prototype.lastMonth = function() {
     this.months.pop();
     this.month_objs.pop();
   }.bind(this));
+  if (this.updateMarker(last_month)) {
+    month_obj.setMarker(this.marker_date);
+  }
 };
 
 var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos, y_pos) {
@@ -203,6 +260,19 @@ var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos,
   this.increments = increments;
   this.month = date_obj.getMonth() + 1;
   this.year = date_obj.getFullYear();
+  this.marker = null;
+};
+
+MonthView.prototype.clearMarker = function() {
+  if (this.marker !== null) { this.marker.remove(); }
+};
+
+MonthView.prototype.setMarker = function(date_obj) {
+  var y_pos = this.margin + ((date_obj.getWeekInMonth() - 1) * this.cell_width) + (this.cell_width / 2);
+  this.marker = this.svg
+    .append("svg:path")
+    .attr("transform", "translate(245,"+y_pos+")")
+    .attr("d", d3.svg.symbol());
 };
 
 MonthView.prototype.render = function(visible, callback) {
@@ -329,7 +399,6 @@ MonthView.prototype.getEffectiveHeight = function() {
   return (this.date_obj.endsOnSunday()) ? height : height - this.cell_width;
 };
 
-
 MonthView.prototype.computeBorderCoordinates = function() {
   var coords = [];
   var cur_x = this.x_pos;
@@ -373,7 +442,6 @@ MonthView.prototype.computeBorderCoordinates = function() {
     coords.push({x: cur_x + 3, y: cur_y});
   return coords;
 }
-
 
 //$(document).ready(function() {
 //  months_view = new MonthsView(new Date(2012,3), 3, 12, 210);
