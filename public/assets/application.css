@@ -73,3 +73,9 @@
   font-size: 10px;
   pointer-events: none;
 }
+
+.column {
+  float: left;
+  min-width: 250px;
+}
+}

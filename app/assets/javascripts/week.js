@@ -33,7 +33,6 @@ var WeekHeatmap = function(svg) {
   this.x = this.xScale()
 
   this.y = d3.time.scale.utc()
-      .range([this.margin.top, this.height - this.margin.bottom])
 
 
   this.data = undefined
@@ -41,7 +40,6 @@ var WeekHeatmap = function(svg) {
   // Extent of days shown in heatmap
   this.extent = undefined
 
-  this.currentDate = undefined
   this.daySeries = new DaySeries(svg)
   d3.select("#" + this.daySeries.id)
       .attr("transform", "translate(0, 0)")
@@ -104,7 +102,7 @@ WeekHeatmap.prototype.getHours = function() {
 WeekHeatmap.prototype.update = function(data) {
   var that = this
 
-  this.daySeries.loadData(window.Utility.dateToString(this.currentDate), undefined,
+  this.daySeries.loadData((window.Day.currentDate), undefined,
       this.daySeries.update.bind(this.daySeries))
 
   if (data) {
@@ -114,6 +112,10 @@ WeekHeatmap.prototype.update = function(data) {
   }
 
   this.extent = d3.extent(this.weekDates, function(d) { return d.date })
+  this.y.domain([this.extent[0], new Date(this.extent[0].getUTCFullYear(),
+      this.extent[0].getUTCMonth(),
+      this.extent[0].getUTCDate() + 6)])
+      .range([this.margin.top, this.height - this.margin.bottom])
 
   var slices = this.container
       .selectAll(".slice")
@@ -166,7 +168,7 @@ WeekHeatmap.prototype.update = function(data) {
  * This function should only be called once. If you need to make changes to the graph use #update
  */
 WeekHeatmap.prototype.render = function(data) {
-  this.daySeries.loadData(window.Utility.dateToString(this.currentDate))
+  this.daySeries.loadData((window.Day.currentDate))
 
   this.data = data.data
   this.weekDates = data.week_dates
@@ -174,6 +176,7 @@ WeekHeatmap.prototype.render = function(data) {
 
   this.extent = d3.extent(this.weekDates, function(d) { return d.date })
   this.y.domain(this.extent)
+      .range([this.margin.top, this.height - this.margin.bottom])
 
   if (!this.data)
     console.log("Alert no data to render graph")
@@ -252,7 +255,7 @@ WeekHeatmap.prototype.renderSlices = function() {
         return window.Utility.getGlucoseColor(d.glucose)
       })
       .on("mouseover", function(d) {
-        if (d.day !== WeekHeatmap.getDayFromDate(that.currentDate))
+        if (d.day !== WeekHeatmap.getDayFromDate(window.Day.currentDate))
           return
 
         var slice = d3.select(this)
@@ -268,10 +271,6 @@ WeekHeatmap.prototype.renderSlices = function() {
         slice.style("stroke", "none")
       })
 
-}
-
-WeekHeatmap.prototype.extendByWeek = function(_isAfter) {
-  this.loadData(this.currentDate, this.extend, 7)
 }
 
 WeekHeatmap.prototype.extend = function(data) {
@@ -314,7 +313,7 @@ WeekHeatmap.prototype.renderDaySelections = function() {
       .append("rect")
       .attr("class", function(d) {
         var clazz = "daySelection"
-        if (window.Utility.isSameDay(d.date, this.currentDate))
+        if (window.Utility.isSameDay(d.date, window.Day.currentDate))
           clazz += " selected"
         return clazz
       }.bind(this))
@@ -329,7 +328,7 @@ WeekHeatmap.prototype.renderDaySelections = function() {
       .attr("rx", this.daySelectionMargin)
       .attr("ry", this.daySelectionMargin)
       .on("mouseover", function(d) {
-        if (!window.Utility.isSameDay(d.date, this.currentDate))
+        if (!window.Utility.isSameDay(d.date, window.Day.currentDate))
           that.daySeries.highlightRemove()
       }.bind(this))
       .on("click", function(d) {
@@ -338,7 +337,7 @@ WeekHeatmap.prototype.renderDaySelections = function() {
         d3.select(this).classed("selected", true)
 
         that.currentDate = d.date
-        that.daySeries.loadData(window.Utility.dateToString(d.date), undefined,
+        that.daySeries.loadData((d.date), undefined,
             that.daySeries.update.bind(that.daySeries))
       })
 
@@ -349,6 +348,7 @@ WeekHeatmap.prototype.renderDaySelections = function() {
  * Loads the data for a given data. Will load most recent monday to sunday. plusWeeks is an optional parameter
  * that specifies how many weeks should be added to the current date. This is because ruby supplies much better
  * utilities for adding dates than javascript does.
+ * CurrentDate is a Date object
  */
 WeekHeatmap.prototype.loadData = function(currentDate, callback, dateToGet, plusWeeks) {
   if (!callback) {
@@ -359,13 +359,13 @@ WeekHeatmap.prototype.loadData = function(currentDate, callback, dateToGet, plus
     dateToGet = currentDate
   }
 
-  this.currentDate = window.Utility.stringToDate(currentDate)
+  window.Day.currentDate = currentDate
 
   $.ajax({
     url: "/diabetes/week",
     type: "GET",
-    data: { date: dateToGet,
-            currentDate: currentDate,
+    data: { date: window.Utility.dateToString(dateToGet),
+            currentDate: window.Utility.dateToString(currentDate),
             interval: this.interval,
             plus_weeks: plusWeeks },
     success: function(data) {
