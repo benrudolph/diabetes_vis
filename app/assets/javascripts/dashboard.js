@@ -44,7 +44,7 @@ Dashboard.prototype.init = function() {
 
   // Holds all graphs and visualizations on the dashboard
   this.weekHeatmap = new WeekHeatmap(this.svg)
-  this.monthsView = new MonthsView(window.Day.currentDate, 3, 12, 200);
+  this.monthsView = new MonthsView(window.Day.currentDate, 3, 12, 210);
 
   this.layout()
   this.loadData()

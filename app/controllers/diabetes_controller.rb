@@ -288,4 +288,22 @@ saturday sunday]
     data = _get_month_data(month, year, increments)
     render :json => data
   end
+
+  def get_months_data
+    n_months = params[:n_months].to_i
+    current = Date.strptime(params[:current], "%Y-%m-%d")
+    target = Date.strptime(params[:target], "%Y-%m-%d")
+    render :json => [months_between(current, target)]
+  end
+
+  def months_between(date1, date2)
+      if date1 < date2
+        recent_date = date1.to_date
+        past_date = date2.to_date
+      else
+        recent_date = date2.to_date
+        past_date = date1.to_date
+      end
+      return (past_date.month - recent_date.month) + 12 * (recent_date.year - past_date.year)
+  end
 end

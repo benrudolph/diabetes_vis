@@ -37,6 +37,16 @@ Date.prototype.endsOnSunday = function() {
   return this.endOfMonth().getDay() == 0;
 };
 
+Date.prototype.isOneMonthBefore = function(date_obj) {
+  var last_month = new Date(date_obj.getFullYear(), date_obj.getMonth() - 1);
+  return last_month.getFullYear() == this.getFullYear() && last_month.getMonth() == this.getMonth();
+};
+
+Date.prototype.isOneMonthAhead = function(date_obj) {
+  var next_month = new Date(date_obj.getFullYear(), date_obj.getMonth() + 1);
+  return next_month.getFullYear() == this.getFullYear() && next_month.getMonth() == this.getMonth();
+};
+
 var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   this.svg = d3
     .select("#months_view")
@@ -63,7 +73,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     }.bind(this));
 
   var y_pos = this.start_at_y;
-  this.month_objs = []
+  this.month_objs = [];
   this.months.forEach(function(mo, i) {
     var month_obj = new MonthView(this.svg, mo, increments, calendar_width, 0, y_pos);
     month_obj.render(true);
@@ -82,6 +92,34 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
 }
 
 MonthsView.prototype.update = function(date_obj) {
+  var target_mo = new Date(date_obj.getFullYear(), date_obj.getMonth());
+  if (target_mo <= this.months[this.n_months - 1] && target_mo >= this.months[0]) {
+    // we do nothing.... but probably something to update a specific day selection thing
+  } else if (date_obj.isOneMonthBefore(this.months[0])) {
+    this.lastMonth();
+  } else if (date_obj.isOneMonthAhead(this.months[this.n_months - 1])) {
+    this.nextMonth();
+  } else {
+    this.month_objs.forEach(function(month_obj) {
+      month_obj.svg
+        .transition()
+        .duration(1000)
+        .style("opacity", 0)
+        .attr("x", -250)
+        .remove();
+    });
+    var y_pos = this.start_at_y;
+    var start_range = new Date(date_obj.getFullYear(), date_obj.getMonth() - this.n_months + 1);
+    var stop_range = new Date(date_obj.getFullYear(), date_obj.getMonth() + 1);
+    this.months = d3.time.months(start_range, stop_range);
+    this.month_objs = []
+    this.months.forEach(function(mo, i) {
+      var month_obj = new MonthView(this.svg, mo, this.increments, this.calendar_width, 0, y_pos);
+      month_obj.render(true);
+      this.month_objs.push(month_obj);
+      y_pos += month_obj.getEffectiveHeight();
+    }.bind(this));
+  }
 };
 
 MonthsView.prototype.yTop = function() {
@@ -337,6 +375,6 @@ MonthView.prototype.computeBorderCoordinates = function() {
 }
 
 
-/*$(document).ready(function() {
-  months_view = new MonthsView(new Date(2012,3), 3, 12, 200);
-});*/
+//$(document).ready(function() {
+//  months_view = new MonthsView(new Date(2012,3), 3, 12, 210);
+//});
