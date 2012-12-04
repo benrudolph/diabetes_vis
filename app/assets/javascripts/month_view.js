@@ -1,10 +1,11 @@
 Date.prototype.getNumWeeks = function() {
-  var curr_month_end = new Date(this.getFullYear(), this.getMonth() + 1, 0);
-  var curr_day = 8 - this.getDay();
-  curr_day = (curr_day == 8) ? 1 : curr_day;
+  return this.endOfMonth().getWeekInMonth();
+  //var curr_month_end = new Date(this.getFullYear(), this.getMonth() + 1, 0);
+  //var curr_day = 8 - this.getDay();
+  //curr_day = (curr_day == 8) ? 1 : curr_day;
 
-  var curr_month_days = curr_month_end.getDate() - curr_day;
-  return 1 + Math.ceil(curr_month_days / 7);
+  //var curr_month_days = curr_month_end.getDate() - curr_day;
+  //return 1 + Math.ceil(curr_month_days / 7);
 };
 
 Date.prototype.getDayAdjusted = function() {
@@ -113,9 +114,13 @@ MonthsView.prototype.update = function(date_obj) {
   if (target_mo <= this.months[this.n_months - 1] && target_mo >= this.months[0]) {
     // we do nothing.... but probably something to update a specific day selection thing
   } else if (date_obj.isOneMonthBefore(this.months[0])) {
+    this.marker_date = date_obj;
     this.lastMonth();
+    return;
   } else if (date_obj.isOneMonthAhead(this.months[this.n_months - 1])) {
+    this.marker_date = date_obj;
     this.nextMonth();
+    return;
   } else {
     this.month_objs.forEach(function(month_obj) {
       month_obj.svg
@@ -140,10 +145,23 @@ MonthsView.prototype.update = function(date_obj) {
   this.setMarker(date_obj);
 };
 
-MonthsView.prototype.updateMarker = function(date_obj) {
+MonthsView.prototype.updateMarker = function(date_obj, is_next) {
   var should_update = false;
-  if (this.marker_date != null &&
-      (date_obj.getFullYear() == this.marker_date.getFullYear()) &&
+  if (this.marker_date == null) { return false; }
+  var num_weeks_in_month = this.marker_date.getNumWeeks();
+  var week_in_month = this.marker_date.getWeekInMonth();
+  if (week_in_month == 1 || week_in_month == num_weeks_in_month) {
+      if ((this.marker_date.isOneMonthAhead(this.months[this.n_months - 1])) &&
+          !this.marker_date.startsOnMonday()) {
+        this.marker_date = new Date(this.marker_date.getFullYear(), this.marker_date.getMonth(), this.marker_date.getDate() - this.marker_date.getDayAdjusted());
+        should_update = true;
+      } else if ((this.marker_date.isOneMonthBefore(this.months[0])) &&
+                 !this.marker_date.endsOnSunday() && week_in_month == num_weeks_in_month) {
+        this.marker_date = new Date(this.marker_date.getFullYear(), this.marker_date.getMonth() + 1, 1);
+        should_update = true;
+      }
+  }
+  if ((date_obj.getFullYear() == this.marker_date.getFullYear()) &&
       (date_obj.getMonth() == this.marker_date.getMonth())) {
     should_update = true;
   }
@@ -196,11 +214,24 @@ MonthsView.prototype.nextMonth = function() {
 
     this.months.splice(0,1);
     this.month_objs.splice(0,1);
+    if (this.updateMarker(next_month, true)) {
+      this.setMarker(this.marker_date);
+    }
   }.bind(this));
-  if (this.updateMarker(next_month)) {
-    month_obj.setMarker(this.marker_date);
-  }
 };
+
+MonthsView.prototype.adjustEdgeWeeks = function(is_next) {
+  var num_weeks_in_month = date_obj.getNumWeeks();
+  var week_in_month = date_obj.getWeekInMonth();
+  if (week_in_month == 1) {
+
+  };
+  if (is_next) {
+
+  } else {
+
+  }
+}
 
 MonthsView.prototype.lastMonth = function() {
   var last_month = new Date(this.months[0].getFullYear(), this.months[0].getMonth() - 1);
@@ -220,10 +251,10 @@ MonthsView.prototype.lastMonth = function() {
 
     this.months.pop();
     this.month_objs.pop();
+    if (this.updateMarker(last_month, false)) {
+      this.setMarker(this.marker_date);
+    }
   }.bind(this));
-  if (this.updateMarker(last_month)) {
-    month_obj.setMarker(this.marker_date);
-  }
 };
 
 var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos, y_pos) {
