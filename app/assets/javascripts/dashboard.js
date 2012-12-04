@@ -96,7 +96,7 @@ Dashboard.prototype.extendWeekHeatmap = function() {
     if (graph.id === Dashboard.GRAPH_TYPES.WEEK) {
       graph.vis.loadData(window.Utility.dateToString(graph.vis.currentDate),
         graph.vis.extend.bind(graph.vis),
-        window.Utility.dateToString(graph.vis.extent[1]), 1)
+        window.Utility.dateToString(graph.vis.extent[0]), -1)
 
     }
   })

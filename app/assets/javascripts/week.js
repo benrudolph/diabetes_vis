@@ -33,7 +33,6 @@ var WeekHeatmap = function(svg) {
   this.x = this.xScale()
 
   this.y = d3.time.scale.utc()
-      .range([this.margin.top, this.height - this.margin.bottom])
 
 
   this.data = undefined
@@ -114,6 +113,10 @@ WeekHeatmap.prototype.update = function(data) {
   }
 
   this.extent = d3.extent(this.weekDates, function(d) { return d.date })
+  this.y.domain([this.extent[0], new Date(this.extent[0].getUTCFullYear(),
+      this.extent[0].getUTCMonth(),
+      this.extent[0].getUTCDate() + 6)])
+      .range([this.margin.top, this.height - this.margin.bottom])
 
   var slices = this.container
       .selectAll(".slice")
@@ -174,6 +177,7 @@ WeekHeatmap.prototype.render = function(data) {
 
   this.extent = d3.extent(this.weekDates, function(d) { return d.date })
   this.y.domain(this.extent)
+      .range([this.margin.top, this.height - this.margin.bottom])
 
   if (!this.data)
     console.log("Alert no data to render graph")
@@ -268,10 +272,6 @@ WeekHeatmap.prototype.renderSlices = function() {
         slice.style("stroke", "none")
       })
 
-}
-
-WeekHeatmap.prototype.extendByWeek = function(_isAfter) {
-  this.loadData(this.currentDate, this.extend, 7)
 }
 
 WeekHeatmap.prototype.extend = function(data) {
