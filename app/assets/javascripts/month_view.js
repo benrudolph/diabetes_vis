@@ -38,7 +38,6 @@ Date.prototype.endsOnSunday = function() {
 };
 
 var MonthsView = function(date_obj, n_months, increments, calendar_width) {
-
   this.svg = d3
     .select("#months_view")
     .append("svg")
@@ -81,6 +80,10 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     .attr("height", 25)
     .on("click", function() { this.nextMonth() }.bind(this));
 }
+
+MonthsView.prototype.update = function() {
+
+};
 
 MonthsView.prototype.yTop = function() {
   return this.start_at_y;
@@ -137,7 +140,16 @@ var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos,
     .attr("y", y_pos)
     .style("opacity", 0);
 
-  this.margin = 10;
+  this.svg
+    .append("text")
+    .attr("x", 15)
+    .attr("y", 150)
+    .attr("width", 100)
+    .attr("height", 200)
+    .attr("transform", "rotate(270 15,150)")
+    .text(d3.time.format("%B '%y")(date_obj));
+
+  this.margin = 20;
   this.x_pos = x_pos;
   this.y_pos = y_pos;
   this.date_obj = date_obj;
@@ -200,8 +212,8 @@ MonthView.prototype.render = function(visible, callback) {
         var el = d3.select(this);
         var blink = el.append("rect")
           .attr("fill", "white")
-          .attr("width", +el.attr("width") + 20)
-          .attr("height", +el.attr("height") + 20)
+          .attr("width", +el.attr("width"))
+          .attr("height", +el.attr("height"))
           .style("opacity", .8);
         blink
           .transition()
