@@ -7,12 +7,38 @@ Date.prototype.getNumWeeks = function() {
   return 1 + Math.ceil(curr_month_days / 7);
 };
 
+Date.prototype.getDayAdjusted = function() {
+    var curr_day = this.getDay() - 1;
+    return (curr_day == -1) ? 6 : curr_day;
+};
+
+Date.prototype.lastSundayOfMonth = function() {
+  var end_of_month = this.endOfMonth();
+  if (end_of_month == 0) {
+    return end_of_month;
+  } else {
+    return new Date(end_of_month.getFullYear(), end_of_month.getMonth(), end_of_month.getDate() - end_of_month.getDay());
+  }
+};
+
+Date.prototype.startsOnMonday = function() {
+  return this.startOfMonth().getDay() == 1;
+};
+
+Date.prototype.startOfMonth = function() {
+  return new Date(this.getFullYear(), this.getMonth());
+};
+
+Date.prototype.endOfMonth = function() {
+  return new Date(this.getFullYear(), this.getMonth() + 1, 0);
+};
+
 Date.prototype.endsOnSunday = function() {
-  var curr_month_end = new Date(this.getFullYear(), this.getMonth() + 1, 0);
-  return curr_month_end.getDay() == 0;
+  return this.endOfMonth().getDay() == 0;
 };
 
 var MonthsView = function(date_obj, n_months, increments, calendar_width) {
+
   this.svg = d3
     .select("#months_view")
     .append("svg")
@@ -140,6 +166,19 @@ MonthView.prototype.render = function(visible, callback) {
     }.bind(this));
     // have to do this week counting thing because format strings report week
     // in year, not week in month
+
+    this.border_line = d3.svg.line()
+      .x(function(d){return d.x;})
+      .y(function(d){return d.y;})
+      .interpolate("linear");
+
+    this.border_el = this.svg
+      .append("svg:path")
+      .attr("d", this.border_line(this.computeBorderCoordinates()))
+      .style("stroke-width", 5)
+      .style("stroke", "black")
+      .style("fill", "none");
+
     this.cur_week = 0;
     this.days = this.svg
       .selectAll("svg")
@@ -164,8 +203,6 @@ MonthView.prototype.render = function(visible, callback) {
           .attr("fill", "white")
           .attr("width", +el.attr("width") + 20)
           .attr("height", +el.attr("height") + 20)
-          .style("stroke", "black")
-          .style("stroke-width", 2)
           .style("opacity", .8);
         blink
           .transition()
@@ -188,14 +225,6 @@ MonthView.prototype.render = function(visible, callback) {
         .attr("class", "gradient_rect")
         .style("fill", function(d) {
           return window.Utility.getGlucoseColor(d); }.bind(this));
-
-    this.days
-      .append("rect")
-      .attr("width", this.cell_width)
-      .attr("height", this.cell_width)
-      .style("fill", "none")
-      .style("stroke", "black")
-      .style("stroke-width", 1);
 
     this.days
       .append("text")
@@ -250,7 +279,50 @@ MonthView.prototype.getEffectiveHeight = function() {
   return height - this.cell_width;
 };
 
-$(document).ready(function() {
-  months_view = new MonthsView(new Date(2012,3), 3, 12, 200);
-});
+MonthView.prototype.computeBorderCoordinates = function() {
+  var coords = [];
+  var cur_x = this.x_pos;
+  var cur_y = 0;
+  var cell_width = 30;
+  if (this.date_obj.startsOnMonday()) {
+    coords.push({x: cur_x, y: cur_y});
+  } else {
+    cur_x += (this.date_obj.startOfMonth().getDayAdjusted() * cell_width);
+    coords.push({x: cur_x, y: cur_y});
+  }
+  cur_x = 7 * cell_width;
+  coords.push({x: cur_x, y: cur_y});
+  if (this.date_obj.endsOnSunday()) {
+    cur_y += this.date_obj.getNumWeeks() * cell_width;
+    coords.push({x: cur_x, y: cur_y});
+    cur_x = this.x_pos;
+    coords.push({x: cur_x, y: cur_y});
+  } else {
+    var len_of_last_week = this.date_obj.endOfMonth().getDayAdjusted() + 1;
+    cur_y += (this.date_obj.getNumWeeks() - 1) * cell_width;
+    coords.push({x: cur_x, y: cur_y});
+    cur_x -= (7 - len_of_last_week) * cell_width;
+    coords.push({x: cur_x, y: cur_y});
+    cur_y += cell_width;
+    coords.push({x: cur_x, y: cur_y});
+    cur_x -= (len_of_last_week * cell_width);
+    coords.push({x: cur_x, y: cur_y});
+  }
+  if (this.date_obj.startsOnMonday()) {
+    cur_y -= this.date_obj.getNumWeeks() * cell_width;
+    coords.push({x: cur_x, y: cur_y});
+  } else {
+    cur_y -= (this.date_obj.getNumWeeks() - 1) * cell_width;
+    coords.push({x: cur_x, y: cur_y});
+    cur_x += (this.date_obj.startOfMonth().getDayAdjusted()) * cell_width;
+    coords.push({x: cur_x, y: cur_y});
+    cur_y -= cell_width;
+    coords.push({x: cur_x, y: cur_y});
+  }
+  return coords;
+}
 
+
+$(document).ready(function() {
+  months_view = new MonthsView(new Date(2012,3), 3, 12, 210);
+});
