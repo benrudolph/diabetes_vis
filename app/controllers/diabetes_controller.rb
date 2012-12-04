@@ -56,7 +56,7 @@ saturday sunday]
     limit = (params[:limit] || 1).to_i
 
     year, month, day = params[:day].split("-")
-    time = Time.utc(year, month, day)
+    time = Date.new(year, month, day)
 
     max = GlucoseSensorData.maximum(:timestamp)
     range = {}
@@ -74,11 +74,11 @@ saturday sunday]
   # through sunday. For example, hand in 12/12/12 which happens to be a wednesday. This will get days Monday,
   # 12/10/12 through Sunday 12/16/12
   def week
-    year, month, day = params[:date].split("-").map(&:to_i)
+    stamp = params[:stamp].to_i
     interval = (params[:interval] || 10).to_i
     plus_weeks = (params[:plus_weeks] || 0).to_i
-
-    time = Time.utc(year, month, day)
+    context = (params[:context] || 0).to_i == 1 ? true : false
+    time = Time.at(stamp)
 
     # Calculate monday from given date
     wday = time.wday
@@ -89,13 +89,23 @@ saturday sunday]
 
     date = date + plus_weeks.weeks
 
+    # Number of days in week range if we add context, we add the surrounding weeks as well
+    days = context ? (7 * 3) - 1 : 6
+
+    # If context we'll start at the monday before
+    if context
+      date -= 7.days
+    end
+
+
+
     week_data = []
     week_dates = []
 
-    DAYS_OF_WEEK.each do |day|
+    (0..days).each do |day|
       interval_data = Hash.new { |h, k| h[k] = [] }
 
-      data = GlucoseSensorData.by_day(date, :field => :timestamp)
+      data = GlucoseSensorData.by_day(date.to_date, :field => :timestamp)
 
       data.each do |datum|
         minutes = datum.timestamp.min + (datum.timestamp.hour * 60)
@@ -117,12 +127,12 @@ saturday sunday]
 
         datum[:time] = bucket
         datum[:day] = date.strftime("%A").downcase
-        datum[:timestamp] = datums[0].timestamp
-        datum[:date] = date
+        datum[:timestamp] = datums[0].timestamp.to_i
+        datum[:date] = date.to_i
         week_data << datum
       end
 
-      week_dates.push({ :day => date.strftime("%A").downcase, :date => date })
+      week_dates.push({ :day => date.strftime("%A").downcase, :date => date.to_i })
       date += 1.days
     end
 

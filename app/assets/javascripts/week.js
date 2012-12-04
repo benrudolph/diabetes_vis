@@ -32,7 +32,7 @@ var WeekHeatmap = function(svg) {
 
   this.x = this.xScale()
 
-  this.y = d3.time.scale.utc()
+  this.y = d3.time.scale()
 
 
   this.data = undefined
@@ -43,6 +43,8 @@ var WeekHeatmap = function(svg) {
   this.daySeries = new DaySeries(svg)
   d3.select("#" + this.daySeries.id)
       .attr("transform", "translate(0, 0)")
+
+  this.context = true
 
 }
 
@@ -112,10 +114,14 @@ WeekHeatmap.prototype.update = function(data) {
   }
 
   this.extent = d3.extent(this.weekDates, function(d) { return d.date })
-  this.y.domain([this.extent[0], new Date(this.extent[0].getUTCFullYear(),
-      this.extent[0].getUTCMonth(),
-      this.extent[0].getUTCDate() + 6)])
+  this.y.domain([this.extent[0], new Date(this.extent[0].getFullYear(),
+      this.extent[0].getMonth(),
+      this.extent[0].getDate() + 6)])
       .range([this.margin.top, this.height - this.margin.bottom])
+
+  this.container
+      .selectAll(".slice")
+      .remove()
 
   var slices = this.container
       .selectAll(".slice")
@@ -123,17 +129,12 @@ WeekHeatmap.prototype.update = function(data) {
         return d.time
       })
 
-  slices
+  /*slices
     .transition()
     .duration(1000)
     .style("fill", function(d) {
       return window.Utility.getGlucoseColor(d.glucose)
-    })
-
-  slices
-    .exit()
-    .remove()
-
+    })*/
 
   this.container
       .selectAll(".daySelection")
@@ -175,7 +176,9 @@ WeekHeatmap.prototype.render = function(data) {
   this.interval = data.interval
 
   this.extent = d3.extent(this.weekDates, function(d) { return d.date })
-  this.y.domain(this.extent)
+  this.y.domain([this.extent[0], new Date(this.extent[0].getFullYear(),
+      this.extent[0].getMonth(),
+      this.extent[0].getDate() + 6)])
       .range([this.margin.top, this.height - this.margin.bottom])
 
   if (!this.data)
@@ -210,12 +213,10 @@ WeekHeatmap.prototype.render = function(data) {
   this.renderTiles()
   this.renderDaySelections()
 
-
-  //this.loadData("2010-10-04", this.update.bind(this))
 }
 
 WeekHeatmap.prototype.renderYAxis = function() {
-  var format = d3.time.format.utc("%Y-%m-%d %A")
+  var format = d3.time.format("%Y-%d-%m %A")
   this.container
       .selectAll(".y.axis")
       .data(this.weekDates)
@@ -364,16 +365,18 @@ WeekHeatmap.prototype.loadData = function(currentDate, callback, dateToGet, plus
   $.ajax({
     url: "/diabetes/week",
     type: "GET",
-    data: { date: window.Utility.dateToString(dateToGet),
-            currentDate: window.Utility.dateToString(currentDate),
+    data: { stamp: +dateToGet / 1000,
+            currentDate: +currentDate / 1000,
             interval: this.interval,
-            plus_weeks: plusWeeks },
+            plus_weeks: plusWeeks,
+            context: this.context ? 1 : 0 },
     success: function(data) {
       data.data.forEach(function(d) {
-        d.date = new Date(d.date)
+        d.date = new Date(d.date * 1000)
+        d.timestamp = new Date(d.timestamp * 1000)
       })
       data.week_dates.forEach(function(d) {
-        d.date = new Date(d.date)
+        d.date = new Date(d.date * 1000)
       })
       callback(data)
     }
@@ -381,7 +384,7 @@ WeekHeatmap.prototype.loadData = function(currentDate, callback, dateToGet, plus
 }
 
 WeekHeatmap.getDayFromDate = function(date) {
-  var day = date.getUTCDay() - 1
+  var day = date.getDay() - 1
   // Adjust for starting the week on monday
   if (day < 0)
     day = WeekHeatmap.DAYS.length - 1

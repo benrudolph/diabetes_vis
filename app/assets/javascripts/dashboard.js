@@ -44,7 +44,7 @@ Dashboard.prototype.init = function() {
 
   // Holds all graphs and visualizations on the dashboard
   this.weekHeatmap = new WeekHeatmap(this.svg)
-  this.monthsView = new MonthsView(window.Day.currentDate, 3, 12, 200);
+  this.monthsView = new MonthsView(window.Day.currentDate, 3, 12, 210);
 
   this.layout()
   this.loadData()
@@ -63,10 +63,12 @@ Dashboard.prototype.loadData = function(d) {
 
 }
 
-Dashboard.prototype.extendWeekHeatmap = function() {
+Dashboard.prototype.toggleWeekHeatmapContext = function() {
+  this.weekHeatmap.context = this.weekHeatmap.context ? false : true
+
   this.weekHeatmap.loadData((window.Day.currentDate),
-    this.weekHeatmap.extend.bind(this.weekHeatmap),
-    (this.weekHeatmap.extent[0]), -1)
+    this.weekHeatmap.update.bind(this.weekHeatmap)
+    )
 }
 
 Dashboard.prototype.updateDay = function(date) {
@@ -76,5 +78,5 @@ Dashboard.prototype.updateDay = function(date) {
 }
 
 window.Day = {
-  currentDate: new Date(Date.UTC(2010,9,4))
+  currentDate: new Date(2010,9,4)
 }

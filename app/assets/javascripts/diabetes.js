@@ -11,7 +11,7 @@ $(document).ready(function() {
     daySeries.getAverage($("#date").val(), $(this).val(), daySeries.updateAverage.bind(daySeries))
   })
 
-  $("#extend").click(function(event) {
-    dashboard.extendWeekHeatmap()
+  $("#context").click(function(event) {
+    dashboard.toggleWeekHeatmapContext()
   })
 })

@@ -52,12 +52,12 @@ Utility.getGlucoseColor = function(glucose) {
 }
 
 Utility.dateToString = function(date) {
-  return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate()
+  return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
 }
 
 Utility.stringToDate = function(stringDate) {
   var dateParts = stringDate.split("-")
-  return new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]))
+  return new Date(dateParts[0], dateParts[1] - 1, dateParts[2])
 }
 
 Utility.isSameDay = function(date1, date2) {
