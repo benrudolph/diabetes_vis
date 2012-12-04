@@ -255,7 +255,7 @@ WeekHeatmap.prototype.renderSlices = function() {
         return window.Utility.getGlucoseColor(d.glucose)
       })
       .on("mouseover", function(d) {
-        if (d.day !== WeekHeatmap.getDayFromDate(that.currentDate))
+        if (d.day !== WeekHeatmap.getDayFromDate(window.Day.currentDate))
           return
 
         var slice = d3.select(this)

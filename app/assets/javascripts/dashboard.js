@@ -43,15 +43,7 @@ Dashboard.GLUCOSE_LEVELS = {
 Dashboard.prototype.init = function() {
 
   // Holds all graphs and visualizations on the dashboard
-  this.graphs = [
-    {
-      type: Dashboard.GRAPH_TYPES.WEEK,
-      id: Dashboard.GRAPH_TYPES.WEEK,
-      vis: new WeekHeatmap(this.svg),
-      x: 0,
-      y: 300
-    }
-  ]
+  this.weekHeatmap = new WeekHeatmap(this.svg)
   this.monthsView = new MonthsView(window.Day.currentDate, 3, 12, 200);
 
   this.layout()
@@ -59,50 +51,28 @@ Dashboard.prototype.init = function() {
 }
 
 Dashboard.prototype.layout = function() {
-  this.graphs.forEach(function(graph) {
-    d3.select("#" + graph.id)
-        .attr("transform", "translate(" + graph.x + ", " + graph.y + ")")
-  })
+    d3.select("#" + this.weekHeatmap.id)
+        .attr("transform", "translate(" + 0 + ", " + 300 + ")")
 }
 
 /* Loads all data for each graph */
 Dashboard.prototype.loadData = function(d) {
   window.Day.currentDate = d || window.Day.currentDate
 
-  this.graphs.forEach(function(graph) {
-    switch (graph.type) {
-      case Dashboard.GRAPH_TYPES.DAY:
-        graph.vis.loadData(window.Day.currentDate)
-        break;
-      case Dashboard.GRAPH_TYPES.WEEK:
-        graph.vis.loadData(window.Day.currentDate)
-        break;
-      case Dashboard.GRAPH_TYPES.YEAR:
-        graph.vis.loadData(window.Day.currentDate)
-        break;
-    }
-  }.bind(this))
+  this.weekHeatmap.loadData(window.Day.currentDate)
+
 }
 
 Dashboard.prototype.extendWeekHeatmap = function() {
-  this.graphs.forEach(function(graph) {
-    if (graph.id === Dashboard.GRAPH_TYPES.WEEK) {
-      graph.vis.loadData((window.Day.currentDate),
-        graph.vis.extend.bind(graph.vis),
-        (graph.vis.extent[0]), -1)
-
-    }
-  })
-}
-
-Dashboard.prototype.render = function() {
-  this.graphs.forEach(function(graph) {
-    graph.vis.render()
-  })
+  this.weekHeatmap.loadData((window.Day.currentDate),
+    this.weekHeatmap.extend.bind(this.weekHeatmap),
+    (this.weekHeatmap.extent[0]), -1)
 }
 
 Dashboard.prototype.updateDay = function(date) {
+  window.Day.currentDate = date
 
+  this.weekHeatmap.loadData(window.Day.currentDate, this.weekHeatmap.update.bind(this.weekHeatmap))
 }
 
 window.Day = {
