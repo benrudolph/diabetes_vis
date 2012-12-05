@@ -94,7 +94,7 @@ WeekHeatmap.DAYS = [
 ]
 
 WeekHeatmap.TILE = {
-  WIDTH: 30,
+  WIDTH: 25,
   HEIGHT: 15
 }
 
