@@ -203,13 +203,6 @@ WeekHeatmap.prototype.prepareWeeks = function() {
       .attr("x", 0)
       .attr("y", this.yWeek("after"))
 
-  if (this.showContext) {
-    after.style("opacity", 1)
-    before.style("opaciy", 1)
-  } else {
-    after.style("opacity", 0)
-    before.style("opaciy", 0)
-  }
 
   var weeks = [{ container: before, week: "before" },
       { container: current, week: "current" },
@@ -231,6 +224,9 @@ WeekHeatmap.prototype.render = function(loadDay) {
   var that = this
   var weeks = this.prepareWeeks()
 
+  d3.selectAll(".after, .before, .current")
+      .style("opacity", 0)
+
   weeks.forEach(function(d) {
     this.renderWeekendSelections(d.container, d.week)
     this.renderSlices(d.container, d.week)
@@ -239,6 +235,18 @@ WeekHeatmap.prototype.render = function(loadDay) {
     this.renderDaySelections(d.container, d.week)
 
   }.bind(this))
+
+  var selection;
+  if (this.showContext) {
+    selection = d3.selectAll(".before, .current, .after")
+  } else {
+    selection = d3.selectAll(".current")
+  }
+
+  selection
+      .transition()
+      .duration(1000)
+      .style("opacity", 1)
 
   this.container
       .selectAll(".x.axis")
@@ -378,6 +386,9 @@ WeekHeatmap.prototype.animate = function(transitionLength) {
         })
   } else {
     this.yWeek.domain(["current", "dummy", "dummy"])
+    this.extent = d3.extent(this.weekDates.current, function(d) { return d.date })
+
+    this.yWeek.domain(["before", "current", "after"])
     var context = this.container
         .selectAll(".before, .after")
 
@@ -500,6 +511,10 @@ WeekHeatmap.prototype.updateDay = function(date) {
   } else {
     // Not in current view, so let's load it up
     console.log("Loading more data...")
+    d3.selectAll(".current, .before, .after")
+        .transition()
+        .duration(1000)
+        .style("opacity", 0)
     this.loadData(window.Day.currentDate, this.update.bind(this))
   }
 
