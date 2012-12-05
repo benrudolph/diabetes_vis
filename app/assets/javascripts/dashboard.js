@@ -64,11 +64,8 @@ Dashboard.prototype.loadData = function(d) {
 }
 
 Dashboard.prototype.toggleWeekHeatmapContext = function() {
-  this.weekHeatmap.context = this.weekHeatmap.context ? false : true
+  this.weekHeatmap.toggleContext()
 
-  this.weekHeatmap.loadData((window.Day.currentDate),
-    this.weekHeatmap.update.bind(this.weekHeatmap)
-    )
 }
 
 Dashboard.prototype.updateDay = function(date) {

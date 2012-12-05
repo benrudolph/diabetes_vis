@@ -117,6 +117,21 @@ saturday sunday]
         interval_data[bucket] << datum
       end
 
+      week_context = nil
+
+      if context
+        week_number = day / 7
+        if week_number == 0
+          week_context = "before"
+        elsif week_number == 1
+          week_context = "current"
+        else
+          week_context = "after"
+        end
+      else
+        week_context = "current"
+      end
+
       buckets.each do |bucket|
         datum = {}
 
@@ -127,6 +142,8 @@ saturday sunday]
           #datum[:timestamp] = datums[0].timestamp.to_i
         end
         datum[:timestamp] = (date + bucket.minutes).to_i
+        datum[:week_context] = week_context
+
 
         datum[:time] = bucket
         datum[:day] = date.strftime("%A").downcase
@@ -134,7 +151,7 @@ saturday sunday]
         week_data << datum
       end
 
-      week_dates.push({ :day => date.strftime("%A").downcase, :date => date.to_i })
+      week_dates.push({ :week_context => week_context, :day => date.strftime("%A").downcase, :date => date.to_i })
       date += 1.days
     end
 

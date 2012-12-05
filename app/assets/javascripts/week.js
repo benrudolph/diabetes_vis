@@ -38,6 +38,10 @@ var WeekHeatmap = function(svg) {
   this.allData = undefined
   this.currentData = undefined
 
+
+  this.allWeekDates = undefined
+  this.weekDates = undefined
+
   // Extent of days shown in heatmap
   this.extent = undefined
 
@@ -98,6 +102,31 @@ WeekHeatmap.prototype.getHours = function() {
   return hours
 }
 
+WeekHeatmap.prototype.setData = function(data) {
+  this.allData = data.data
+  this.allWeekDates = data.week_dates
+  this.interval = data.interval
+  this.filterData()
+}
+
+WeekHeatmap.prototype.filterData = function() {
+  this.currentData = this.allData.filter(function(d) {
+    if (this.showContext) {
+      return d
+    } else if (!this.showContext && d.week_context === "current") {
+      return d
+    }
+  }.bind(this))
+
+  this.weekDates = this.allWeekDates.filter(function(d) {
+    if (this.showContext) {
+      return d
+    } else if (!this.showContext && d.week_context === "current") {
+      return d
+    }
+  }.bind(this))
+
+}
 /*
  * #update
  * Updates the weekheatmap to a new week as well as updating the day graph associated with the week
@@ -109,9 +138,7 @@ WeekHeatmap.prototype.update = function(data) {
       this.daySeries.update.bind(this.daySeries))
 
   if (data) {
-    this.data = data.data
-    this.weekDates = data.week_dates
-    this.interval = data.interval
+    this.setData(data)
   }
 
   this.extent = d3.extent(this.weekDates, function(d) { return d.date })
@@ -126,7 +153,7 @@ WeekHeatmap.prototype.update = function(data) {
 
   var slices = this.container
       .selectAll(".slice")
-      .data(this.data)
+      .data(this.currentData)
 
   /*slices
     .transition()
@@ -175,9 +202,7 @@ WeekHeatmap.prototype.update = function(data) {
 WeekHeatmap.prototype.render = function(data) {
   this.daySeries.loadData((window.Day.currentDate))
 
-  this.currentData = data.data
-  this.weekDates = data.week_dates
-  this.interval = data.interval
+  this.setData(data)
 
   this.extent = d3.extent(this.weekDates, function(d) { return d.date })
   this.y.domain([this.extent[0], new Date(this.extent[0].getFullYear(),
@@ -185,8 +210,6 @@ WeekHeatmap.prototype.render = function(data) {
       this.extent[0].getDate() + 6)])
       .range([this.margin.top, this.height - this.margin.bottom])
 
-  if (!this.data)
-    console.log("Alert no data to render graph")
 
   var that = this
 
@@ -255,7 +278,7 @@ WeekHeatmap.prototype.renderSlices = function() {
 
   var slices = this.container
       .selectAll(".slice")
-      .data(this.data)
+      .data(this.currentData)
 
   slices.enter()
       .append("rect")
@@ -298,17 +321,10 @@ WeekHeatmap.prototype.renderSlices = function() {
 
 }
 
-WeekHeatmap.prototype.extend = function(data) {
-
-  this.data = this.data.concat(data.data)
-  this.weekDates = this.weekDates.concat(data.week_dates)
-  this.interval = data.interval
-
+WeekHeatmap.prototype.toggleContext = function() {
+  this.showContext = this.showContext ? false : true
+  this.filterData()
   this.update()
-}
-
-WeekHeatmp.prototype.toggleContext = function() {
-
 }
 
 WeekHeatmap.prototype.renderTiles = function() {
