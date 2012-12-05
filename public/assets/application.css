@@ -108,8 +108,8 @@ image {
 .dashboard {
   border: 1px solid black;
   border-radius: 15px;
-  margin: 80px;
-  margin-top: 20px;
+  margin: 20px auto;
   padding: 20px;
   background-color: white;
+  width: 1130px;
 }
