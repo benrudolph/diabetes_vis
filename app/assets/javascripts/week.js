@@ -388,7 +388,6 @@ WeekHeatmap.prototype.animate = function(transitionLength) {
     this.yWeek.domain(["current", "dummy", "dummy"])
     this.extent = d3.extent(this.weekDates.current, function(d) { return d.date })
 
-    this.yWeek.domain(["before", "current", "after"])
     var context = this.container
         .selectAll(".before, .after")
 
