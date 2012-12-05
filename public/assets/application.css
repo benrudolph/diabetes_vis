@@ -30,8 +30,8 @@
   stroke-width: 2px;
 }
 
-#weeklow .line {
-  stroke: blue;
+.line {
+  stroke-width: 2px;
 }
 
 .slice {
@@ -91,6 +91,9 @@
 }
 
 .weekendSelection {
-  opacity: .2;
+  fill-opacity: .2;
+  fill: yellow;
+  stroke: #f4d209;
+  stroke-width: 1px;
 }
 

@@ -361,7 +361,6 @@ MonthView.prototype.render = function(visible, callback) {
           .style("opacity", 0)
           .remove();
         window.dashboard.updateDay(d.date)
-        self.parent_svg.update(d.date);
       });
 
     this.colors = d3.interpolateRgb(d3.rgb(0,0,255), d3.rgb(255,0,0));

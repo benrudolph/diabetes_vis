@@ -75,6 +75,10 @@ Dashboard.prototype.updateDay = function(date) {
   window.Day.currentDate = date
 
   this.weekHeatmap.loadData(window.Day.currentDate, this.weekHeatmap.update.bind(this.weekHeatmap))
+
+  this.weekHeatmap.daySeries.loadData(date, undefined,
+            this.weekHeatmap.daySeries.update.bind(this.weekHeatmap.daySeries))
+  this.monthsView.update(date)
 }
 
 window.Day = {

@@ -1,7 +1,15 @@
+Date.prototype.adjustTimezone = function(go_forward) {
+  if (go_forward) {
+    return new Date(this.getFullYear(), this.getMonth(), this.getDate(), this.getHours() + this.getTimezoneOffset() / 60, this.getMinutes(), this.getSeconds())
+  } else {
+    return new Date(this.getFullYear(), this.getMonth(), this.getDate(), this.getHours() - this.getTimezoneOffset() / 60, this.getMinutes(), this.getSeconds())
+  }
+};
+
 var DaySeries = function(svg, data, width, height) {
   this.svg = svg
   this.height = height || 300
-  this.width = width || 300
+  this.width = width || 800
 
   this.margin = {
     top: 10,
@@ -63,7 +71,7 @@ var DaySeries = function(svg, data, width, height) {
 
   this.yAxis = d3.svg.axis()
       .scale(this.y)
-      .ticks(20)
+      .ticks(15)
       .orient("left")
 
   this.line = d3
@@ -91,7 +99,10 @@ DaySeries.prototype.updateAverage = function(day_average_data) {
 
 DaySeries.prototype.update = function(data) {
   this.day_data = data.day_data
-  this.x.domain(d3.extent(this.day_data, function(d) { return (d.timestamp) }))
+  this.x.domain(d3.extent([window.Day.currentDate,
+                new Date(window.Day.currentDate.getFullYear(),
+                         window.Day.currentDate.getMonth(),
+                         window.Day.currentDate.getDate() + 1)]))
 
   var real = this.container
       .selectAll(".real")
@@ -109,8 +120,12 @@ DaySeries.prototype.render = function() {
   //this.day_data = data.day_data
   //this.day_average_data = data.averages
 
-  this.x.domain(d3.extent(this.day_data, function(d) { return (d.timestamp) }))
+  //this.x.domain(d3.extent(this.day_data, function(d) { return (d.timestamp) }))
 
+  this.x.domain(d3.extent([window.Day.currentDate,
+                new Date(window.Day.currentDate.getFullYear(),
+                         window.Day.currentDate.getMonth(),
+                         window.Day.currentDate.getDate() + 1)]))
   var that = this
 
   var rangeHeight = 2
@@ -312,10 +327,12 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
             limit: limit },
     success: function(data) {
       data.day_data.forEach(function(d) {
-        d.timestamp = new Date(d.timestamp)
+        var tmp = new Date(d.timestamp)
+        d.timestamp = tmp.adjustTimezone(true)
       })
       data.averages.forEach(function(d) {
-        d.timestamp = new Date(d.timestamp)
+        var tmp = new Date(d.timestamp)
+        d.timestamp = tmp.adjustTimezone(true)
       })
       this.day_data = data.day_data
       this.day_average_data = data.averages

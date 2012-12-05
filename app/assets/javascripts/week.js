@@ -22,7 +22,7 @@ var WeekHeatmap = function(svg) {
 
   this.daySelectionMargin = 3
 
-  this.interval = 10
+  this.interval = 15
   // Multiply by hours in day
   this.width = (WeekHeatmap.TILE.WIDTH + this.tileMargin.middle) * 24
 
@@ -35,7 +35,8 @@ var WeekHeatmap = function(svg) {
   this.y = d3.time.scale()
 
 
-  this.data = undefined
+  this.allData = undefined
+  this.currentData = undefined
 
   // Extent of days shown in heatmap
   this.extent = undefined
@@ -44,7 +45,7 @@ var WeekHeatmap = function(svg) {
   d3.select("#" + this.daySeries.id)
       .attr("transform", "translate(0, 0)")
 
-  this.context = false
+  this.showContext = false
 
 }
 
@@ -174,7 +175,7 @@ WeekHeatmap.prototype.update = function(data) {
 WeekHeatmap.prototype.render = function(data) {
   this.daySeries.loadData((window.Day.currentDate))
 
-  this.data = data.data
+  this.currentData = data.data
   this.weekDates = data.week_dates
   this.interval = data.interval
 
@@ -279,7 +280,8 @@ WeekHeatmap.prototype.renderSlices = function() {
         slice.style("stroke", "black")
             .style("stroke-width", "1px")
 
-        that.daySeries.highlightFromDate(d.timestamp)
+        var tmp = d.timestamp.adjustTimezone(true)
+        that.daySeries.highlightFromDate(tmp)
       })
       .on("mouseout", function(d) {
         var slice = d3.select(this)
@@ -303,6 +305,10 @@ WeekHeatmap.prototype.extend = function(data) {
   this.interval = data.interval
 
   this.update()
+}
+
+WeekHeatmp.prototype.toggleContext = function() {
+
 }
 
 WeekHeatmap.prototype.renderTiles = function() {
@@ -393,9 +399,7 @@ WeekHeatmap.prototype.renderDaySelections = function() {
         d3.select(".daySelection.selected").classed("selected", false)
         d3.select(this).classed("selected", true)
 
-        window.Day.currentDate = d.date
-        that.daySeries.loadData(d.date, undefined,
-            that.daySeries.update.bind(that.daySeries))
+        window.dashboard.updateDay(d.date)
       })
 
 }
@@ -425,7 +429,7 @@ WeekHeatmap.prototype.loadData = function(currentDate, callback, dateToGet, plus
             currentDate: +currentDate / 1000,
             interval: this.interval,
             plus_weeks: plusWeeks,
-            context: this.context ? 1 : 0 },
+            context: 1 },
     success: function(data) {
       data.data.forEach(function(d) {
         d.date = new Date(d.date * 1000)
