@@ -35,14 +35,12 @@
 }
 
 .slice {
-  opacity: 0;
 }
 
 .tile {
   fill: none;
   stroke: #191919;
   stroke-width: 1px;
-  opacity: 0;
 }
 
 .axis {
@@ -50,7 +48,6 @@
 }
 
 .y.axis {
-  opacity: 0;
 }
 
 .daySeries .y.axis {

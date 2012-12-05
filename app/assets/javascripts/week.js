@@ -1,3 +1,23 @@
+Date.prototype.addDays = function(nDays) {
+  return new Date(
+      this.getFullYear(),
+      this.getMonth(),
+      this.getDate() + nDays,
+      this.getHours(),
+      this.getMinutes(),
+      this.getSeconds())
+}
+
+Date.prototype.subtractDays = function(nDays) {
+  return new Date(
+      this.getFullYear(),
+      this.getMonth(),
+      this.getDate() - nDays,
+      this.getHours(),
+      this.getMinutes(),
+      this.getSeconds())
+}
+
 var WeekHeatmap = function(svg) {
   this.svg = svg
   this.id = Dashboard.GRAPH_TYPES.WEEK
@@ -27,20 +47,30 @@ var WeekHeatmap = function(svg) {
   this.width = (WeekHeatmap.TILE.WIDTH + this.tileMargin.middle) * 24
 
   // Multiply by days in week
-  this.height = (WeekHeatmap.TILE.HEIGHT + this.tileMargin.top + this.tileMargin.bottom) * 7 +
-      this.margin.top
+  this.weekHeight = (WeekHeatmap.TILE.HEIGHT) * 7
 
   this.x = this.xScale()
 
-  this.y = d3.time.scale()
+  this.y = d3.scale.ordinal()
+      .rangePoints([2 * this.tileMargin.top, this.weekHeight + (2 * this.tileMargin.bottom)])
+      .domain(WeekHeatmap.DAYS)
+
+  this.yWeek = d3.scale.ordinal()
+      .rangePoints([this.margin.top, (3 * this.weekHeight + 40) - this.margin.top])
 
 
-  this.allData = undefined
-  this.currentData = undefined
+  this.data = {
+    before: [],
+    current: [],
+    after: []
+  }
 
+  this.weekDates = {
+    before: [],
+    current: [],
+    after: []
+  }
 
-  this.allWeekDates = undefined
-  this.weekDates = undefined
 
   // Extent of days shown in heatmap
   this.extent = undefined
@@ -84,10 +114,10 @@ WeekHeatmap.prototype.xScale = function() {
   return x
 }
 
-WeekHeatmap.prototype.getHours = function() {
+WeekHeatmap.prototype.getHours = function(weekDates) {
   var hours = []
 
-  this.weekDates.forEach(function(d) {
+  weekDates.forEach(function(d) {
     var dayHours = new Array(24)
     for (var i = 0; i < dayHours.length; i++) {
       dayHours[i] = {
@@ -131,92 +161,84 @@ WeekHeatmap.prototype.filterData = function() {
  * #update
  * Updates the weekheatmap to a new week as well as updating the day graph associated with the week
  */
-WeekHeatmap.prototype.update = function(data) {
+WeekHeatmap.prototype.update = function() {
   var that = this
 
   this.daySeries.loadData((window.Day.currentDate), undefined,
       this.daySeries.update.bind(this.daySeries))
 
-  if (data) {
-    this.setData(data)
+
+  this.container
+      .selectAll(".before, .current, .after")
+      .remove()
+
+  this.render(false)
+ }
+
+WeekHeatmap.prototype.prepareWeeks = function() {
+
+  if (this.showContext) {
+    this.extent = d3.extent(this.weekDates.before.concat(this.weekDates.after), function(d) { return d.date })
+    this.yWeek.domain(["before", "current", "after"])
+  } else {
+    this.extent = d3.extent(this.weekDates.current, function(d) { return d.date })
+    this.yWeek.domain(["current", "dummy", "dummy"])
   }
 
-  this.extent = d3.extent(this.weekDates, function(d) { return d.date })
-  this.y.domain([this.extent[0], new Date(this.extent[0].getFullYear(),
-      this.extent[0].getMonth(),
-      this.extent[0].getDate() + 6)])
-      .range([this.margin.top, this.height - this.margin.bottom])
+  var before = this.container
+      .append("svg")
+      .attr("class", "before")
+      .attr("x", 0)
+      .attr("y", this.yWeek("before"))
 
-  this.container
-      .selectAll(".slice")
-      .remove()
+  var current = this.container
+      .append("svg")
+      .attr("class", "current")
+      .attr("x", 0)
+      .attr("y", this.yWeek("current"))
 
-  var slices = this.container
-      .selectAll(".slice")
-      .data(this.currentData)
+  var after = this.container
+      .append("svg")
+      .attr("class", "after")
+      .attr("x", 0)
+      .attr("y", this.yWeek("after"))
 
-  /*slices
-    .transition()
-    .duration(1000)
-    .style("fill", function(d) {
-      return window.Utility.getGlucoseColor(d.glucose)
-    })*/
+  if (this.showContext) {
+    after.style("opacity", 1)
+    before.style("opaciy", 1)
+  } else {
+    after.style("opacity", 0)
+    before.style("opaciy", 0)
+  }
 
-  this.container
-      .selectAll(".daySelection")
-      .remove()
-
-  this.container
-      .selectAll(".weekendSelection")
-      .remove()
-
-  this.container
-      .selectAll(".tile")
-      .remove()
-
-  this.container
-      .selectAll(".y.axis")
-      .remove()
-
-  this.renderWeekendSelections()
-  this.renderSlices()
-  this.renderYAxis()
-
-  // Need to re render tiles and dayselections so that they are ontop of the slices
-  this.renderTiles()
-  this.renderDaySelections()
-
+  var weeks = [{ container: before, week: "before" },
+      { container: current, week: "current" },
+      { container: after, week: "after" }]
+  return weeks
 }
 
 /*
  * #render
- * data =
- * {
- *   data: [{ glucose: <value>, time: <total minutes>, day: <day> }, ...],
- *   interval: <number based on sampling [0, 60] (5 would mean 5 minutes between each sample)>
- *   days: [ { day: monday, date: <date> }, ...]
- * }
- *
- * This function should only be called once. If you need to make changes to the graph use #update
  */
-WeekHeatmap.prototype.render = function(data) {
-  this.daySeries.loadData((window.Day.currentDate))
+WeekHeatmap.prototype.render = function(loadDay) {
+  if (loadDay === undefined)
+    loadDay = true
+  if (loadDay)
+    this.daySeries.loadData((window.Day.currentDate))
 
-  this.setData(data)
-
-  this.extent = d3.extent(this.weekDates, function(d) { return d.date })
-  this.y.domain([this.extent[0], new Date(this.extent[0].getFullYear(),
-      this.extent[0].getMonth(),
-      this.extent[0].getDate() + 6)])
-      .range([this.margin.top, this.height - this.margin.bottom])
 
 
   var that = this
+  var weeks = this.prepareWeeks()
 
-  this.renderWeekendSelections()
-  this.renderSlices()
+  weeks.forEach(function(d) {
+    this.renderWeekendSelections(d.container, d.week)
+    this.renderSlices(d.container, d.week)
+    this.renderYAxis(d.container, d.week)
+    this.renderTiles(d.container, d.week)
+    this.renderDaySelections(d.container, d.week)
 
-  this.renderYAxis()
+  }.bind(this))
 
   this.container
       .selectAll(".x.axis")
@@ -238,30 +260,28 @@ WeekHeatmap.prototype.render = function(data) {
         return t
       })
 
-  this.renderTiles()
-  this.renderDaySelections()
 
 }
 
-WeekHeatmap.prototype.renderYAxis = function() {
+WeekHeatmap.prototype.renderYAxis = function(container, week) {
   //var format = d3.time.format("%Y-%d-%m %A")
   var format = d3.time.format("%A")
-  var yAxis = this.container
+  var yAxis = container
       .selectAll(".y.axis")
-      .data(this.weekDates)
+      .data(WeekHeatmap.DAYS)
 
   yAxis
     .enter()
       .append("text")
       .attr("class", "y axis")
       .attr("y", function(d) {
-        return this.y(d.date) + (WeekHeatmap.TILE.HEIGHT / 2)
+        return this.y(d) + (WeekHeatmap.TILE.HEIGHT / 2)
       }.bind(this))
       .attr("x", 0)
       .attr("text-anchor", "right")
       .attr("dy", ".35em") // vertical-align: middle
       .text(function(d) {
-        return format(d.date)
+        return d
       })
 
   yAxis
@@ -273,12 +293,12 @@ WeekHeatmap.prototype.renderYAxis = function() {
 
 }
 
-WeekHeatmap.prototype.renderSlices = function() {
+WeekHeatmap.prototype.renderSlices = function(container, week) {
   var that = this
 
-  var slices = this.container
+  var slices = container
       .selectAll(".slice")
-      .data(this.currentData)
+      .data(this.data[week])
 
   slices.enter()
       .append("rect")
@@ -287,7 +307,7 @@ WeekHeatmap.prototype.renderSlices = function() {
         return this.x[parseInt(d.time / 60)](d.time % 60)
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(d.date) + .5
+        return this.y(d.day) + .5
       }.bind(this))
       .attr("height", WeekHeatmap.TILE.HEIGHT - 1)
       .attr("width", WeekHeatmap.TILE.WIDTH / (60 / this.interval))
@@ -322,15 +342,65 @@ WeekHeatmap.prototype.renderSlices = function() {
 }
 
 WeekHeatmap.prototype.toggleContext = function() {
+  var transitionLength = 1000
   this.showContext = this.showContext ? false : true
-  this.filterData()
-  this.update()
+  this.animate(transitionLength)
 }
 
-WeekHeatmap.prototype.renderTiles = function() {
-  this.hours = this.getHours()
+WeekHeatmap.prototype.animate = function(transitionLength) {
+  var that = this
 
-  var tiles = this.container
+  if (this.showContext) {
+    // Animating the heat map to center before loading
+    this.extent = d3.extent(this.weekDates.before.concat(this.weekDates.after), function(d) { return d.date })
+    this.yWeek.domain(["before", "current", "after"])
+
+    var context = this.container
+        .selectAll(".before, .after")
+
+    context.attr("y", function(d) {
+          if (d3.select(this).classed("before"))
+            return that.yWeek("before")
+          else
+            return that.yWeek("after")
+        })
+    context
+        .transition()
+        .duration(transitionLength)
+        .style("opacity", 1)
+
+    this.container
+        .select(".current")
+        .transition()
+        .duration(transitionLength)
+        .attr("y", function(d, i) {
+          return that.yWeek("current")
+        })
+  } else {
+    this.yWeek.domain(["current", "dummy", "dummy"])
+    var context = this.container
+        .selectAll(".before, .after")
+
+    context
+        .transition()
+        .duration(transitionLength)
+        .style("opacity", 0)
+
+    this.container
+        .select(".current")
+        .transition()
+        .duration(transitionLength)
+        .attr("y", function(d, i) {
+          return that.yWeek("current")
+        })
+
+  }
+}
+
+WeekHeatmap.prototype.renderTiles = function(container, week) {
+  this.hours = this.getHours(this.weekDates[week])
+
+  var tiles = container
       .selectAll(".tile")
       .data(this.hours)
 
@@ -341,7 +411,7 @@ WeekHeatmap.prototype.renderTiles = function() {
         return this.x[parseInt(i % 24)](0)
       }.bind(this))
       .attr("y", function(d, i) {
-        return this.y(d.date)
+        return this.y(d.day)
       }.bind(this))
       .attr("width", WeekHeatmap.TILE.WIDTH)
       .attr("height", WeekHeatmap.TILE.HEIGHT)
@@ -356,12 +426,12 @@ WeekHeatmap.prototype.renderTiles = function() {
       })
 }
 
-WeekHeatmap.prototype.renderWeekendSelections = function() {
+WeekHeatmap.prototype.renderWeekendSelections = function(container, week) {
   var that = this
 
-  var weekendSelections = this.container
+  var weekendSelections = container
       .selectAll(".weekendSelection")
-      .data(this.weekDates.filter(function(d) {
+      .data(this.weekDates[week].filter(function(d) {
         return d.day == "saturday"
       }))
 
@@ -372,7 +442,7 @@ WeekHeatmap.prototype.renderWeekendSelections = function() {
         return this.x[0](0) - this.daySelectionMargin
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(d.date) - this.daySelectionMargin
+        return this.y(d.day) - this.daySelectionMargin
       }.bind(this))
       .attr("width", this.width + (2 * this.daySelectionMargin))
       .attr("height", (2 * WeekHeatmap.TILE.HEIGHT) + (3 * this.daySelectionMargin))
@@ -381,15 +451,18 @@ WeekHeatmap.prototype.renderWeekendSelections = function() {
 
 }
 
-WeekHeatmap.prototype.renderDaySelections = function() {
+WeekHeatmap.prototype.renderDaySelections = function(container, week) {
   var that = this
 
-  var daySelections = this.container
+  var daySelections = container
       .selectAll(".daySelection")
-      .data(this.weekDates)
+      .data(this.weekDates[week])
 
   daySelections.enter()
       .append("rect")
+      .attr("id", function(d) {
+        return "daySelection" + +d.date
+      })
       .attr("class", function(d) {
         var clazz = "daySelection " + d.day
         if (window.Utility.isSameDay(d.date, window.Day.currentDate))
@@ -400,7 +473,7 @@ WeekHeatmap.prototype.renderDaySelections = function() {
         return this.x[0](0) - this.daySelectionMargin
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(d.date) - this.daySelectionMargin
+        return this.y(d.day) - this.daySelectionMargin
       }.bind(this))
       .attr("width", this.width + (2 * this.daySelectionMargin))
       .attr("height", WeekHeatmap.TILE.HEIGHT + (2 * this.daySelectionMargin))
@@ -411,12 +484,25 @@ WeekHeatmap.prototype.renderDaySelections = function() {
           that.daySeries.highlightRemove()
       }.bind(this))
       .on("click", function(d) {
-
-        d3.select(".daySelection.selected").classed("selected", false)
-        d3.select(this).classed("selected", true)
-
         window.dashboard.updateDay(d.date)
       })
+
+}
+
+WeekHeatmap.prototype.updateDay = function(date) {
+  this.daySeries.loadData(date, undefined,
+            this.daySeries.update.bind(this.daySeries))
+
+  // check if date is in range of week heatmap
+  if (+date >= +this.extent[0] && +date <= +this.extent[1]) {
+        d3.select(".daySelection.selected").classed("selected", false)
+        d3.select("#daySelection" + +date).classed("selected", true)
+  } else {
+    // Not in current view, so let's load it up
+    console.log("Loading more data...")
+    this.loadData(window.Day.currentDate, this.update.bind(this))
+  }
+
 
 }
 
@@ -454,8 +540,32 @@ WeekHeatmap.prototype.loadData = function(currentDate, callback, dateToGet, plus
       data.week_dates.forEach(function(d) {
         d.date = new Date(d.date * 1000)
       })
+      this.data.before = data.data.filter(function(d) {
+        if (d.week_context === "before")
+          return d
+      })
+      this.data.current = data.data.filter(function(d) {
+        if (d.week_context === "current")
+          return d
+      })
+      this.data.after = data.data.filter(function(d) {
+        if (d.week_context === "after")
+          return d
+      })
+      this.weekDates.before = data.week_dates.filter(function(d) {
+        if (d.week_context === "before")
+          return d
+      })
+      this.weekDates.current = data.week_dates.filter(function(d) {
+        if (d.week_context === "current")
+          return d
+      })
+      this.weekDates.after = data.week_dates.filter(function(d) {
+        if (d.week_context === "after")
+          return d
+      })
       callback(data)
-    }
+    }.bind(this)
   })
 }
 
