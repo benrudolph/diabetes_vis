@@ -1,8 +1,8 @@
 var Dashboard = function(selector, width, height) {
   this.selector = selector
 
-  this.height = height || 1000
-  this.width = width || 1300
+  this.height = height || 800
+  this.width = width || 800
 
   this.margin = {
     top: 20,

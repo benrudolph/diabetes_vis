@@ -1,3 +1,14 @@
+body {
+  background-color: rgb(230,230,230);
+}
+
+image {
+  cursor: pointer;
+}
+.myTitle {
+  margin-left: 100px;
+}
+
 .low {
   fill:url(#lowGradient);
 }
@@ -94,3 +105,11 @@
   stroke-width: 1px;
 }
 
+.dashboard {
+  border: 1px solid black;
+  border-radius: 15px;
+  margin: 80px;
+  margin-top: 20px;
+  padding: 20px;
+  background-color: white;
+}
