@@ -1,5 +1,5 @@
 class DiabetesController < ApplicationController
-  EPSILON_MINUTES = 60
+  EPSILON_MINUTES = 30
   DAYS_OF_WEEK = %w[monday tuesday wednesday thursday friday
 saturday sunday]
 
@@ -32,7 +32,7 @@ saturday sunday]
       minutes_end = ((n + EPSILON_MINUTES - 1) % 60).to_s.rjust(2, "0")
       hours_end = ((n + EPSILON_MINUTES - 1) / 60).to_s.rjust(2, "0")
 
-      data = GlucoseSensorData.where("time between #{hours_start}#{minutes_start}00 AND #{hours_end}#{minutes_end}59 and day = #{day_of_week}").between(range[:begin], range[:end], :field => :timestamp)
+      data = GlucoseSensorData.where("time between #{hours_start}#{minutes_start}00 AND #{hours_end}#{minutes_end}59").between(range[:begin], range[:end], :field => :timestamp)
 
       #unless range.empty?
       #  data
@@ -169,13 +169,13 @@ saturday sunday]
     #end
 
     max = GlucoseSensorData.maximum(:timestamp)
-    limit = (params[:limit] || 3).to_i
+    limit = 3
     range = {}
     unless range == "all"
       range = { :begin => max - limit.months, :end => max }
     end
 
-    averages = average_day(time, range)
+    averages = average_day(max.to_date, range)
 
     response = {
       "averages" => averages,

@@ -73,6 +73,9 @@ Dashboard.prototype.updateDay = function(date) {
 
   this.weekHeatmap.updateDay(date)
 
+  this.weekHeatmap.daySeries.loadData(date, undefined,
+      this.weekHeatmap.daySeries.update.bind(this.weekHeatmap.daySeries))
+
   this.monthsView.update(date)
 }
 

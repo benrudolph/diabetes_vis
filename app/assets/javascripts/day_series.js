@@ -15,7 +15,7 @@ var DaySeries = function(svg, data, width, height) {
     top: 10,
     right: 10,
     bottom: 40,
-    left: 40
+    left: 100
   }
 
   this.low = 80
@@ -33,6 +33,11 @@ var DaySeries = function(svg, data, width, height) {
   //this.day_data = data.day_data
   //this.day_average_data = data.day_average_data
   this.x = d3
+      .time
+      .scale()
+      .range([this.margin.left , this.width - this.margin.right])
+
+  this.xAverage = d3
       .time
       .scale()
       .range([this.margin.left , this.width - this.margin.right])
@@ -83,6 +88,16 @@ var DaySeries = function(svg, data, width, height) {
       .y(function(d) {
         return +this.y(d.glucose)
       }.bind(this))
+
+  this.averageLine = d3
+      .svg
+      .line()
+      .x(function(d) {
+        return this.xAverage(d.timestamp)
+      }.bind(this))
+      .y(function(d) {
+        return +this.y(d.glucose)
+      }.bind(this))
 }
 
 DaySeries.prototype.updateAverage = function(day_average_data) {
@@ -122,10 +137,13 @@ DaySeries.prototype.render = function() {
 
   //this.x.domain(d3.extent(this.day_data, function(d) { return (d.timestamp) }))
 
-  this.x.domain(d3.extent([window.Day.currentDate,
-                new Date(window.Day.currentDate.getFullYear(),
-                         window.Day.currentDate.getMonth(),
-                         window.Day.currentDate.getDate() + 1)]))
+  this.x.domain([window.Day.currentDate, window.Day.currentDate.addDays(1)])
+
+  this.xAverage.domain(d3.extent(this.day_average_data, function(d) {
+    return d.timestamp
+  }))
+
+
   var that = this
 
   var rangeHeight = 2
@@ -181,7 +199,7 @@ DaySeries.prototype.render = function() {
       .append("path")
       .attr("class", "average line")
       .attr("stroke-dasharray", "5, 5")
-      .attr("d", this.line)
+      .attr("d", this.averageLine)
 
   this.container
       .append("g")
@@ -320,12 +338,21 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
   if (!callback) {
     callback = this.render.bind(this)
   }
+  d3.select(".daySeries")
+      .transition()
+      .duration(1000)
+      .style("opacity", 0.2)
+
   $.ajax({
     url: "/diabetes/day",
     type: "GET",
     data: { stamp: +date / 1000,
             limit: limit },
     success: function(data) {
+      d3.select(".daySeries")
+          .transition()
+          .duration(1000)
+          .style("opacity", 1)
       data.day_data.forEach(function(d) {
         var tmp = new Date(d.timestamp)
         d.timestamp = tmp.adjustTimezone(true)

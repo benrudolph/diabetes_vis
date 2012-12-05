@@ -75,7 +75,7 @@ var WeekHeatmap = function(svg) {
   // Extent of days shown in heatmap
   this.extent = undefined
 
-  this.daySeries = new DaySeries(svg)
+  this.daySeries = new DaySeries(svg, undefined, this.width + this.margin.left + this.margin.right, undefined)
   d3.select("#" + this.daySeries.id)
       .attr("transform", "translate(0, 0)")
 
@@ -159,13 +159,14 @@ WeekHeatmap.prototype.filterData = function() {
 }
 /*
  * #update
- * Updates the weekheatmap to a new week as well as updating the day graph associated with the week
  */
-WeekHeatmap.prototype.update = function() {
+WeekHeatmap.prototype.update = function(loadDay) {
   var that = this
 
-  this.daySeries.loadData((window.Day.currentDate), undefined,
-      this.daySeries.update.bind(this.daySeries))
+  if (loadDay || loadDay === undefined) {
+    this.daySeries.loadData((window.Day.currentDate), undefined,
+        this.daySeries.update.bind(this.daySeries))
+  }
 
 
   this.container
@@ -500,13 +501,13 @@ WeekHeatmap.prototype.renderDaySelections = function(container, week) {
 }
 
 WeekHeatmap.prototype.updateDay = function(date) {
-  this.daySeries.loadData(date, undefined,
-            this.daySeries.update.bind(this.daySeries))
 
   // check if date is in range of week heatmap
   if (+date >= +this.extent[0] && +date <= +this.extent[1]) {
-        d3.select(".daySelection.selected").classed("selected", false)
-        d3.select("#daySelection" + +date).classed("selected", true)
+    this.daySeries.loadData(date, undefined,
+              this.daySeries.update.bind(this.daySeries))
+    d3.select(".daySelection.selected").classed("selected", false)
+    d3.select("#daySelection" + +date).classed("selected", true)
   } else {
     // Not in current view, so let's load it up
     console.log("Loading more data...")
@@ -514,7 +515,7 @@ WeekHeatmap.prototype.updateDay = function(date) {
         .transition()
         .duration(1000)
         .style("opacity", 0)
-    this.loadData(window.Day.currentDate, this.update.bind(this))
+    this.loadData(window.Day.currentDate, this.update.bind(this, false))
   }
 
 
