@@ -15,7 +15,7 @@ var DaySeries = function(svg, data, width, height) {
     top: 10,
     right: 10,
     bottom: 24,
-    left: 100
+    left: 70
   }
 
   this.low = 80

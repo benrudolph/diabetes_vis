@@ -1,3 +1,48 @@
+Date.prototype.getPrettyDate = function() {
+  var days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ]
+  var months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ]
+
+  var date = this.getDate()
+
+  switch (date % 10) {
+    case 1:
+      date += "st"
+      break;
+    case 2:
+      date += "nd"
+      break;
+    case 3:
+      date += "rd"
+      break;
+    default:
+      date += "th"
+      break;
+  }
+
+  return "{0}, {1} {2} {3}".format(days[this.getDay()], months[this.getMonth()], date, this.getFullYear())
+}
+
 var Dashboard = function(selector, width, height) {
   this.selector = selector
 
@@ -78,6 +123,42 @@ Dashboard.prototype.updateDay = function(date) {
       this.weekHeatmap.daySeries.update.bind(this.weekHeatmap.daySeries))
 
   this.monthsView.update(date)
+
+  this.updateTooltips();
+
+  d3.select("#currentDate").text(date.getPrettyDate())
+}
+
+Dashboard.prototype.updateTooltips = function() {
+  var monthText = "Percentage {1} spent in the {0} range"
+  var weekText = "Percentage of the current week spent in the {0} range"
+  var dayText = "Percentage of {2} {1}th spent in the {0} range"
+  var options = {}
+
+  d3.selectAll("#figures .month").each(function(d) {
+    var month = d3.select(this)
+    var title = monthText.format(month.attr("range"),
+        window.Utility.MONTHS[window.Day.currentDate.getMonth()])
+    $(this).tooltip('hide')
+        .attr('data-original-title', title)
+        .tooltip('fixTitle')
+  })
+  d3.selectAll("#figures .week").each(function(d) {
+    var week = d3.select(this)
+    var title = weekText.format(week.attr("range"))
+    $(this).tooltip('hide')
+        .attr('data-original-title', title)
+        .tooltip('fixTitle')
+  })
+  d3.selectAll("#figures .day").each(function(d) {
+    var day = d3.select(this)
+    var title = dayText.format(day.attr("range"),
+        window.Day.currentDate.getDate().toString(),
+        window.Utility.MONTHS[window.Day.currentDate.getMonth()])
+    $(this).tooltip('hide')
+        .attr('data-original-title', title)
+        .tooltip('fixTitle')
+  })
 }
 
 window.Day = {

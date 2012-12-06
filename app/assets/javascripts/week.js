@@ -31,7 +31,7 @@ var WeekHeatmap = function(svg) {
     top: 0,
     right: 10,
     bottom: 40,
-    left: 100
+    left: 70
   }
 
   this.tileMargin = {
@@ -566,10 +566,17 @@ WeekHeatmap.prototype.updateDay = function(date) {
   } else {
     // Not in current view, so let's load it up
     console.log("Loading more data...")
-    d3.selectAll(".current, .before, .after")
-        .transition()
-        .duration(1000)
-        .style("opacity", 0)
+    if (this.showContext) {
+      d3.selectAll(".current, .before, .after")
+          .transition()
+          .duration(1000)
+          .style("opacity", .2)
+    } else {
+      d3.selectAll(".current")
+          .transition()
+          .duration(1000)
+          .style("opacity", .2)
+    }
     this.loadData(window.Day.currentDate, this.update.bind(this, false))
   }
 

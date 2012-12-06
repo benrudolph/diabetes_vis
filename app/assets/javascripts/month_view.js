@@ -82,10 +82,10 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   this.start_at_y = 80;
   this.svg
     .append("svg:image")
-    .attr("xlink:href", "/images/arrow_up.png")
+    .attr("xlink:href", "/images/arrowup.png")
     .attr("x", 80)
     .attr("y", 20)
-    .attr("width", 25)
+    .attr("width", 50)
     .attr("height", 25)
     .on("click", function() {
       this.lastMonth()
@@ -102,10 +102,10 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
 
   this.svg
     .append("svg:image")
-    .attr("xlink:href", "/images/arrow_dn.png")
+    .attr("xlink:href", "/images/arrowdown.png")
     .attr("x", 80)
     .attr("y", (this.calendar_width / 7) * 6 * this.n_months)
-    .attr("width", 25)
+    .attr("width", 50)
     .attr("height", 25)
     .on("click", function() {
       this.nextMonth()

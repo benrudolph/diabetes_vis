@@ -139,8 +139,8 @@ image {
 }
 
 .figure {
-  width: 90px;
-  height: 90px;
+  width: 60px;
+  height: 60px;
   border: 1px solid black;
   margin: 4px auto;
   border-radius: 15px;
@@ -153,21 +153,38 @@ image {
 
 .figureColumn {
   text-align: center;
-  width: 110px;
+  width: 70px;
   float: left;
 }
 
 #figures {
-  width: 220px;
+  width: 235px;
   float: left;
   margin-top: 50px;
 }
 #months_view {
-  width: 240px;
+  width: 260px;
   float: left;
 }
 #dashboard {
-  width: 800px;
+  width: 715px;
+  height: 730px;
   float: left;
+  margin-left: 10px;
+  margin-right: 25px;
   margin-top: 50px;
+  border-left: 1px black solid;
+  border-right: 1px black solid;
+}
+
+.figure.high {
+  background-color: #ffab9c;
+}
+
+.figure.low {
+  background-color: #bcc8ff;
+}
+
+#currentDate {
+  font-size: 18px;
 }

@@ -3,23 +3,24 @@
 </div>
 <div class="dashboard">
   <div id="figures">
+    <div id="currentDate" class="lead"></div>
     <div class="figureColumn">
       <span>Month</span>
-      <div class="figure"><h1 id="month_hi"></h1><div class="caption">High</div></div>
-      <div class="figure"><h1 id="month_op"></h1><div class="caption">Optimal</div></div>
-      <div class="figure"><h1 id="month_lo"></h1><div class="caption">Low</div></div>
+      <div range="high" class="high month figure"><h3 id="month_hi"></h3></div>
+      <div range="optimal" class="opt month figure"><h3 id="month_op"></h3></div>
+      <div range="low" class="low month figure"><h3 id="month_lo"></h3></div>
     </div>
     <div class="figureColumn">
       <span>Week</span>
-      <div class="figure"><h1 id="week_hi"></h1><div class="caption">High</div></div>
-      <div class="figure"><h1 id="week_op"></h1><div class="caption">Optimal</div></div>
-      <div class="figure"><h1 id="week_lo"></h1><div class="caption">Low</div></div>
+      <div range="high" class="high week figure"><h3 id="week_hi"></h3></div>
+      <div range="optimal" class="opt week figure"><h3 id="week_op"></h3></div>
+      <div range="low" class="low week figure"><h3 id="week_lo"></h3></div>
     </div>
     <div class="figureColumn">
       <span>Day</span>
-      <div class="figure"><h1 id="day_hi"></h1><div class="caption">High</div></div>
-      <div class="figure"><h1 id="day_op"></h1><div class="caption">Optimal</div></div>
-      <div class="figure"><h1 id="day_lo"></h1><div class="caption">Low</div></div>
+      <div range="high" class="high day figure"><h3 id="day_hi"></h3></div>
+      <div range="optimal" class="opt day figure"><h3 id="day_op"></h3></div>
+      <div range="low" class="low day figure"><h3 id="day_lo"></h3></div>
     </div>
   </div>
   <div id="dashboard"> </div>

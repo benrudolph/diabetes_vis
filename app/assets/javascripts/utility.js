@@ -30,6 +30,21 @@ Utility.getPointOnPath = function(xOffset, path) {
 Utility.GLUCOSE_HIGH = 180
 Utility.GLUCOSE_LOW = 80
 
+Utility.MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+]
+
 Utility.glucoseLowScale = d3.scale.linear()
     .domain([40, 80])
     .range([40, 95])
