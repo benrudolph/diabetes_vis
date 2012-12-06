@@ -310,11 +310,13 @@ MonthView.prototype.setMarker = function(date_obj) {
 MonthView.prototype.render = function(visible, callback) {
   d3.json("get_month_data?increments="+this.increments+"&month="+this.month+"&year="+this.year,
     function(data) {
-      data.forEach(function(d) {
+      data.data.forEach(function(d) {
           d.date = this.parseDate(d.date);
     }.bind(this));
     // have to do this week counting thing because format strings report week
     // in year, not week in month
+
+    this.ratios = data.ratios
 
     this.border_line = d3.svg.line()
       .x(function(d){return this.margin + d.x;}.bind(this))
@@ -332,7 +334,7 @@ MonthView.prototype.render = function(visible, callback) {
     this.cur_week = 0;
     this.days = this.svg
       .selectAll("svg")
-      .data(data)
+      .data(data.data)
       .enter()
       .append("svg")
       .attr("x", function(d) {
