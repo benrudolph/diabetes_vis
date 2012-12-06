@@ -173,9 +173,15 @@ image {
   float: left;
   margin-top: 50px;
 }
-#months_view {
+#months_view_wrapper {
   width: 260px;
   float: left;
+}
+
+div#months_view {
+  width: 260px;
+  height: 700px;
+  position: fixed;
 }
 #dashboard {
   width: 715px;
@@ -203,5 +209,6 @@ image {
 }
 
 #currentDate {
+  position: fixed;
   font-size: 18px;
 }
