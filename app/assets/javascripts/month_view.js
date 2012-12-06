@@ -126,15 +126,22 @@ MonthsView.prototype.refreshTextView = function() {
 
 MonthsView.prototype.updateTextData = function(date_obj) {
   d3.json("get_month_glucose_ratios?date="+date_obj.getFullYear()+"-"+(date_obj.getMonth() + 1)+"-"+date_obj.getDate(), function(data) {
-    $("#month_hi").text(Math.round(100 * data.month.high, 1) + "%")
-    $("#month_op").text(Math.round(100 * data.month.optimal, 1) + "%")
-    $("#month_lo").text(Math.round(100 * data.month.low, 1) + "%")
-     $("#week_hi").text(Math.round(100 * data.week.high, 1) + "%")
-     $("#week_op").text(Math.round(100 * data.week.optimal, 1) + "%")
-     $("#week_lo").text(Math.round(100 * data.week.low, 1) + "%")
-      $("#day_hi").text(Math.round(100 * data.day.high,  1) + "%")
-      $("#day_op").text(Math.round(100 * data.day.optimal, 1) + "%")
-      $("#day_lo").text(Math.round(100 * data.day.low, 1) + "%")
+
+    d3.selectAll(".figure .percent").text("%")
+
+    d3.selectAll(".figure").each(function(d) {
+      var element = d3.select(this)
+      var range = element.attr("range")
+      var type = element.attr("type")
+      var from = parseInt(element.select(".number").text())
+      if (!from)
+        from = 0
+      $(this).find(".number").countTo({
+        from: from,
+        to: Math.round(100 * data[type][range], 1),
+        speed: 500,
+      })
+    })
   });
 };
 

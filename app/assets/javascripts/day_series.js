@@ -50,6 +50,8 @@ var DaySeries = function(svg, data, width, height) {
       .range([this.height - this.margin.bottom, this.margin.top])
       .domain([0, this.yMax])
 
+  this.isLoading = false;
+
   /*this.xAxis = d3.svg.axis()
       .scale(this.x)
       .ticks(d3.time.hours, 4)
@@ -335,27 +337,32 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
       .duration(1000)
       .style("opacity", 0.2)
 
-  $.ajax({
-    url: "/diabetes/day",
-    type: "GET",
-    data: { stamp: +date / 1000,
-            limit: limit },
-    success: function(data) {
-      d3.select(".daySeries")
-          .transition()
-          .duration(1000)
-          .style("opacity", 1)
-      data.day_data.forEach(function(d) {
-        var tmp = new Date(d.timestamp)
-        d.timestamp = tmp.adjustTimezone(true)
-      })
-      data.averages.forEach(function(d) {
-        var tmp = new Date(d.timestamp)
-        d.timestamp = tmp.adjustTimezone(true)
-      })
-      this.day_data = data.day_data
-      this.day_average_data = data.averages
-      callback(data)
-    }.bind(this)
-  })
+  if (!this.isLoading) {
+    this.isLoading = true
+
+    $.ajax({
+      url: "/diabetes/day",
+      type: "GET",
+      data: { stamp: +date / 1000,
+              limit: limit },
+      success: function(data) {
+        this.isLoading = false;
+        d3.select(".daySeries")
+            .transition()
+            .duration(1000)
+            .style("opacity", 1)
+        data.day_data.forEach(function(d) {
+          var tmp = new Date(d.timestamp)
+          d.timestamp = tmp.adjustTimezone(true)
+        })
+        data.averages.forEach(function(d) {
+          var tmp = new Date(d.timestamp)
+          d.timestamp = tmp.adjustTimezone(true)
+        })
+        this.day_data = data.day_data
+        this.day_average_data = data.averages
+        callback(data)
+      }.bind(this)
+    })
+  }
 }

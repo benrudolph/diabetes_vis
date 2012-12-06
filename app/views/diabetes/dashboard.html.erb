@@ -2,48 +2,29 @@
   <span class="lead">The Diabetes Dashboard</span>
 </div>
 <div class="dashboard">
+  <div id="currentDate" class="lead"></div>
   <div id="figures">
-    <div id="currentDate" class="lead"></div>
-    <div class="figureColumn">
+    <div class="figureColumn f1">
       <span>Month</span>
-      <div range="high" class="high month figure"><h3 id="month_hi"></h3></div>
-      <div range="optimal" class="opt month figure"><h3 id="month_op"></h3></div>
-      <div range="low" class="low month figure"><h3 id="month_lo"></h3></div>
+      <div type="month" range="high" class="high month figure" id="month_hi"><span class="number"></span><span class="percent"></span></div>
+      <div type="month" range="optimal" class="opt month figure"><span class="number"></span><span class="percent"></span></div>
+      <div type="month" range="low" class="low month figure"><span class="number"></span><span class="percent"></span></div>
     </div>
-    <div class="figureColumn">
+    <div class="figureColumn f2">
       <span>Week</span>
-      <div range="high" class="high week figure"><h3 id="week_hi"></h3></div>
-      <div range="optimal" class="opt week figure"><h3 id="week_op"></h3></div>
-      <div range="low" class="low week figure"><h3 id="week_lo"></h3></div>
+      <div type="week" range="high" class="high week figure"><span class="number"></span><span class="percent"></span></div>
+      <div type="week" range="optimal" class="opt week figure"><span class="number"></span><span class="percent"></span></div>
+      <div type="week" range="low" class="low week figure"><span class="number"></span><span class="percent"></span></div>
     </div>
-    <div class="figureColumn">
+    <div class="figureColumn f3">
       <span>Day</span>
-      <div range="high" class="high day figure"><h3 id="day_hi"></h3></div>
-      <div range="optimal" class="opt day figure"><h3 id="day_op"></h3></div>
-      <div range="low" class="low day figure"><h3 id="day_lo"></h3></div>
+      <div type="day" range="high" class="high day figure"><span class="number"></span><span class="percent"></span></div>
+      <div type="day" range="optimal" class="opt day figure"><span class="number"></span><span class="percent"></span></div>
+      <div type="day" range="low" class="low day figure"><span class="number"></span><span class="percent"></span></div>
     </div>
   </div>
   <div id="dashboard"> </div>
   <div id="months_view"></div>
   </div>
 </div>
-<svg xmlns="http://www.w3.org/2000/svg"
-     xmlns:xlink="http://www.w3.org/1999/xlink">
 
-  <defs>
-    <linearGradient id="highGradient"
-                    x1="0%" y1="0%"
-                    x2="0%" y2="100%"
-                    spreadMethod="pad">
-      <stop offset="50%" stop-color="#9C1700" stop-opacity="1"/>
-      <stop offset="100%"   stop-color="#ffffff" stop-opacity="1"/>
-    </linearGradient>
-    <linearGradient id="lowGradient"
-                    x1="0%" y1="0%"
-                    x2="0%" y2="100%"
-                    spreadMethod="pad">
-      <stop offset="0%"   stop-color="#ffffff" stop-opacity="1"/>
-      <stop offset="50%" stop-color="#0326be" stop-opacity="1"/>
-    </linearGradient>
-  </defs>
-</svg>

@@ -125,8 +125,8 @@ image {
   margin: 20px auto;
   padding: 20px;
   background-color: white;
-  width: 1300px;
-  height: 800px;
+  width: 1280px;
+  height: 850px;
 }
 .axis path, .axis line {
   fill: none;
@@ -154,11 +154,22 @@ image {
 .figureColumn {
   text-align: center;
   width: 70px;
-  float: left;
+  position: fixed;
+}
+
+.f1 {
+  left: 80px
+}
+
+.f2 {
+  left: 150px;
+}
+.f3 {
+  left: 220px;
 }
 
 #figures {
-  width: 235px;
+  width: 250px;
   float: left;
   margin-top: 50px;
 }
@@ -168,7 +179,7 @@ image {
 }
 #dashboard {
   width: 715px;
-  height: 730px;
+  height: 700px;
   float: left;
   margin-left: 10px;
   margin-right: 25px;
@@ -183,6 +194,12 @@ image {
 
 .figure.low {
   background-color: #bcc8ff;
+}
+
+.figure span {
+  display: inline-block;
+  padding-top: 18px;
+  font-size: 26px;
 }
 
 #currentDate {
