@@ -120,14 +120,13 @@ DaySeries.prototype.update = function(data) {
                 new Date(window.Day.currentDate.getFullYear(),
                          window.Day.currentDate.getMonth(),
                          window.Day.currentDate.getDate() + 1)]))
+  console.log(this.x.domain())
 
   var real = this.container
       .selectAll(".real")
       .data([this.day_data])
 
   real
-      .transition()
-      .duration(1000)
       .attr("d", this.line)
 
   //this.udpateAverage(data.averages)
@@ -336,9 +335,6 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
       .transition()
       .duration(1000)
       .style("opacity", 0.2)
-
-//  if (!this.isLoading) {
-//    this.isLoading = true
 
     $.ajax({
       url: "/diabetes/day",

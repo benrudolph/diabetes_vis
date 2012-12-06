@@ -47,21 +47,21 @@ Utility.MONTHS = [
 
 Utility.glucoseLowScale = d3.scale.linear()
     .domain([40, 80])
-    .range([40, 95])
+    .range([50, 100])
     .clamp(true)
 
 Utility.glucoseHighScale = d3.scale.linear()
     .domain([180, 400])
-    .range([95, 40])
+    .range([100, 50])
     .clamp(true)
 
 Utility.getGlucoseColor = function(glucose) {
   if (glucose <= this.GLUCOSE_LOW  && glucose !== null) {
     var lightness = this.glucoseLowScale(glucose)
-    return "hsl(" + 229 + ",100%," + lightness + "%)";
+    return "hsl(" + 229 + ",40%," + lightness + "%)";
   } else if (glucose >= this.GLUCOSE_HIGH && glucose !== null) {
     var lightness = this.glucoseHighScale(glucose)
-    return "hsl(" + 9 + ",100%," + lightness + "%)";
+    return "hsl(" + 9 + ",40%," + lightness + "%)";
   } else if (glucose){
     return "#ffffff"
   } else {
