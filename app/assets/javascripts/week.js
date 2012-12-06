@@ -289,11 +289,11 @@ WeekHeatmap.prototype.renderYAxis = function(container, week) {
       .attr("y", function(d) {
         return this.y(d) + (WeekHeatmap.TILE.HEIGHT / 2)
       }.bind(this))
-      .attr("x", 0)
-      .attr("text-anchor", "right")
+      .attr("x", this.margin.left - (3 * this.tileMargin.top))
+      .attr("text-anchor", "end")
       .attr("dy", ".35em") // vertical-align: middle
       .text(function(d) {
-        return d
+        return d.slice(0, 3)
       })
 
   yAxis
@@ -302,6 +302,10 @@ WeekHeatmap.prototype.renderYAxis = function(container, week) {
       .style("opacity", function(d) {
         return 1.0
       })
+
+}
+
+WeekHeatmap.prototype.renderArrow = function(container, week) {
 
 }
 
