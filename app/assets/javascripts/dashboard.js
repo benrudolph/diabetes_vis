@@ -89,6 +89,8 @@ Dashboard.prototype.init = function() {
 
   // Holds all graphs and visualizations on the dashboard
   this.weekHeatmap = new WeekHeatmap(this.svg)
+  this.weekHeatmap.isLoading = false;
+  this.weekHeatmap.daySeries.isLoading = false;
   this.monthsView = new MonthsView(window.Day.currentDate, 3, 12, 210);
   this.monthsView.update(window.Day.currentDate)
   $("#toggle_text").click(function() {
@@ -118,18 +120,22 @@ Dashboard.prototype.toggleWeekHeatmapContext = function() {
 }
 
 Dashboard.prototype.updateDay = function(date) {
-  window.Day.currentDate = date
+  if (!this.weekHeatmap.daySeries.isLoading && !this.weekHeatmap.isLoading) {
+    this.weekHeatmap.daySeries.isLoading = true;
+    this.weekHeatmap.isLoading = true;
+    window.Day.currentDate = date
 
-  this.weekHeatmap.updateDay(date)
+    this.weekHeatmap.updateDay(date)
 
-  this.weekHeatmap.daySeries.loadData(date, undefined,
-      this.weekHeatmap.daySeries.update.bind(this.weekHeatmap.daySeries))
+    this.weekHeatmap.daySeries.loadData(date, undefined,
+        this.weekHeatmap.daySeries.update.bind(this.weekHeatmap.daySeries))
 
-  this.monthsView.update(date)
+    this.monthsView.update(date)
 
-  this.updateTooltips();
+    this.updateTooltips();
 
-  d3.select("#currentDate").text(date.getPrettyDate())
+    d3.select("#currentDate").text(date.getPrettyDate())
+  }
 }
 
 Dashboard.prototype.updateTooltips = function() {

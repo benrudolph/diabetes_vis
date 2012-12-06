@@ -50,7 +50,7 @@ var DaySeries = function(svg, data, width, height) {
       .range([this.height - this.margin.bottom, this.margin.top])
       .domain([0, this.yMax])
 
-  this.isLoading = false;
+  //this.isLoading = false;
 
   /*this.xAxis = d3.svg.axis()
       .scale(this.x)
@@ -337,8 +337,8 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
       .duration(1000)
       .style("opacity", 0.2)
 
-  if (!this.isLoading) {
-    this.isLoading = true
+//  if (!this.isLoading) {
+//    this.isLoading = true
 
     $.ajax({
       url: "/diabetes/day",
@@ -346,7 +346,7 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
       data: { stamp: +date / 1000,
               limit: limit },
       success: function(data) {
-        this.isLoading = false;
+        //this.isLoading = false;
         d3.select(".daySeries")
             .transition()
             .duration(1000)
@@ -361,8 +361,8 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
         })
         this.day_data = data.day_data
         this.day_average_data = data.averages
+        this.isLoading = false;
         callback(data)
       }.bind(this)
     })
-  }
 }

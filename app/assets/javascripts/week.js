@@ -563,6 +563,7 @@ WeekHeatmap.prototype.updateDay = function(date) {
               this.daySeries.update.bind(this.daySeries))
     d3.select(".daySelection.selected").classed("selected", false)
     d3.select("#daySelection" + +date).classed("selected", true)
+    this.isLoading = false;
   } else {
     // Not in current view, so let's load it up
     console.log("Loading more data...")
@@ -641,6 +642,7 @@ WeekHeatmap.prototype.loadData = function(currentDate, callback, dateToGet, plus
         if (d.week_context === "after")
           return d
       })
+      this.isLoading = false;
       callback(data)
     }.bind(this)
   })
