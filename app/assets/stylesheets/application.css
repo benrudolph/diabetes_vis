@@ -11,3 +11,118 @@
  *= require_self
  *= require_tree .
  */
+body {
+  background-color: rgb(230,230,230);
+}
+
+image {
+  cursor: pointer;
+}
+.myTitle {
+  margin-left: 100px;
+}
+
+.low {
+  fill:url(#lowGradient);
+}
+
+.high {
+}
+
+.range {
+  fill-opacity: 1;
+}
+
+.line {
+  fill: none;
+  stroke: #191919;
+  stroke-width: 1px;
+}
+
+.overlay {
+  fill-opacity: 0;
+}
+
+.guide {
+  pointer-events: none;
+}
+
+.highlight {
+  pointer-events: none;
+  fill: none;
+  stroke: #191919;
+  stroke-width: 2px;
+}
+
+.line {
+  stroke-width: 2px;
+}
+
+.slice {
+}
+
+.tile {
+  fill: none;
+  stroke: #191919;
+  stroke-width: 1px;
+}
+
+.axis {
+  font-size: 10px;
+}
+
+.y.axis {
+}
+
+.daySeries .y.axis {
+  opacity: 1;
+}
+.daySelection {
+  fill-opacity: 0;
+  stroke: none;
+  cursor: pointer;
+
+}
+
+.daySelection:hover {
+  stroke: #191919;
+  stroke-opacity: .5;
+  stroke-width: 2px;
+}
+
+.daySelection.selected {
+  stroke: #191919;
+  stroke-width: 2px;
+  pointer-events: none;
+}
+
+.popup {
+  pointer-events: none;
+}
+
+.popupText {
+  fill: #ffffff;
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.column {
+  float: left;
+  min-width: 250px;
+}
+
+.weekendSelection {
+  fill-opacity: .2;
+  fill: yellow;
+  stroke: #f4d209;
+  stroke-width: 1px;
+}
+
+.dashboard {
+  border: 1px solid black;
+  border-radius: 15px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  width: 1130px;
+}
