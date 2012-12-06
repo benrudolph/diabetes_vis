@@ -32,18 +32,19 @@ Utility.GLUCOSE_LOW = 80
 
 Utility.glucoseLowScale = d3.scale.linear()
     .domain([40, 80])
-    .range([20, 95])
+    .range([40, 95])
+    .clamp(true)
 
 Utility.glucoseHighScale = d3.scale.linear()
     .domain([180, 400])
-    .range([95, 20])
+    .range([95, 40])
+    .clamp(true)
 
 Utility.getGlucoseColor = function(glucose) {
-  if (glucose <= this.GLUCOSE_LOW && glucose !== null) {
+  if (glucose <= this.GLUCOSE_LOW  && glucose !== null) {
     var lightness = this.glucoseLowScale(glucose)
     return "hsl(" + 229 + ",100%," + lightness + "%)";
-  }
-  else if (glucose >= this.GLUCOSE_HIGH && glucose !== null) {
+  } else if (glucose >= this.GLUCOSE_HIGH && glucose !== null) {
     var lightness = this.glucoseHighScale(glucose)
     return "hsl(" + 9 + ",100%," + lightness + "%)";
   } else if (glucose){
