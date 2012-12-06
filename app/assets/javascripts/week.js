@@ -28,7 +28,7 @@ var WeekHeatmap = function(svg) {
       .attr("id", this.id)
 
   this.margin = {
-    top: 40,
+    top: 0,
     right: 10,
     bottom: 40,
     left: 100
@@ -36,7 +36,7 @@ var WeekHeatmap = function(svg) {
 
   this.tileMargin = {
     top: 3,
-    middle: 3,
+    middle: 0,
     bottom: 3,
   }
 
@@ -56,7 +56,7 @@ var WeekHeatmap = function(svg) {
       .domain(WeekHeatmap.DAYS)
 
   this.yWeek = d3.scale.ordinal()
-      .rangePoints([this.margin.top, (3 * this.weekHeight + 40) - this.margin.top])
+      .rangePoints([this.margin.top, (3 * this.weekHeight) - this.margin.bottom])
 
 
   this.data = {
@@ -255,13 +255,16 @@ WeekHeatmap.prototype.render = function(loadDay) {
       .enter()
       .append("text")
       .attr("class", "x axis")
-      .attr("y", this.margin.top - 4)
+      .attr("y", -5)
       .attr("x", function(d, i) {
         return this.x[i](0) + (WeekHeatmap.TILE.WIDTH / 2)
       }.bind(this))
       .attr("text-anchor", "middle")
       .text(function(d, i) {
         // Calculation to convert 24 hour index into 12 hour time.
+        if (i % 2 == 0) {
+          return ''
+        }
         var t = i % 12
         if (t === 0)
           t = 12

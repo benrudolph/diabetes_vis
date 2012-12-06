@@ -203,12 +203,6 @@ DaySeries.prototype.render = function() {
 
   this.container
       .append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0, " + (this.height - (this.margin.bottom)) + ")")
-      .call(this.xAxis)
-
-  this.container
-      .append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(" + this.margin.left + ", 0)")
       .call(this.yAxis)
