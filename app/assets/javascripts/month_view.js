@@ -69,6 +69,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     .select("#months_view")
     .append("svg")
     .attr("class", "months_view");
+  this.is_interactive = true;
 
   this.n_months = n_months;
   this.increments = increments;
@@ -105,7 +106,9 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     .attr("y", (this.calendar_width / 7) * 6 * this.n_months)
     .attr("width", 25)
     .attr("height", 25)
-    .on("click", function() { this.nextMonth() }.bind(this));
+    .on("click", function() {
+      this.nextMonth()
+    }.bind(this));
 
 };
 
@@ -201,23 +204,27 @@ MonthsView.prototype.yBottom = function() {
 };
 
 MonthsView.prototype.nextMonth = function() {
-  var next_month = new Date(this.months[this.n_months - 1].getFullYear(), this.months[this.n_months - 1].getMonth() + 1);
-  var move_up_by = this.month_objs[0].getEffectiveHeight();
-  var month_obj = new MonthView(this.svg, next_month, this.increments, this.calendar_width, 0, this.yBottom(), this);
-  month_obj.render(false, function() {
-    this.months.push(next_month);
-    this.month_objs.push(month_obj);
+  if (this.is_interactive) {
+    this.is_interactive = false; // set lock
+    var next_month = new Date(this.months[this.n_months - 1].getFullYear(), this.months[this.n_months - 1].getMonth() + 1);
+    var move_up_by = this.month_objs[0].getEffectiveHeight();
+    var month_obj = new MonthView(this.svg, next_month, this.increments, this.calendar_width, 0, this.yBottom(), this);
+    month_obj.render(false, function() {
+      this.months.push(next_month);
+      this.month_objs.push(month_obj);
 
-    this.month_objs.forEach(function(month_obj, i) {
-      month_obj.moveUpBy(move_up_by, i == 0);
+      this.month_objs.forEach(function(month_obj, i) {
+        month_obj.moveUpBy(move_up_by, i == 0);
+      }.bind(this));
+
+      this.months.splice(0,1);
+      this.month_objs.splice(0,1);
+      if (this.updateMarker(next_month, true)) {
+        this.setMarker(this.marker_date);
+      }
+      this.is_interactive = true; // release lock
     }.bind(this));
-
-    this.months.splice(0,1);
-    this.month_objs.splice(0,1);
-    if (this.updateMarker(next_month, true)) {
-      this.setMarker(this.marker_date);
-    }
-  }.bind(this));
+  }
 };
 
 MonthsView.prototype.adjustEdgeWeeks = function(is_next) {
@@ -234,27 +241,31 @@ MonthsView.prototype.adjustEdgeWeeks = function(is_next) {
 }
 
 MonthsView.prototype.lastMonth = function() {
-  var last_month = new Date(this.months[0].getFullYear(), this.months[0].getMonth() - 1);
-  var month_obj = new MonthView(this.svg, last_month, this.increments, this.calendar_width, 0, this.yTop(), this);
-  var move_down_by = month_obj.getEffectiveHeight();
+  if (this.is_interactive) {
+    this.is_interactive = false; // set lock
+    var last_month = new Date(this.months[0].getFullYear(), this.months[0].getMonth() - 1);
+    var month_obj = new MonthView(this.svg, last_month, this.increments, this.calendar_width, 0, this.yTop(), this);
+    var move_down_by = month_obj.getEffectiveHeight();
 
-  month_obj.svg.attr("y", (this.start_at_y - move_down_by));
-  month_obj.y_pos = (this.start_at_y - move_down_by);
+    month_obj.svg.attr("y", (this.start_at_y - move_down_by));
+    month_obj.y_pos = (this.start_at_y - move_down_by);
 
-  month_obj.render(false, function() {
-    this.months.splice(0,0,last_month);
-    this.month_objs.splice(0,0,month_obj);
+    month_obj.render(false, function() {
+      this.months.splice(0,0,last_month);
+      this.month_objs.splice(0,0,month_obj);
 
-    this.month_objs.forEach(function(month_obj, i) {
-      month_obj.moveDownBy(move_down_by, i == (this.n_months));
+      this.month_objs.forEach(function(month_obj, i) {
+        month_obj.moveDownBy(move_down_by, i == (this.n_months));
+      }.bind(this));
+
+      this.months.pop();
+      this.month_objs.pop();
+      if (this.updateMarker(last_month, false)) {
+        this.setMarker(this.marker_date);
+      }
+      this.is_interactive = true; // release lock
     }.bind(this));
-
-    this.months.pop();
-    this.month_objs.pop();
-    if (this.updateMarker(last_month, false)) {
-      this.setMarker(this.marker_date);
-    }
-  }.bind(this));
+  }
 };
 
 var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos, y_pos, parent_svg) {
