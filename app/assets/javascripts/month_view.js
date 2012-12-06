@@ -342,6 +342,7 @@ MonthView.prototype.setMarker = function(date_obj) {
   this.marker = this.svg
     .append("svg:path")
     .attr("transform", "translate(245,"+y_pos+")")
+    .attr("id", "marker")
     .attr("d", d3.svg.symbol());
 };
 
