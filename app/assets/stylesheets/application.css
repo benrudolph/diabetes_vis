@@ -154,25 +154,19 @@ image {
 .figureColumn {
   text-align: center;
   width: 70px;
-  position: fixed;
+  float: left;
 }
 
-.f1 {
-  left: 80px
-}
-
-.f2 {
-  left: 150px;
-}
-.f3 {
-  left: 220px;
-}
-
-#figures {
+#figures_wrapper {
   width: 250px;
   float: left;
   margin-top: 50px;
 }
+
+#figures {
+  position: fixed;
+}
+
 #months_view_wrapper {
   width: 260px;
   float: left;
