@@ -14,7 +14,7 @@ var DaySeries = function(svg, data, width, height) {
   this.margin = {
     top: 10,
     right: 10,
-    bottom: 40,
+    bottom: 24,
     left: 100
   }
 
