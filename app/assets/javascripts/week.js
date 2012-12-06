@@ -173,6 +173,10 @@ WeekHeatmap.prototype.update = function(loadDay) {
       .selectAll(".before, .current, .after")
       .remove()
 
+  this.container
+      .select("#context")
+      .remove()
+
   this.render(false)
  }
 
@@ -237,6 +241,7 @@ WeekHeatmap.prototype.render = function(loadDay) {
 
   }.bind(this))
 
+  this.renderArrow()
   var selection;
   if (this.showContext) {
     selection = d3.selectAll(".before, .current, .after")
@@ -305,7 +310,33 @@ WeekHeatmap.prototype.renderYAxis = function(container, week) {
 
 }
 
-WeekHeatmap.prototype.renderArrow = function(container, week) {
+WeekHeatmap.prototype.renderArrow = function() {
+  if (!this.showContext) {
+    this.container
+      .append("svg:image")
+      .attr("xlink:href", "/images/arrowdown.png")
+      .attr("id", "context")
+      .attr("x", this.margin.left + this.width / 2 - 25)
+      .attr("y", this.yWeek("current") + this.weekHeight + 40)
+      .attr("width", 52)
+      .attr("height", 25)
+      .on("click", function() {
+        window.dashboard.toggleWeekHeatmapContext()
+      })
+
+  } else {
+    this.container
+      .append("svg:image")
+      .attr("xlink:href", "/images/arrowup.png")
+      .attr("id", "context")
+      .attr("x", this.margin.left + this.width / 2 - 25)
+      .attr("y", this.yWeek("after") + this.weekHeight + 40)
+      .attr("width", 52)
+      .attr("height", 25)
+      .on("click", function() {
+        window.dashboard.toggleWeekHeatmapContext()
+      })
+  }
 
 }
 
@@ -392,6 +423,15 @@ WeekHeatmap.prototype.animate = function(transitionLength) {
         .attr("y", function(d, i) {
           return that.yWeek("current")
         })
+
+    this.container
+        .select("#context")
+        .transition()
+        .duration(transitionLength)
+        .attr("xlink:href", "/images/arrowup.png")
+        .attr("y", function(d, i) {
+          return that.yWeek("after") + that.weekHeight + 40
+        })
   } else {
     this.yWeek.domain(["current", "dummy", "dummy"])
     this.extent = d3.extent(this.weekDates.current, function(d) { return d.date })
@@ -412,6 +452,14 @@ WeekHeatmap.prototype.animate = function(transitionLength) {
           return that.yWeek("current")
         })
 
+    this.container
+        .select("#context")
+        .transition()
+        .duration(transitionLength)
+        .attr("xlink:href", "/images/arrowdown.png")
+        .attr("y", function(d, i) {
+          return that.yWeek("current") + that.weekHeight + 40
+        })
   }
 }
 
