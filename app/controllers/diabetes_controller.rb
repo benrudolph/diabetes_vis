@@ -221,15 +221,15 @@ saturday sunday]
     dict[:month][:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
 
     date_obj = Date.new(year,month)
-    (date_obj.beginning_of_month..date_obj.end_of_month).each do |day|
-      query = GlucoseSensorData.by_day(day, :field => :timestamp)
-      total = query.count
-      day_dict = {}
-      day_dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
-      day_dict[:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
-      day_dict[:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
-      dict[:day] << day_dict
-    end
+    #(date_obj.beginning_of_month..date_obj.end_of_month).each do |day|
+    #  query = GlucoseSensorData.by_day(day, :field => :timestamp)
+    #  total = query.count
+    #  day_dict = {}
+    #  day_dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
+    #  day_dict[:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
+    #  day_dict[:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
+    #  dict[:day] << day_dict
+    #end
 
     first_day = date_obj.beginning_of_week
     query = GlucoseSensorData.between(first_day, first_day + 6.days, :field => :timestamp)
