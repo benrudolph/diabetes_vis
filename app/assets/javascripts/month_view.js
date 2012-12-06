@@ -1,11 +1,5 @@
 Date.prototype.getNumWeeks = function() {
   return this.endOfMonth().getWeekInMonth();
-  //var curr_month_end = new Date(this.getFullYear(), this.getMonth() + 1, 0);
-  //var curr_day = 8 - this.getDay();
-  //curr_day = (curr_day == 8) ? 1 : curr_day;
-
-  //var curr_month_days = curr_month_end.getDate() - curr_day;
-  //return 1 + Math.ceil(curr_month_days / 7);
 };
 
 Date.prototype.getDayAdjusted = function() {
@@ -348,9 +342,9 @@ MonthView.prototype.setMarker = function(date_obj) {
   var y_pos = this.margin + ((date_obj.getWeekInMonth() - 1) * this.cell_width) + (this.cell_width / 2);
   this.marker = this.svg
     .append("svg:path")
-    .attr("transform", "translate(245,"+y_pos+")")
+    .attr("transform", "translate(245,"+y_pos+") rotate(90)")
     .attr("id", "marker")
-    .attr("d", d3.svg.symbol());
+    .attr("d", d3.svg.symbol().type("triangle-down"));
 };
 
 MonthView.prototype.render = function(visible, callback) {
