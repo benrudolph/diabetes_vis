@@ -91,7 +91,10 @@ Dashboard.prototype.init = function() {
   this.weekHeatmap = new WeekHeatmap(this.svg)
   this.monthsView = new MonthsView(window.Day.currentDate, 3, 12, 210);
   this.monthsView.update(window.Day.currentDate)
-
+  $("#toggle_text").click(function() {
+    this.monthsView.text_hidden = !this.monthsView.text_hidden;
+    this.monthsView.refreshTextView();
+  }.bind(this));
   this.layout()
   this.loadData()
 }

@@ -73,7 +73,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   var stop_range = new Date(date_obj.getFullYear(), date_obj.getMonth() + 1);
   this.months = d3.time.months(start_range, stop_range);
 
-  this.start_at_y = 80;
+  this.start_at_y = 40;
   this.svg
     .append("svg:image")
     .attr("xlink:href", "/images/arrowup.png")
