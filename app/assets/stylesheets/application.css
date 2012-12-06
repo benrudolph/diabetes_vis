@@ -121,8 +121,11 @@ image {
 
 .dashboard {
   border: 1px solid black;
-  border-radius: 15px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  border-bottom: none;
   margin: 20px auto;
+  margin-bottom: 0px;
   padding: 20px;
   background-color: white;
   width: 1280px;
@@ -205,4 +208,8 @@ div#months_view {
 #currentDate {
   position: fixed;
   font-size: 18px;
+}
+
+.day {
+  cursor: pointer;
 }
