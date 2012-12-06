@@ -157,7 +157,7 @@ MonthsView.prototype.update = function(date_obj) {
         .transition()
         .duration(1000)
         .style("opacity", 0)
-        .attr("x", -250)
+        .attr("x", 500)
         .remove();
     });
     var y_pos = this.start_at_y;
