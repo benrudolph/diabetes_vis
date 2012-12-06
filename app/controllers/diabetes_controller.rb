@@ -207,12 +207,12 @@ saturday sunday]
     return monthly_ratio_list
   end
 
-  def _get_month_glucose_ratios(year, month)
-    monthly_ratio_list = []
+  def get_month_glucose_ratios
+    year, month, day = params[:date].split("-").map(&:to_i)
     dict = {}
     dict[:month] = {}
-    dict[:week] = []
-    dict[:day] = []
+    dict[:week] = {}
+    dict[:day] = {}
 
     query = GlucoseSensorData.by_month(month, :year => year, :field => :timestamp)
     total = query.count
@@ -220,37 +220,20 @@ saturday sunday]
     dict[:month][:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
     dict[:month][:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
 
-    date_obj = Date.new(year,month)
-    #(date_obj.beginning_of_month..date_obj.end_of_month).each do |day|
-    #  query = GlucoseSensorData.by_day(day, :field => :timestamp)
-    #  total = query.count
-    #  day_dict = {}
-    #  day_dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
-    #  day_dict[:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
-    #  day_dict[:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
-    #  dict[:day] << day_dict
-    #end
+    date_obj = Date.new(year,month,day)
+    query = GlucoseSensorData.by_day(date_obj, :field => :timestamp)
+    total = query.count
+    dict[:day][:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
+    dict[:day][:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
+    dict[:day][:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
 
     first_day = date_obj.beginning_of_week
     query = GlucoseSensorData.between(first_day, first_day + 6.days, :field => :timestamp)
     total = query.count
-    week_dict = {}
-    week_dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
-    week_dict[:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
-    week_dict[:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
-    dict[:week] << week_dict
-    first_day += 7.days
-    while (first_day.month == month)
-      query = GlucoseSensorData.between(first_day, first_day + 6.days, :field => :timestamp)
-      total = query.count
-      week_dict = {}
-      week_dict[:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
-      week_dict[:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
-      week_dict[:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
-      dict[:week] << week_dict
-      first_day += 7.days
-    end
-    return dict
+    dict[:week][:low] = (total != 0) ? query.where("glucose < 80").count.to_f / total : 0
+    dict[:week][:optimal] = (total != 0) ? query.where("glucose >= 80 and glucose < 180").count.to_f / total : 0
+    dict[:week][:high] = (total != 0) ? query.where("glucose >= 180").count.to_f / total : 0
+    render :json => dict
   end
 
   def get_monthly_glucose_ratios
@@ -362,7 +345,6 @@ saturday sunday]
     increments = params[:increments].to_i
     dict = {}
     dict[:data] = _get_month_data(month, year, increments)
-    dict[:ratios] = _get_month_glucose_ratios(year, month)
     render :json => dict
   end
 

@@ -65,6 +65,7 @@ Date.prototype.getWeekInMonth = function() {
 };
 
 var MonthsView = function(date_obj, n_months, increments, calendar_width) {
+  this.text_hidden = false;
   this.svg = d3
     .select("#months_view")
     .append("svg")
@@ -112,6 +113,31 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
 
 };
 
+MonthsView.prototype.refreshTextView = function() {
+  this.month_objs.forEach(function(month_obj) {
+    month_obj.days
+      .selectAll("text")
+      .transition()
+      .style("opacity", function() {
+        return (this.text_hidden) ? 0 : 1;
+      }.bind(this));
+  }.bind(this));
+};
+
+MonthsView.prototype.updateTextData = function(date_obj) {
+  d3.json("get_month_glucose_ratios?date="+date_obj.getFullYear()+"-"+(date_obj.getMonth() + 1)+"-"+date_obj.getDate(), function(data) {
+    $("#month_hi").text(Math.round(100 * data.month.high, 1) + "%")
+    $("#month_op").text(Math.round(100 * data.month.optimal, 1) + "%")
+    $("#month_lo").text(Math.round(100 * data.month.low, 1) + "%")
+     $("#week_hi").text(Math.round(100 * data.week.high, 1) + "%")
+     $("#week_op").text(Math.round(100 * data.week.optimal, 1) + "%")
+     $("#week_lo").text(Math.round(100 * data.week.low, 1) + "%")
+      $("#day_hi").text(Math.round(100 * data.day.high,  1) + "%")
+      $("#day_op").text(Math.round(100 * data.day.optimal, 1) + "%")
+      $("#day_lo").text(Math.round(100 * data.day.low, 1) + "%")
+  });
+};
+
 MonthsView.prototype.update = function(date_obj) {
   var target_mo = new Date(date_obj.getFullYear(), date_obj.getMonth());
   if (target_mo <= this.months[this.n_months - 1] && target_mo >= this.months[0]) {
@@ -146,6 +172,7 @@ MonthsView.prototype.update = function(date_obj) {
     }.bind(this));
   }
   this.setMarker(date_obj);
+  this.updateTextData(date_obj);
 };
 
 MonthsView.prototype.updateMarker = function(date_obj, is_next) {
@@ -337,8 +364,9 @@ MonthView.prototype.render = function(visible, callback) {
     this.border_el = this.svg
       .append("svg:path")
       .attr("d", this.border_line(this.computeBorderCoordinates()))
-      .style("stroke-width", 5)
+      .style("stroke-width", 3)
       .style("stroke", "black")
+      .style("opacity", .5)
       .style("fill", "none");
 
     var first_iteration = true;
@@ -395,6 +423,9 @@ MonthView.prototype.render = function(visible, callback) {
       .append("text")
       .attr("x", 10)
       .attr("y", 20)
+      .style("opacity", function() {
+        return (this.parent_svg.text_hidden) ? 0 : 1;
+      }.bind(this))
       .text(function(d) {
         return this.day(d.date); }.bind(this));
 
