@@ -8,7 +8,7 @@ Date.prototype.adjustTimezone = function(go_forward) {
 
 var DaySeries = function(svg, data, width, height) {
   this.svg = svg
-  this.height = height || 300
+  this.height = height || 295
   this.width = width || 800
 
   this.margin = {
@@ -42,7 +42,7 @@ var DaySeries = function(svg, data, width, height) {
       .scale()
       .range([this.margin.left , this.width - this.margin.right])
 
-  this.yMax = 500
+  this.yMax = 400
 
   this.y = d3
       .scale
