@@ -126,3 +126,14 @@ image {
   background-color: white;
   width: 1130px;
 }
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis g text {
+  font-size: 8px;
+}
+
+
