@@ -192,14 +192,14 @@ DaySeries.prototype.render = function() {
       .attr("class", "real line")
       .attr("d", this.line)
 
-  this.container
+  /*this.container
       .selectAll(".average")
       .data([this.day_average_data])
       .enter()
       .append("path")
       .attr("class", "average line")
       .attr("stroke-dasharray", "5, 5")
-      .attr("d", this.averageLine)
+      .attr("d", this.averageLine)*/
 
   this.container
       .append("g")
@@ -244,10 +244,8 @@ DaySeries.prototype.highlight = function(x) {
   this.highlightRemove()
 
   var real = d3.select(".real")[0][0]
-  var average = d3.select(".average")[0][0]
 
   var highlightReal = window.Utility.getPointOnPath(x + this.margin.left, real)
-  var highlightAverage = window.Utility.getPointOnPath(x + this.margin.left, average)
 
   d3.select("#overlayContainer")
       .append("rect")
@@ -259,7 +257,7 @@ DaySeries.prototype.highlight = function(x) {
 
   this.container
       .selectAll(".highlight")
-      .data([highlightReal, highlightAverage])
+      .data([highlightReal])
       .enter()
       .append("circle")
       .attr("class", "highlight")
