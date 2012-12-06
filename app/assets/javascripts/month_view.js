@@ -73,7 +73,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   var stop_range = new Date(date_obj.getFullYear(), date_obj.getMonth() + 1);
   this.months = d3.time.months(start_range, stop_range);
 
-  this.start_at_y = 40;
+  this.start_at_y = 50;
   this.svg
     .append("svg:image")
     .attr("xlink:href", "/images/arrowup.png")
@@ -98,12 +98,26 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
     .append("svg:image")
     .attr("xlink:href", "/images/arrowdown.png")
     .attr("x", 80)
-    .attr("y", (this.calendar_width / 7) * 6 * this.n_months)
+    .attr("y", (this.calendar_width / 7) * 6 * this.n_months - 40)
     .attr("width", 50)
     .attr("height", 25)
     .on("click", function() {
       this.nextMonth()
     }.bind(this));
+
+  var days_in_week = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
+  this.svg
+    .selectAll(".days_in_week")
+    .data(days_in_week)
+    .enter()
+    .append("svg:text")
+    .attr("x", function(d, i) {
+      return 25 + i * 30;
+    })
+    .attr("y", function(d, i) {
+      return 60;
+    })
+    .text(function(d) { return d; })
 
 };
 
