@@ -425,6 +425,7 @@ MonthView.prototype.render = function(visible, callback) {
       .append("text")
       .attr("x", 10)
       .attr("y", 20)
+      .attr("font-size", 10)
       .style("opacity", function() {
         return (this.parent_svg.text_hidden) ? 0 : 1;
       }.bind(this))
