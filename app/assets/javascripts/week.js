@@ -79,6 +79,11 @@ var WeekHeatmap = function(svg) {
   d3.select("#" + this.daySeries.id)
       .attr("transform", "translate(0, 0)")
 
+  this.container
+      .on("mouseout", function(d) {
+        this.daySeries.highlightRemove()
+      }.bind(this))
+
   this.showContext = false
 
 }

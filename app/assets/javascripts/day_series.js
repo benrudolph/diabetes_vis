@@ -250,6 +250,9 @@ DaySeries.prototype.highlight = function(x) {
 
   var highlightReal = window.Utility.getPointOnPath(x + this.margin.left, real)
 
+  if (highlightReal.x === 0 && highlightReal.y === 0)
+    return
+
   d3.select("#overlayContainer")
       .append("rect")
       .attr("class", "guide")
