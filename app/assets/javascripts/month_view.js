@@ -105,7 +105,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
       this.nextMonth()
     }.bind(this));
 
-  var days_in_week = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
+  var days_in_week = ['m', 't', 'w', 'th', 'f', 's', 'su']
   this.svg
     .selectAll(".days_in_week")
     .data(days_in_week)
