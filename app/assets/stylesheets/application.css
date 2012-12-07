@@ -14,6 +14,7 @@
 body {
   background-color: rgb(230,230,230);
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 200;
 }
 
 image {
