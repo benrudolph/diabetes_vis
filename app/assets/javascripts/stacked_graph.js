@@ -55,6 +55,7 @@ StackedGraphs.prototype.update = function(data) {
         .attr("y", this.y(start))
         .attr("height", this.y(start - value) - this.y(start))
         .attr("width", this.stackWidth - this.stackMargin)
+        .attr("title", function(d) { return Math.round(value * 100, 2) + "%"; })
 
 
     }.bind(this))
@@ -120,6 +121,7 @@ StackedGraphs.prototype.renderStack = function(type, range, value, start) {
       .attr("y", this.y(start))
       .attr("height", this.y(start - value) - this.y(start))
       .attr("width", this.stackWidth - this.stackMargin)
+      .attr("title", function(d) { return Math.round(value * 100, 2) + "%"; })
 }
 
 StackedGraphs.prototype.loadData = function(date_obj, callback) {
