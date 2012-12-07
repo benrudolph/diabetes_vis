@@ -128,7 +128,7 @@ StackedGraphs.prototype.loadData = function(date_obj, callback) {
   if (!callback) {
     callback = this.render.bind(this)
   }
-  d3.json("diabetes/get_month_glucose_ratios?date="+date_obj.getFullYear()+"-"+(date_obj.getMonth() + 1)+"-"+date_obj.getDate(), function(data) {
+  d3.json("/diabetes/get_month_glucose_ratios?date="+date_obj.getFullYear()+"-"+(date_obj.getMonth() + 1)+"-"+date_obj.getDate(), function(data) {
 
     callback(data)
     /*d3.selectAll(".figure .percent").text("%")
