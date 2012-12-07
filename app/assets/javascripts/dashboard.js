@@ -132,6 +132,7 @@ Dashboard.prototype.updateDay = function(date) {
     window.Day.currentDate = date
 
     this.weekHeatmap.updateDay(date)
+    $('#datepicker').datepicker("setValue", window.Day.currentDate)
 
     this.weekHeatmap.daySeries.loadData(date, undefined,
         this.weekHeatmap.daySeries.update.bind(this.weekHeatmap.daySeries))

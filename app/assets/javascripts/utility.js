@@ -70,7 +70,7 @@ Utility.getGlucoseColor = function(glucose) {
 }
 
 Utility.dateToString = function(date) {
-  return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+  return (date.getMonth() + 1) + "/" + date.getDate() + "/" +  date.getFullYear()
 }
 
 Utility.stringToDate = function(stringDate) {

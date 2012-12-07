@@ -143,44 +143,15 @@ image {
   font-size: 8px;
 }
 
-.figure {
-  width: 60px;
-  height: 60px;
-  border: 1px solid black;
-  margin: 4px auto;
-  border-radius: 15px;
-}
-
-.figure .caption {
-  line-height: 1.2em;
-  font-size: 10px;
-}
-
-.figureColumn {
-  text-align: center;
-  width: 80px;
-  float: left;
-}
-
-#figures_wrapper {
-  width: 250px;
-  float: left;
-  margin-top: 50px;
-}
-
-#figures {
-  position: fixed;
-}
-
 #months_view_wrapper {
   width: 260px;
   float: left;
+  margin-top: 50px;
 }
 
 div#months_view {
   width: 260px;
   height: 700px;
-  position: fixed;
 }
 #dashboard {
   width: 715px;
@@ -216,7 +187,7 @@ div#months_view {
 }
 #header {
   position: absolute;
-  width: 800px;
+  width: 1050px;
 }
 
 #currentDate {
@@ -237,4 +208,14 @@ div#months_view {
 
 .stackLabel {
   font-size: 12px;
+}
+
+#datepicker {
+  float: left;
+  margin-left: 40px;
+}
+
+#toggle_text {
+  float: left;
+  margin-left: 20px;
 }
