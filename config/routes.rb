@@ -1,4 +1,5 @@
 DiabetesVis::Application.routes.draw do
+  root :controller => "diabetes", :action => "dashboard" #RAILS 2
   get "diabetes/month"
 
   get "diabetes/brushing"

@@ -133,7 +133,7 @@ MonthsView.prototype.refreshTextView = function() {
 };
 
 MonthsView.prototype.updateTextData = function(date_obj) {
-  d3.json("get_month_glucose_ratios?date="+date_obj.getFullYear()+"-"+(date_obj.getMonth() + 1)+"-"+date_obj.getDate(), function(data) {
+  d3.json("diabetes/get_month_glucose_ratios?date="+date_obj.getFullYear()+"-"+(date_obj.getMonth() + 1)+"-"+date_obj.getDate(), function(data) {
 
     d3.selectAll(".figure .percent").text("%")
 
@@ -362,7 +362,7 @@ MonthView.prototype.setMarker = function(date_obj) {
 };
 
 MonthView.prototype.render = function(visible, callback) {
-  d3.json("get_month_data?increments="+this.increments+"&month="+this.month+"&year="+this.year,
+  d3.json("diabetes/get_month_data?increments="+this.increments+"&month="+this.month+"&year="+this.year,
     function(data) {
       data.data.forEach(function(d) {
           d.date = this.parseDate(d.date);
