@@ -27,13 +27,22 @@ Date.prototype.getPrettyDate = function() {
 
   switch (date % 10) {
     case 1:
-      date += "st"
+      if (date === 11)
+        date += "th"
+      else
+        date += "st"
       break;
     case 2:
-      date += "nd"
+      if (date === 12)
+        date += "th"
+      else
+        date += "nd"
       break;
     case 3:
-      date += "rd"
+      if (date === 13)
+        date += "th"
+      else
+        date += "rd"
       break;
     default:
       date += "th"
