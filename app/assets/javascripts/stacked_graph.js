@@ -4,7 +4,7 @@ var StackedGraphs= function(selector, width, height) {
   this.height = height || 60
 
   this.margin = {
-    top: 0,
+    top: 2,
     right: 40,
     bottom: 20,
     left: 10
@@ -12,6 +12,7 @@ var StackedGraphs= function(selector, width, height) {
 
   this.stackWidth = 40
   this.stackMargin = 20
+  this.stackOffset = 15
 
   this.container = d3.select(selector)
       .append("svg")
@@ -51,7 +52,6 @@ StackedGraphs.prototype.update = function(data) {
       selection
         .transition()
         .duration(1000)
-        .attr("x", 0)
         .attr("y", this.y(start))
         .attr("height", this.y(start - value) - this.y(start))
         .attr("width", this.stackWidth - this.stackMargin)
@@ -69,7 +69,13 @@ StackedGraphs.prototype.render = function(data) {
         .append("svg")
         .attr("x", this.x(type))
         .attr("y", this.margin.top)
-        .attr("class", "stacked" + type + " stacked")
+        .attr("class", "stacked" + type + " stacked " + type)
+        .append("rect")
+        .attr("x", this.stackOffset)
+        .attr("y", this.margin.top)
+        .attr("height", this.y(0) - this.margin.top)
+        .attr("width", this.stackWidth - this.stackMargin)
+        .attr("class", "outline")
     this.ranges.forEach(function(range) {
       var start;
       if (range === "low")
@@ -82,6 +88,27 @@ StackedGraphs.prototype.render = function(data) {
       this.renderStack(type, range, data[type][range], start)
     }.bind(this))
   }.bind(this))
+
+  this.container
+      .selectAll(".stacked")
+      .append("text")
+      .attr("class", "stackLabel")
+      .attr("x", 10)
+      .attr("y", this.height / 2 - 10)
+      .attr("width", 100)
+      .attr("height", 100)
+      .attr("text-anchor", "middle")
+      .attr("transform", "rotate(270 " + 10 + "," + ((this.height / 2) - 10) + ")")
+      .text(function(d) {
+        var selection = d3.select(this.parentNode)
+        if (selection.classed("month"))
+          return "month"
+        else if (selection.classed("week"))
+          return "week"
+        else
+          return "day"
+      })
+
 }
 
 StackedGraphs.prototype.renderStack = function(type, range, value, start) {
@@ -89,7 +116,7 @@ StackedGraphs.prototype.renderStack = function(type, range, value, start) {
       .select(".stacked" + type)
       .append("rect")
       .attr("class", "stack " + type + " " + range)
-      .attr("x", 0)
+      .attr("x", this.stackOffset)
       .attr("y", this.y(start))
       .attr("height", this.y(start - value) - this.y(start))
       .attr("width", this.stackWidth - this.stackMargin)

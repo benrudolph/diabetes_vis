@@ -202,7 +202,10 @@ div#months_view {
   fill: white;
 }
 
-.stacked {
+.stacked .outline{
+  fill: none;
+  stroke: #191919;
+  stroke-width: 2px;
 }
 .figure span {
   display: inline-block;
@@ -227,4 +230,8 @@ div#months_view {
 
 #months_view .day {
   cursor: pointer;
+}
+
+.stackLabel {
+  font-size: 12px;
 }
