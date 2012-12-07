@@ -175,7 +175,8 @@ saturday sunday]
       range = { :begin => max - limit.months, :end => max }
     end
 
-    averages = average_day(max.to_date, range)
+    #averages = average_day(max.to_date, range)
+    averages = []
 
     response = {
       "averages" => averages,

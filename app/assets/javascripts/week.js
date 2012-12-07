@@ -282,23 +282,23 @@ WeekHeatmap.prototype.render = function(loadDay) {
 
 WeekHeatmap.prototype.renderYAxis = function(container, week) {
   //var format = d3.time.format("%Y-%d-%m %A")
-  var format = d3.time.format("%A")
+  var format = d3.time.format("%m/%d/%y")
   var yAxis = container
       .selectAll(".y.axis")
-      .data(WeekHeatmap.DAYS)
+      .data(this.weekDates[week])
 
   yAxis
     .enter()
       .append("text")
       .attr("class", "y axis")
       .attr("y", function(d) {
-        return this.y(d) + (WeekHeatmap.TILE.HEIGHT / 2)
+        return this.y(d.day) + (WeekHeatmap.TILE.HEIGHT / 2)
       }.bind(this))
       .attr("x", this.margin.left - (3 * this.tileMargin.top))
       .attr("text-anchor", "end")
       .attr("dy", ".35em") // vertical-align: middle
       .text(function(d) {
-        return d.slice(0, 3)
+        return  d.day.slice(0, 3)
       })
 
   yAxis

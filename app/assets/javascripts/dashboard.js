@@ -93,6 +93,9 @@ Dashboard.prototype.init = function() {
   this.weekHeatmap.daySeries.isLoading = false;
   this.monthsView = new MonthsView(window.Day.currentDate, 3, 12, 210);
   this.monthsView.update(window.Day.currentDate)
+
+  this.stackGraphs = new StackedGraphs("#stackedGraphs", undefined, undefined)
+
   $("#toggle_text").click(function() {
     this.monthsView.text_hidden = !this.monthsView.text_hidden;
     this.monthsView.refreshTextView();
@@ -113,6 +116,8 @@ Dashboard.prototype.loadData = function(d) {
 
   this.weekHeatmap.loadData(window.Day.currentDate)
 
+  this.stackGraphs.loadData(window.Day.currentDate)
+
 }
 
 Dashboard.prototype.toggleWeekHeatmapContext = function() {
@@ -132,6 +137,9 @@ Dashboard.prototype.updateDay = function(date) {
         this.weekHeatmap.daySeries.update.bind(this.weekHeatmap.daySeries))
 
     this.monthsView.update(date)
+
+    this.stackGraphs.loadData(window.Day.currentDate,
+        this.stackGraphs.update.bind(this.stackGraphs))
 
     this.updateTooltips();
 

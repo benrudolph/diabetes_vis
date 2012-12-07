@@ -12,7 +12,7 @@ var DaySeries = function(svg, data, width, height) {
   this.width = width || 800
 
   this.margin = {
-    top: 10,
+    top: 30,
     right: 10,
     bottom: 24,
     left: 70
@@ -193,20 +193,21 @@ DaySeries.prototype.render = function() {
       .attr("class", "real line")
       .attr("d", this.line)
 
-  /*this.container
-      .selectAll(".average")
-      .data([this.day_average_data])
-      .enter()
-      .append("path")
-      .attr("class", "average line")
-      .attr("stroke-dasharray", "5, 5")
-      .attr("d", this.averageLine)*/
-
   this.container
       .append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(" + this.margin.left + ", 0)")
       .call(this.yAxis)
+
+  this.container
+      .append("text")
+      .attr("class", "title")
+      .attr("y", this.margin.top - 10)
+      .attr("x", (this.width - this.margin.left - this.margin.right) / 2 + this.margin.left)
+      .attr("width", (this.width - this.margin.left - this.margin.right) / 2)
+      .attr("height", 15)
+      .attr("text-anchor", "middle")
+      .text("Blood glucose levels (mg/dl) over a day")
 
   this.container
       .append("svg:g")

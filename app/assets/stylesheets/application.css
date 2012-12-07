@@ -64,7 +64,7 @@ image {
 
 .tile {
   fill: none;
-  stroke: #191919;
+  stroke: rgb(130, 130, 130);
   stroke-width: 1px;
 }
 
@@ -156,7 +156,7 @@ image {
 
 .figureColumn {
   text-align: center;
-  width: 70px;
+  width: 80px;
   float: left;
 }
 
@@ -191,14 +191,20 @@ div#months_view {
   border-right: 1px black solid;
 }
 
-.figure.high {
-  background-color: #ffab9c;
+.stack.high {
+  fill: #dda197;
 }
 
-.figure.low {
-  background-color: #bcc8ff;
+.stack.low {
+  fill:  #798ad3;
 }
 
+.stack.optimal {
+  fill: white;
+}
+
+.stacked {
+}
 .figure span {
   display: inline-block;
   padding-top: 18px;
