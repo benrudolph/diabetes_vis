@@ -215,6 +215,7 @@ div#months_view {
 }
 #header {
   position: absolute;
+  width: 800px;
 }
 
 #currentDate {
