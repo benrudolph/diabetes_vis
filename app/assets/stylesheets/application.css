@@ -128,7 +128,7 @@ image {
   margin-bottom: 0px;
   padding: 20px;
   background-color: white;
-  width: 1280px;
+  width: 1050px;
   height: 850px;
 }
 .axis path, .axis line {
@@ -187,7 +187,6 @@ div#months_view {
   margin-left: 10px;
   margin-right: 25px;
   margin-top: 50px;
-  border-left: 1px black solid;
   border-right: 1px black solid;
 }
 
@@ -210,13 +209,22 @@ div#months_view {
   padding-top: 18px;
   font-size: 26px;
 }
-
-#currentDate {
-  margin-left: 330px;
-  margin-bottom: 0px;
+#header {
   position: absolute;
 }
 
-.day {
+#currentDate {
+  float: left;
+  margin: 9px 5px;
+  margin-left: 50px;
+  width: 400px;
+}
+
+#stackedGraphs {
+  float: left;
+  margin-left: 43px;
+}
+
+#months_view .day {
   cursor: pointer;
 }

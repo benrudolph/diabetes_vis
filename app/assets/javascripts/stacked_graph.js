@@ -1,14 +1,17 @@
 var StackedGraphs= function(selector, width, height) {
 
-  this.width = width || 120
+  this.width = width || 200
   this.height = height || 60
 
   this.margin = {
-    top: 10,
+    top: 0,
     right: 40,
-    bottom: 10,
+    bottom: 20,
     left: 10
   }
+
+  this.stackWidth = 40
+  this.stackMargin = 20
 
   this.container = d3.select(selector)
       .append("svg")
@@ -51,7 +54,7 @@ StackedGraphs.prototype.update = function(data) {
         .attr("x", 0)
         .attr("y", this.y(start))
         .attr("height", this.y(start - value) - this.y(start))
-        .attr("width", (this.width - this.margin.left - this.margin.right) / 3)
+        .attr("width", this.stackWidth - this.stackMargin)
 
 
     }.bind(this))
@@ -89,7 +92,7 @@ StackedGraphs.prototype.renderStack = function(type, range, value, start) {
       .attr("x", 0)
       .attr("y", this.y(start))
       .attr("height", this.y(start - value) - this.y(start))
-      .attr("width", (this.width - this.margin.left - this.margin.right) / 3)
+      .attr("width", this.stackWidth - this.stackMargin)
 }
 
 StackedGraphs.prototype.loadData = function(date_obj, callback) {
