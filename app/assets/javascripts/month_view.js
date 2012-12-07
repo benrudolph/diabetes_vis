@@ -77,7 +77,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   this.svg
     .append("svg:image")
     .attr("xlink:href", "/images/arrowup.png")
-    .attr("x", 80)
+    .attr("x", 102)
     .attr("y", 20)
     .attr("width", 50)
     .attr("height", 25)
@@ -97,7 +97,7 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   this.svg
     .append("svg:image")
     .attr("xlink:href", "/images/arrowdown.png")
-    .attr("x", 80)
+    .attr("x", 102)
     .attr("y", (this.calendar_width / 7) * 6 * this.n_months - 40)
     .attr("width", 50)
     .attr("height", 25)
@@ -322,11 +322,11 @@ var MonthView = function(append_to, date_obj, increments, calendar_width, x_pos,
   this.svg
     .append("text")
     .attr("x", 15)
-    .attr("y", 150)
+    .attr("y", 140)
     .attr("width", 100)
     .attr("height", 200)
-    .attr("transform", "rotate(270 15,150)")
-    .text(d3.time.format("%B '%y")(date_obj));
+    .attr("transform", "rotate(270 15,140)")
+    .text(d3.time.format("%B")(date_obj).toLowerCase());
 
   this.margin = 20;
   this.x_pos = x_pos;

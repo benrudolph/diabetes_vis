@@ -90,6 +90,7 @@ var DaySeries = function(svg, data, width, height) {
       .y(function(d) {
         return +this.y(d.glucose)
       }.bind(this))
+      .interpolate("basis")
 
   this.averageLine = d3
       .svg
@@ -248,6 +249,9 @@ DaySeries.prototype.highlight = function(x) {
   var real = d3.select(".real")[0][0]
 
   var highlightReal = window.Utility.getPointOnPath(x + this.margin.left, real)
+
+  if (highlightReal.x === 0 && highlightReal.y === 0)
+    return
 
   d3.select("#overlayContainer")
       .append("rect")

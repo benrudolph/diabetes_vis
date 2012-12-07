@@ -99,7 +99,7 @@ Dashboard.prototype.init = function() {
   $("#toggle_text").click(function() {
     this.monthsView.text_hidden = !this.monthsView.text_hidden;
     this.monthsView.refreshTextView();
-    $("#toggle_text").text((this.monthsView.text_hidden) ? "Turn Dates On" : "Turn Dates Off");
+    $("#toggle_text").text((this.monthsView.text_hidden) ? "Date Labels On" : "Date Labels Off");
   }.bind(this));
   this.layout()
   this.loadData()
@@ -132,6 +132,7 @@ Dashboard.prototype.updateDay = function(date) {
     window.Day.currentDate = date
 
     this.weekHeatmap.updateDay(date)
+    $('#datepicker').datepicker("setValue", window.Day.currentDate)
 
     this.weekHeatmap.daySeries.loadData(date, undefined,
         this.weekHeatmap.daySeries.update.bind(this.weekHeatmap.daySeries))

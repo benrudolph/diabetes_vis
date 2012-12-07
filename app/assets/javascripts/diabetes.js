@@ -12,6 +12,15 @@ $(document).ready(function() {
   //var daySeries = new DaySeries("#daySeries")
   //daySeries.getDay($("#date").val())
   window.dashboard = new Dashboard("#dashboard")
+  var options = {
+    weekStart: 1 // Want to be consistent and start on monday
+  }
+  //$("#datepicker").val(Utility.dateToString(window.Day.currentDate))
+  $('#datepicker').datepicker(options)
+    .on("changeDate", function(event) {
+      window.dashboard.updateDay(event.date)
+    })
+  $('#datepicker').datepicker("setValue", window.Day.currentDate)
 
   $("#date").change(function(event) {
     daySeries.getDay($("#date").val(), $(".limit:checked").val(), daySeries.update.bind(daySeries))

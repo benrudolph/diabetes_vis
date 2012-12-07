@@ -79,6 +79,11 @@ var WeekHeatmap = function(svg) {
   d3.select("#" + this.daySeries.id)
       .attr("transform", "translate(0, 0)")
 
+  this.container
+      .on("mouseout", function(d) {
+        this.daySeries.highlightRemove()
+      }.bind(this))
+
   this.showContext = false
 
 }
@@ -298,7 +303,11 @@ WeekHeatmap.prototype.renderYAxis = function(container, week) {
       .attr("text-anchor", "end")
       .attr("dy", ".35em") // vertical-align: middle
       .text(function(d) {
-        return  d.day.slice(0, 3)
+        var label = d.day.slice(0, 1)
+        if (d.day === "thursday" || d.day === "sunday")
+          label = d.day.slice(0, 2)
+
+        return label
       })
 
   yAxis
