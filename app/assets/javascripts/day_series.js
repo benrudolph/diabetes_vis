@@ -90,6 +90,7 @@ var DaySeries = function(svg, data, width, height) {
       .y(function(d) {
         return +this.y(d.glucose)
       }.bind(this))
+      .interpolate("basis")
 
   this.averageLine = d3
       .svg
