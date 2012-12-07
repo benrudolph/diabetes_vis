@@ -21,7 +21,8 @@ image {
   cursor: pointer;
 }
 .myTitle {
-  margin-left: 100px;
+  width: 1050px;
+  margin: auto;
 }
 
 .low {
