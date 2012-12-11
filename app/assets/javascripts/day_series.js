@@ -36,6 +36,7 @@ var DaySeries = function(svg, data, width, height) {
       .time
       .scale()
       .range([this.margin.left , this.width - this.margin.right])
+      .clamp(true)
 
   this.xAverage = d3
       .time
