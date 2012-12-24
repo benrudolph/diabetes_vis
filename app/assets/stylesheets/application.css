@@ -123,9 +123,8 @@ image {
 
 .dashboard {
   border: 1px solid black;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-  border-bottom: none;
+  border-radius: 15px;
+  margin-bottom: 20px;
   margin: 20px auto;
   margin-bottom: 0px;
   padding: 20px;
@@ -218,4 +217,9 @@ div#months_view {
 #toggle_text {
   float: left;
   margin-left: 20px;
+}
+
+.by {
+  text-align: center;
+  font-size: 11px;
 }
