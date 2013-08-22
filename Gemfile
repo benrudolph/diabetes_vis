@@ -6,7 +6,7 @@ gem 'by_star', :git => "git://github.com/radar/by_star"
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-gem 'pg', :group => :production
+gem 'mysql2', :group => :production
 gem 'sqlite3', :group => :development
 
 gem 'json'
