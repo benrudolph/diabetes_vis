@@ -63,7 +63,9 @@ var MonthsView = function(date_obj, n_months, increments, calendar_width) {
   this.svg = d3
     .select("#months_view")
     .append("svg")
-    .attr("class", "months_view");
+    .attr("class", "months_view")
+    .attr('height', 700)
+    .attr('width', 260)
   this.is_interactive = true;
 
   this.n_months = n_months;
