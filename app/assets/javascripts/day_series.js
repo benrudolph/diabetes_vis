@@ -239,8 +239,9 @@ DaySeries.prototype.highlightRemove = function() {
 }
 
 DaySeries.prototype.highlightFromDate = function(date) {
-  // Largets of hacks to offset for the timezone. 25200 is 7 hours in seconds
-  var d = new Date(((+date / 1000) - 25200) * 1000)
+  // Convert timezone offset to seconds
+  var timezoneOffset = date.getTimezoneOffset() * 60;
+  var d = new Date(((+date / 1000) - timezoneOffset) * 1000)
   this.highlight(this.x(d) - this.margin.left)
 }
 
