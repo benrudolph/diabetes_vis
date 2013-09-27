@@ -22,4 +22,3 @@ production:
   adapter: mysql2
   host: localhost
   database: diabetes_production
-  username: rails
