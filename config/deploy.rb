@@ -4,6 +4,8 @@ set :rbenv_ruby_version, "1.9.3-p392"
 
 set :application, "diabetes_vis"
 
+load 'deploy/assets'
+
 # Deploy from your local Git repo by cloning and uploading a tarball
 set :scm, :git
 set :repository,  "git@github.com:benrudolph/diabetes_vis.git"
