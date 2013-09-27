@@ -346,7 +346,7 @@ DaySeries.prototype.loadData = function(date, limit, callback) {
     $.ajax({
       url: "/diabetes/day",
       type: "GET",
-      data: { stamp: +date / 1000,
+      data: { stamp: (+date + (date.getTimezoneOffset() * 60)) / 1000,
               limit: limit },
       success: function(data) {
         //this.isLoading = false;
