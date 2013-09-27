@@ -78,7 +78,7 @@ saturday sunday]
     interval = (params[:interval] || 10).to_i
     plus_weeks = (params[:plus_weeks] || 0).to_i
     context = (params[:context] || 0).to_i == 1 ? true : false
-    time = Time.at(stamp)
+    time = Time.at(stamp).utc
 
     # Calculate monday from given date
     wday = time.wday
