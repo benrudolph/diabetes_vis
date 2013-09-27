@@ -33,7 +33,9 @@ namespace :deploy do
   task :restart, :roles => :app, :except => { :no_release => true } do
    run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
   end
-  task :simlink_database do
-    run "ln -s ~/diabetes.yml /var/www/#{application}/current/config/database.yml"
-  end
 end
+task :simlink_database, :roles => :app do
+  run "ln -s ~/diabetes.yml /var/www/diabetes_vis/current/config/database.yml"
+end
+
+after "deploy", :simlink_database
