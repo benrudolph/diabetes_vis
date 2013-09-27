@@ -162,7 +162,7 @@ saturday sunday]
   def day
     stamp = params[:stamp].to_i
     time = Time.at(stamp)
-    day_data = GlucoseSensorData.by_day(time.to_date, :field => :timestamp)
+    day_data = GlucoseSensorData.by_day(time.utc.to_date, :field => :timestamp)
 
     #@day_data.map do |datum|
     #  datum[:glucose_scaled] = (Math.log(datum[:glucose]) - Math.log(120)) ** 2
