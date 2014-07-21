@@ -15,7 +15,7 @@ set :branch, "master"
 set :rails_env,     "production"
 
 
-set :user, :root
+set :user, :deploy
 set :deploy_to, "/var/www/#{application}"
 set :use_sudo, false
 set :ssh_options, { :forward_agent => true }
