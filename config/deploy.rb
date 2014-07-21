@@ -12,7 +12,6 @@ set :repository,  "git@github.com:benrudolph/diabetes_vis.git"
 require '/Users/benrudolph/Dropbox/credientials/capcreds.rb'
 set :deploy_via, :copy
 set :branch, "master"
-set :deploy_via, :remote_cache
 set :rails_env,     "production"
 
 
